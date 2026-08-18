@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Prescription Debug (Customer)</title>
+</head>
+<body>
+<h1>MedMart Prescription Debug (Customer)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="customer@medmartdemo.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Upload Prescription</h2>
+<input id="fileInput" type="file" accept=".jpg,.jpeg,.png,.pdf">
+<button id="uploadBtn">Upload</button>
+<div id="uploadStatus"></div>
+</section>
+
+<section>
+<h2>3. My Prescriptions</h2>
+<button id="loadBtn">Refresh</button>
+<div id="list"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/customer/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.customer.name;
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('uploadBtn').addEventListener('click', function () {
+    var fileInput = document.getElementById('fileInput');
+
+    if (!fileInput.files.length) {
+        document.getElementById('uploadStatus').textContent = 'Choose a file first.';
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    fetch(API + '/customer/prescriptions', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+        body: formData,
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                document.getElementById('uploadStatus').textContent = 'Uploaded. Status: ' + result.data.status;
+                log('Upload success: ' + JSON.stringify(result.data));
+            } else {
+                document.getElementById('uploadStatus').textContent = 'Upload failed';
+                log('Upload failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/customer/prescriptions', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            var container = document.getElementById('list');
+            container.innerHTML = data.data.map(function (p) {
+                return '#' + p.id + ' - ' + p.original_filename + ' - ' + p.status
+                    + (p.rejection_reason ? ' (' + p.rejection_reason + ')' : '');
+            }).join('<br>');
+        });
+});
+</script>
+</body>
+</html>

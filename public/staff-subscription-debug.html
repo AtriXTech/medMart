@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Subscription Debug (Staff)</title>
+</head>
+<body>
+<h1>MedMart Subscription Debug (Staff)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="owner-a@medmart.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Current Subscription</h2>
+<button id="loadCurrentBtn">Load Current</button>
+<div id="current"></div>
+</section>
+
+<section>
+<h2>3. Available Plans</h2>
+<button id="loadPlansBtn">Load Plans</button>
+<div id="plans"></div>
+</section>
+
+<section>
+<h2>4. Test the Gate</h2>
+<button id="testGateBtn">Try Loading Dashboard</button>
+<div id="gateResult"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_staff_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_staff_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.user.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('loadCurrentBtn').addEventListener('click', function () {
+    fetch(API + '/staff/subscription', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            document.getElementById('current').textContent = data ? JSON.stringify(data) : 'No active subscription.';
+        });
+});
+
+document.getElementById('loadPlansBtn').addEventListener('click', function () {
+    fetch(API + '/staff/subscription-plans', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            var container = document.getElementById('plans');
+            container.innerHTML = '';
+
+            data.data.forEach(function (plan) {
+                var row = document.createElement('div');
+                row.innerHTML = plan.name + ' - N' + plan.price + '/' + plan.billing_interval + ' ';
+
+                var btn = document.createElement('button');
+                btn.textContent = 'Subscribe';
+                btn.addEventListener('click', function () {
+                    fetch(API + '/staff/subscription', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': 'Bearer ' + token,
+                        },
+                        body: JSON.stringify({ subscription_plan_id: plan.id }),
+                    })
+                        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                        .then(function (result) {
+                            if (!result.ok) {
+                                log('Subscribe failed: ' + JSON.stringify(result.data));
+                                return;
+                            }
+
+                            log('Redirecting to Paystack...');
+                            window.location.href = result.data.authorization_url;
+                        });
+                });
+                row.appendChild(btn);
+
+                container.appendChild(row);
+            });
+        });
+});
+
+document.getElementById('testGateBtn').addEventListener('click', function () {
+    fetch(API + '/staff/dashboard', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+        .then(function (result) {
+            document.getElementById('gateResult').textContent =
+                'HTTP ' + result.status + ': ' + JSON.stringify(result.data);
+        });
+});
+</script>
+</body>
+</html>

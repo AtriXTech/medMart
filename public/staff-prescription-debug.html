@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Prescription Debug (Staff)</title>
+</head>
+<body>
+<h1>MedMart Prescription Debug (Staff)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="owner-a@medmart.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Pending Prescriptions</h2>
+<button id="loadBtn">Load Pending</button>
+<div id="list"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_staff_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_staff_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.user.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+function renderList(prescriptions) {
+    var container = document.getElementById('list');
+    container.innerHTML = '';
+
+    prescriptions.forEach(function (p) {
+        var row = document.createElement('div');
+        row.style.marginBottom = '8px';
+        row.innerHTML = '#' + p.id + ' - ' + p.customer.name + ' - ' + p.original_filename + ' - ' + p.status + ' ';
+
+        var viewBtn = document.createElement('button');
+        viewBtn.textContent = 'View file';
+        viewBtn.addEventListener('click', function () {
+            fetch(p.file_url, {
+                headers: { 'Authorization': 'Bearer ' + token },
+            })
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error('Request failed with status ' + res.status);
+                    }
+                    return res.blob();
+                })
+                .then(function (blob) {
+                    window.open(URL.createObjectURL(blob), '_blank');
+                })
+                .catch(function (err) {
+                    log('View file failed: ' + err.message);
+                });
+        });
+        row.appendChild(viewBtn);
+
+        if (p.status === 'pending') {
+            var approveBtn = document.createElement('button');
+            approveBtn.textContent = 'Approve';
+            approveBtn.addEventListener('click', function () { review(p.id, 'approved', null); });
+            row.appendChild(approveBtn);
+
+            var rejectBtn = document.createElement('button');
+            rejectBtn.textContent = 'Reject';
+            rejectBtn.addEventListener('click', function () {
+                var reason = prompt('Rejection reason:') || 'Not specified';
+                review(p.id, 'rejected', reason);
+            });
+            row.appendChild(rejectBtn);
+        }
+
+        container.appendChild(row);
+    });
+}
+
+function review(id, status, reason) {
+    var body = { status: status };
+
+    if (reason) {
+        body.rejection_reason = reason;
+    }
+
+    fetch(API + '/staff/prescriptions/' + id + '/review', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify(body),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            log(result.ok ? 'Reviewed #' + id : 'Review failed: ' + JSON.stringify(result.data));
+            document.getElementById('loadBtn').click();
+        });
+}
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/staff/prescriptions?status=pending', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) { renderList(data.data); });
+});
+</script>
+</body>
+</html>

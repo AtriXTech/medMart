@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Customer Debug (Staff)</title>
+</head>
+<body>
+<h1>MedMart Customer Debug (Staff)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="owner-a@medmart.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Customers</h2>
+<button id="loadBtn">Load Customers</button>
+<div id="list"></div>
+</section>
+
+<section>
+<h2>3. Customer Orders</h2>
+<div id="orders"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_staff_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_staff_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.user.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+function renderCustomers(links) {
+    var container = document.getElementById('list');
+    container.innerHTML = '';
+
+    links.forEach(function (link) {
+        var row = document.createElement('div');
+        row.style.marginBottom = '8px';
+        row.innerHTML = '#' + link.id + ' - ' + link.customer.name + ' (' + link.customer.username + ') - '
+            + (link.customer.email_verified ? 'verified' : 'unverified') + ' - '
+            + (link.is_suspended ? 'SUSPENDED' : 'active') + ' ';
+
+        var viewOrdersBtn = document.createElement('button');
+        viewOrdersBtn.textContent = 'View Orders';
+        viewOrdersBtn.addEventListener('click', function () { loadOrders(link.id); });
+        row.appendChild(viewOrdersBtn);
+
+        var toggleBtn = document.createElement('button');
+        toggleBtn.textContent = link.is_suspended ? 'Unsuspend' : 'Suspend';
+        toggleBtn.addEventListener('click', function () {
+            var action = link.is_suspended ? 'unsuspend' : 'suspend';
+
+            fetch(API + '/staff/customers/' + link.id + '/' + action, {
+                method: 'PATCH',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+            })
+                .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                .then(function (result) {
+                    log(result.ok ? 'Customer link #' + link.id + ' -> ' + action : 'Failed: ' + JSON.stringify(result.data));
+                    document.getElementById('loadBtn').click();
+                });
+        });
+        row.appendChild(toggleBtn);
+
+        container.appendChild(row);
+    });
+}
+
+function loadOrders(linkId) {
+    fetch(API + '/staff/customers/' + linkId + '/orders', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            document.getElementById('orders').innerHTML = data.data.map(function (order) {
+                return '#' + order.id + ' - ' + order.status + ' - N' + order.total;
+            }).join('<br>') || 'No orders yet.';
+        });
+}
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/staff/customers', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) { renderCustomers(data.data); });
+});
+</script>
+</body>
+</html>

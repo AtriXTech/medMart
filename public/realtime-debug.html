@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Realtime Debug</title>
+</head>
+<body>
+<h1>MedMart Realtime Debug</h1>
+
+<label>Customer or Staff Bearer Token</label><br>
+<input id="token" type="text" size="70"><br><br>
+
+<label>Pharmacy ID</label><br>
+<input id="pharmacyId" type="number" value="1"><br><br>
+
+<button id="connectBtn">Connect</button>
+
+<pre id="log"></pre>
+
+<script src="https://cdn.jsdelivr.net/npm/pusher-js@8.4.0/dist/web/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+<script>
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('connectBtn').addEventListener('click', function () {
+    var token = document.getElementById('token').value.trim();
+    var pharmacyId = document.getElementById('pharmacyId').value.trim();
+
+    var echo = new Echo({
+        broadcaster: 'reverb',
+        key: 'dbnlskldp3g4lgihpqcj',
+        wsHost: 'localhost',
+        wsPort: 8080,
+        forceTLS: false,
+        enabledTransports: ['ws'],
+        authorizer: function (channel) {
+            return {
+                authorize: function (socketId, callback) {
+                    fetch('/broadcasting/auth', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': 'Bearer ' + token,
+                        },
+                        body: JSON.stringify({
+                            socket_id: socketId,
+                            channel_name: channel.name,
+                        }),
+                    })
+                        .then(function (response) { return response.json(); })
+                        .then(function (data) { callback(false, data); })
+                        .catch(function (error) { callback(true, error); });
+                },
+            };
+        },
+    });
+
+    log('Connecting to pharmacy.' + pharmacyId + ' ...');
+
+    echo.private('pharmacy.' + pharmacyId)
+        .listen('.stock.updated', function (event) { log('stock.updated: ' + JSON.stringify(event)); })
+        .listen('.price.updated', function (event) { log('price.updated: ' + JSON.stringify(event)); })
+        .listen('.availability.updated', function (event) { log('availability.updated: ' + JSON.stringify(event)); });
+
+    log('Subscribed. Waiting for events...');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Checkout Debug</title>
+</head>
+<body>
+<h1>MedMart Checkout Debug</h1>
+
+<section id="login-section">
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="customer@medmartdemo.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section id="products-section">
+<h2>2. Products</h2>
+<button id="loadProductsBtn">Load Products</button>
+<div id="productsList"></div>
+</section>
+
+<section id="cart-section">
+<h2>3. Cart</h2>
+<button id="loadCartBtn">Refresh Cart</button>
+<div id="cartList"></div>
+<div id="cartTotal"></div>
+</section>
+
+<section id="checkout-section">
+<h2>4. Checkout</h2>
+<label><input type="radio" name="fulfillment" value="pickup" checked> Pickup</label>
+<label><input type="radio" name="fulfillment" value="delivery"> Delivery</label>
+<input id="deliveryAddress" type="text" placeholder="Delivery address" style="display:none;"><br>
+<button id="checkoutBtn">Checkout</button>
+<div id="orderInfo"></div>
+<button id="payBtn" style="display:none;">Pay with Paystack</button>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_token') || '';
+var currentOrderId = null;
+
+if (token) {
+    document.getElementById('loginStatus').textContent = 'Existing token loaded from storage.';
+}
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + token,
+    };
+}
+
+document.querySelectorAll('input[name="fulfillment"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        var isDelivery = document.querySelector('input[name="fulfillment"]:checked').value === 'delivery';
+        document.getElementById('deliveryAddress').style.display = isDelivery ? 'inline-block' : 'none';
+    });
+});
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/customer/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.customer.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('loadProductsBtn').addEventListener('click', function () {
+    fetch(API + '/customer/products', { headers: authHeaders() })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (!result.ok) {
+                log('Load products failed: ' + JSON.stringify(result.data));
+                return;
+            }
+
+            var container = document.getElementById('productsList');
+            container.innerHTML = '';
+
+            result.data.data.forEach(function (product) {
+                var row = document.createElement('div');
+                row.innerHTML = product.name + ' - N' + product.price + ' - '
+                    + (product.in_stock ? 'In stock' : 'Out of stock')
+                    + ' <input type="number" min="1" value="1" id="qty-' + product.id + '" style="width:50px">'
+                    + ' <button data-id="' + product.id + '">Add to cart</button>';
+
+                row.querySelector('button').addEventListener('click', function () {
+                    var qty = parseInt(document.getElementById('qty-' + product.id).value, 10);
+
+                    fetch(API + '/customer/cart/items', {
+                        method: 'POST',
+                        headers: authHeaders(),
+                        body: JSON.stringify({ product_id: product.id, quantity: qty }),
+                    })
+                        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                        .then(function (result) {
+                            log(result.ok ? 'Added to cart' : 'Add to cart failed: ' + JSON.stringify(result.data));
+                        });
+                });
+
+                container.appendChild(row);
+            });
+        });
+});
+
+document.getElementById('loadCartBtn').addEventListener('click', function () {
+    fetch(API + '/customer/cart', { headers: authHeaders() })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (!result.ok) {
+                log('Load cart failed: ' + JSON.stringify(result.data));
+                return;
+            }
+
+            var container = document.getElementById('cartList');
+            container.innerHTML = result.data.items.map(function (item) {
+                return item.product.name + ' x ' + item.quantity + ' = N' + item.line_total;
+            }).join('<br>');
+
+            document.getElementById('cartTotal').textContent = 'Total: N' + result.data.total;
+        });
+});
+
+document.getElementById('checkoutBtn').addEventListener('click', function () {
+    var fulfillmentType = document.querySelector('input[name="fulfillment"]:checked').value;
+    var deliveryAddress = document.getElementById('deliveryAddress').value;
+
+    fetch(API + '/customer/checkout', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+            fulfillment_type: fulfillmentType,
+            delivery_address: fulfillmentType === 'delivery' ? deliveryAddress : null,
+        }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (!result.ok) {
+                document.getElementById('orderInfo').textContent = 'Checkout failed';
+                log('Checkout failed: ' + JSON.stringify(result.data));
+                return;
+            }
+
+            currentOrderId = result.data.id;
+            document.getElementById('orderInfo').textContent =
+                'Order #' + result.data.id + ' created. Status: ' + result.data.status
+                + '. Fulfillment: ' + result.data.fulfillment_type
+                + '. Total: N' + result.data.total;
+            document.getElementById('payBtn').style.display = 'inline-block';
+            log('Order created: #' + result.data.id);
+        });
+});
+
+document.getElementById('payBtn').addEventListener('click', function () {
+    fetch(API + '/customer/orders/' + currentOrderId + '/pay', {
+        method: 'POST',
+        headers: authHeaders(),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (!result.ok) {
+                log('Payment initiation failed: ' + JSON.stringify(result.data));
+                return;
+            }
+
+            localStorage.setItem('medmart_order_id', currentOrderId);
+            log('Redirecting to Paystack...');
+            window.location.href = result.data.authorization_url;
+        });
+});
+</script>
+</body>
+</html>

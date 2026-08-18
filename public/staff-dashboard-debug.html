@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Dashboard Debug (Staff)</title>
+</head>
+<body>
+<h1>MedMart Dashboard Debug (Staff)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="owner-a@medmart.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Dashboard</h2>
+<button id="loadBtn">Load Dashboard</button>
+<div id="summary"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_staff_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_staff_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.user.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/staff/dashboard', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (!result.ok) {
+                log('Load dashboard failed: ' + JSON.stringify(result.data));
+                return;
+            }
+
+            var d = result.data;
+            var html = '<p><strong>Total Orders:</strong> ' + d.orders.total + '</p>';
+            html += '<ul>';
+            Object.keys(d.orders.by_status).forEach(function (status) {
+                html += '<li>' + status + ': ' + d.orders.by_status[status] + '</li>';
+            });
+            html += '</ul>';
+            html += '<p><strong>Low Stock Products:</strong> ' + d.low_stock_products_count + '</p>';
+            html += '<p><strong>Pending Prescriptions:</strong> ' + d.pending_prescriptions_count + '</p>';
+            html += '<p><strong>POS Sales Today:</strong> ' + d.pos_sales_today.count + ' orders, N' + d.pos_sales_today.total + '</p>';
+            html += '<p><strong>Customer Orders Today:</strong> ' + d.customer_orders_today.count + ' orders, N' + d.customer_orders_today.total + '</p>';
+
+            document.getElementById('summary').innerHTML = html;
+            log('Dashboard loaded');
+        });
+});
+</script>
+</body>
+</html>

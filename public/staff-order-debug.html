@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Order Debug (Staff)</title>
+</head>
+<body>
+<h1>MedMart Order Debug (Staff)</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="owner-a@medmart.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Orders</h2>
+<button id="loadBtn">Load Orders</button>
+<div id="list"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_staff_token') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/staff/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                localStorage.setItem('medmart_staff_token', token);
+                document.getElementById('loginStatus').textContent = 'Logged in as ' + result.data.user.name;
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+var NEXT_STATUS = {
+    received: ['processing', 'cancelled'],
+    processing: ['ready_for_pickup', 'cancelled'],
+    ready_for_pickup: ['completed', 'cancelled'],
+};
+
+function renderOrders(orders) {
+    var container = document.getElementById('list');
+    container.innerHTML = '';
+
+    orders.forEach(function (order) {
+        var row = document.createElement('div');
+        row.style.marginBottom = '10px';
+
+        var html = '#' + order.id + ' - ' + (order.customer ? order.customer.name : '') + ' - '
+            + order.status + ' - N' + order.total + ' - ' + order.fulfillment_type;
+
+        if (order.fulfillment_type === 'delivery') {
+            html += ' (delivery: ' + (order.delivery_status || 'n/a') + ')';
+        }
+
+        row.innerHTML = html + '<br>';
+
+        var nextOptions = NEXT_STATUS[order.status] || [];
+
+        nextOptions.forEach(function (next) {
+            var btn = document.createElement('button');
+            btn.textContent = 'Set: ' + next;
+            btn.addEventListener('click', function () {
+                fetch(API + '/staff/orders/' + order.id + '/status', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + token,
+                    },
+                    body: JSON.stringify({ status: next }),
+                })
+                    .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                    .then(function (result) {
+                        log(result.ok ? 'Order #' + order.id + ' -> ' + next : 'Failed: ' + JSON.stringify(result.data));
+                        document.getElementById('loadBtn').click();
+                    });
+            });
+            row.appendChild(btn);
+        });
+
+        if (order.fulfillment_type === 'delivery' && order.status !== 'completed' && order.status !== 'cancelled') {
+            ['pending', 'dispatched', 'delivered'].forEach(function (deliveryStatus) {
+                var btn = document.createElement('button');
+                btn.textContent = 'Delivery: ' + deliveryStatus;
+                btn.addEventListener('click', function () {
+                    fetch(API + '/staff/orders/' + order.id + '/delivery-status', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': 'Bearer ' + token,
+                        },
+                        body: JSON.stringify({ delivery_status: deliveryStatus }),
+                    })
+                        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+                        .then(function (result) {
+                            log(result.ok ? 'Order #' + order.id + ' delivery -> ' + deliveryStatus : 'Failed: ' + JSON.stringify(result.data));
+                            document.getElementById('loadBtn').click();
+                        });
+                });
+                row.appendChild(btn);
+            });
+        }
+
+        container.appendChild(row);
+    });
+}
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/staff/orders', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) { renderOrders(data.data); });
+});
+</script>
+</body>
+</html>

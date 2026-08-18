@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Notification Debug</title>
+</head>
+<body>
+<h1>MedMart Notification Debug</h1>
+
+<section>
+<h2>1. Login</h2>
+<input id="email" type="text" placeholder="email" value="customer@medmartdemo.com"><br>
+<input id="password" type="password" placeholder="password" value="password"><br>
+<button id="loginBtn">Login</button>
+<div id="loginStatus"></div>
+</section>
+
+<section>
+<h2>2. Live Feed (WebSocket)</h2>
+<button id="connectBtn">Connect</button>
+<div id="liveFeed"></div>
+</section>
+
+<section>
+<h2>3. Stored Notifications</h2>
+<button id="loadBtn">Load Notifications</button>
+<div id="list"></div>
+</section>
+
+<pre id="log"></pre>
+
+<script src="https://cdn.jsdelivr.net/npm/pusher-js@8.4.0/dist/web/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_token') || '';
+var customerId = localStorage.getItem('medmart_customer_id') || '';
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+document.getElementById('loginBtn').addEventListener('click', function () {
+    var email = document.getElementById('email').value;
+    var password = document.getElementById('password').value;
+
+    fetch(API + '/customer/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, password: password, device_name: 'debug' }),
+    })
+        .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+        .then(function (result) {
+            if (result.ok) {
+                token = result.data.token;
+                customerId = result.data.customer.id;
+                localStorage.setItem('medmart_token', token);
+                localStorage.setItem('medmart_customer_id', customerId);
+                document.getElementById('loginStatus').textContent =
+                    'Logged in as ' + result.data.customer.name + ' (id ' + customerId + ')';
+                log('Login success');
+            } else {
+                document.getElementById('loginStatus').textContent = 'Login failed';
+                log('Login failed: ' + JSON.stringify(result.data));
+            }
+        });
+});
+
+document.getElementById('connectBtn').addEventListener('click', function () {
+    var echo = new Echo({
+        broadcaster: 'reverb',
+        key: 'dbnlskldp3g4lgihpqcj',
+        wsHost: '127.0.0.1',
+        wsPort: 8080,
+        forceTLS: false,
+        enabledTransports: ['ws'],
+        authEndpoint: '/broadcasting/auth',
+        auth: {
+            headers: {
+                Authorization: 'Bearer ' + token,
+                Accept: 'application/json',
+            },
+        },
+    });
+
+    echo.private('customer.' + customerId)
+        .listen('.order.status-updated', function (event) {
+            document.getElementById('liveFeed').innerHTML += 'ORDER: ' + event.message + '<br>';
+        })
+        .listen('.prescription.reviewed', function (event) {
+            document.getElementById('liveFeed').innerHTML += 'PRESCRIPTION: ' + event.message + '<br>';
+        });
+
+    log('Connected to customer.' + customerId);
+});
+
+function renderNotifications(notifications) {
+    var container = document.getElementById('list');
+    container.innerHTML = '';
+
+    notifications.forEach(function (n) {
+        var row = document.createElement('div');
+        row.style.marginBottom = '6px';
+        row.innerHTML = '[' + (n.read_at ? 'read' : 'UNREAD') + '] ' + n.data.message + ' ';
+
+        if (!n.read_at) {
+            var btn = document.createElement('button');
+            btn.textContent = 'Mark read';
+            btn.addEventListener('click', function () {
+                fetch(API + '/customer/notifications/' + n.id + '/read', {
+                    method: 'PATCH',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + token,
+                    },
+                })
+                    .then(function () {
+                        log('Marked ' + n.id + ' as read');
+                        document.getElementById('loadBtn').click();
+                    });
+            });
+            row.appendChild(btn);
+        }
+
+        container.appendChild(row);
+    });
+}
+
+document.getElementById('loadBtn').addEventListener('click', function () {
+    fetch(API + '/customer/notifications', {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) { renderNotifications(data.data); });
+});
+</script>
+</body>
+</html>

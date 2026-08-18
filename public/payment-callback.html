@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MedMart Payment Callback</title>
+</head>
+<body>
+<h1>Payment Callback</h1>
+<div id="status">Checking order status...</div>
+<pre id="log"></pre>
+
+<script>
+var API = window.location.origin + '/api/v1';
+var token = localStorage.getItem('medmart_token');
+var orderId = localStorage.getItem('medmart_order_id');
+
+function log(message) {
+    document.getElementById('log').textContent += message + "\n";
+}
+
+function checkStatus() {
+    fetch(API + '/customer/orders/' + orderId, {
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        },
+    })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            document.getElementById('status').textContent = 'Order #' + orderId + ' status: ' + data.status;
+            log(JSON.stringify(data));
+
+            if (data.status === 'pending_payment') {
+                setTimeout(checkStatus, 2000);
+            }
+        });
+}
+
+checkStatus();
+</script>
+</body>
+</html>
