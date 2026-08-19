@@ -91,7 +91,7 @@
      <div class="fixed top-0 left-0 right-0 z-40 h-[90px] md:h-[120px] backdrop-blur-xl bg-white/10 border-b border-white/20 pointer-events-none"></div>
      
      <nav class="fixed left-0 right-0 z-50 flex flex-wrap justify-between mx-4 md:mx-10 items-center bg-white px-4 py-2 rounded-2xl gap-4">
-    <img src="./image/logo.png" alt="logo" class="h-[70px] w-[100px] md:h-[100px] md:w-[140px]">
+    <img src="{{asset('images/logo.png')}}" alt="logo" class="h-[70px] w-[100px] md:h-[100px] md:w-[140px]">
 
     <!-- Desktop nav links -->
     <div class="hidden md:flex gap-6 lg:gap-10 ">
@@ -181,7 +181,7 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
 
   <!-- Image column -->
   <div class="w-full md:w-1/2 flex-shrink-0 flex justify-center md:justify-end mt-8 md:mt-0">
-    <img src="./image/newHeroImg.png" class="w-full max-w-[500px] h-auto rounded-2xl " alt="Hero">
+    <img src="{{ asset('images/newHeroImg.png') }}" class="w-full max-w-[500px] h-auto rounded-2xl " alt="Hero">
   </div>
 </div>
    </section>
@@ -675,7 +675,7 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
  
         <!-- Logo + tagline -->
         <div class="md:max-w-xs">
-            <img src="./image/logo.png" alt="logo" class="h-[70px] w-[100px] md:h-[80px] md:w-[110px] -ml-2">
+            <img src="{{ asset('images/logo.png') }}" alt="logo" class="h-[70px] w-[100px] md:h-[80px] md:w-[110px] -ml-2">
             <p class="font-inter text-white/60 text-sm mt-2">
                 The digital platform for modern pharmacies.
             </p>
