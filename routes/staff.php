@@ -35,7 +35,7 @@ Route::prefix('staff')->group(function () {
     // Route::view('expiring-batches', 'minimal.staff.expiring-batches');
 });
 
-Route::view('register', 'minimal.pharmacy.register');
+Route::view('register', 'elegant.pharmacy.register');
 Route::get('/payment-callback', function () {
     return view('payment.callback');
 });
