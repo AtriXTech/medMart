@@ -1,7 +1,7 @@
 <x-layouts.staff title="Dashboard" active="dashboard">
     <div class="alert alert-error" id="dashboard-error" style="display: none;"></div>
 
-    <div id="dashboard-loading" class="loading-state">Loading dashboard...</div>
+    <div id="dashboard-loading" class="loading-state">Loading dashboard... </div>
 
     <div id="dashboard-content" style="display: none;">
         <div class="stat-grid" id="stat-grid"></div>

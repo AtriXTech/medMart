@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('staff')->group(function () {
 
     Route::view('login', 'elegant.staff.login');
-    Route::view('forgot-password', 'minimal.staff.forgot-password');
+    Route::view('forgot-password', 'elegant.staff.forgot-password');
     // Route::view('reset-password', 'minimal.staff.reset-password');
     // Route::view('dashboard', 'minimal.staff.dashboard');
     // Route::view('onboarding', 'minimal.pharmacy.onboarding');
