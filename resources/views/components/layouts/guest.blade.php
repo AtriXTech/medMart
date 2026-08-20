@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{-- <title>{{ $title }} · MedMart Staff</title> --}}
-    <link rel="stylesheet" href="{{ asset('assets/minimal/css/app.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/minimal/css/app.css') }}"> --}}
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
