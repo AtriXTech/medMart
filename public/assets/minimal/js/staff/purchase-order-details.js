@@ -1,3 +1,22 @@
+/*
+  CHANGE SUMMARY (vs. previous version):
+  - UNCHANGED: loadPODetails() (GET /staff/purchase-orders/:id, same
+    loading/content/error toggle logic), receiveBtn/cancelBtn visibility
+    rules (style.display = 'inline-flex' / 'none', same status conditions:
+    receive shows for ordered/partially_received, cancel shows for ordered
+    only), cancelBtn's confirm() + POST .../cancel, the entire receive
+    modal open/close logic, receiveForm's submit handler (same validation
+    requiring batch number + expiry date per item, same POST .../receive
+    payload shape, same 422 error handling).
+  - UNCHANGED: the dynamic ID pattern for per-item receive inputs
+    (receive-quantity-${id}, receive-batch-${id}, receive-expiry-${id}) —
+    the submit handler still looks these up by the same IDs, so
+    renderReceiveForm() still generates them exactly the same way.
+  - CHANGED (presentation only): renderPOInfo(), renderPOItems(), and
+    renderReceiveForm() now emit Tailwind markup instead of inline
+    style="..." strings and raw <strong> labels.
+*/
+
 const poError = document.getElementById('po-error');
 const poLoading = document.getElementById('po-loading');
 const poContent = document.getElementById('po-content');
@@ -26,52 +45,52 @@ function formatDate(dateString) {
   return date.toLocaleString();
 }
 
+function humanizeStatus(status) {
+  return String(status || '')
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+const STATUS_STYLE = {
+  ordered:            { bg: '#FFF8EC', text: '#8A6116' },
+  partially_received: { bg: '#FFF8EC', text: '#8A6116' },
+  received:           { bg: '#E9F8EF', text: '#1F7A44' },
+  cancelled:          { bg: '#FDEDEC', text: '#9C3A32' },
+};
 function badgeForStatus(status) {
-  const map = {
-    ordered: 'badge-warning',
-    partially_received: 'badge-warning',
-    received: 'badge-success',
-    cancelled: 'badge-danger',
-  };
-  const cls = map[status] || 'badge-muted';
-  return `<span class="badge ${cls}">${status}</span>`;
+  const s = STATUS_STYLE[status] || { bg: '#F1F3F6', text: '#4B5563' };
+  return `<span class="inline-block font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full" style="background:${s.bg};color:${s.text}">${humanizeStatus(status)}</span>`;
+}
+
+function infoField(label, valueHtml) {
+  return `<div>
+    <p class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 mb-1">${label}</p>
+    <p class="font-inter text-[14px] text-[#171E26]">${valueHtml}</p>
+  </div>`;
 }
 
 function renderPOInfo(po) {
-  poInfo.innerHTML = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-      <div>
-        <strong>PO ID:</strong> ${po.id}
-      </div>
-      <div>
-        <strong>Status:</strong> ${badgeForStatus(po.status)}
-      </div>
-      <div>
-        <strong>Supplier:</strong> ${po.supplier ? po.supplier.name : 'N/A'}
-      </div>
-      <div>
-        <strong>Expected Date:</strong> ${formatDate(po.expected_date)}
-      </div>
-      <div>
-        <strong>Placed By:</strong> ${po.placed_by || 'N/A'}
-      </div>
-      <div>
-        <strong>Created:</strong> ${formatDate(po.created_at)}
-      </div>
-      ${po.notes ? `
-        <div>
-          <strong>Notes:</strong> ${po.notes}
-        </div>
-      ` : ''}
-    </div>
-  `;
-  
+  let fields =
+    infoField('PO ID', `#${po.id}`) +
+    infoField('Status', badgeForStatus(po.status)) +
+    infoField('Supplier', po.supplier ? po.supplier.name : 'N/A') +
+    infoField('Expected Date', formatDate(po.expected_date)) +
+    infoField('Placed By', po.placed_by || 'N/A') +
+    infoField('Created', formatDate(po.created_at));
+
+  if (po.notes) {
+    fields += infoField('Notes', po.notes);
+  }
+
+  poInfo.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-5">${fields}</div>`;
+
   if (po.status === 'ordered' || po.status === 'partially_received') {
     receiveBtn.style.display = 'inline-flex';
   } else {
     receiveBtn.style.display = 'none';
   }
-  
+
   if (po.status === 'ordered') {
     cancelBtn.style.display = 'inline-flex';
   } else {
@@ -80,70 +99,61 @@ function renderPOInfo(po) {
 }
 
 function renderPOItems(items) {
-  poItemsTable.innerHTML = '';
-  
   if (!items || items.length === 0) {
-    poItemsTable.innerHTML = '<tr><td colspan="5" class="empty-state">No items</td></tr>';
+    poItemsTable.innerHTML = `<tr><td colspan="5" class="text-center py-14">
+      <p class="font-inter text-[13px] text-[#171E26]/45">No items</p>
+    </td></tr>`;
     return;
   }
-  
-  items.forEach(function(item) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${item.product ? item.product.name : 'N/A'}</td>
-      <td>${item.quantity_ordered || 0}</td>
-      <td>${item.quantity_received || 0}</td>
-      <td>${formatCurrency(item.cost_price)}</td>
-      <td>${formatCurrency((item.quantity_ordered || 0) * (item.cost_price || 0))}</td>
-    `;
-    poItemsTable.appendChild(tr);
-  });
+
+  poItemsTable.innerHTML = items.map(function (item) {
+    return `<tr class="table-row border-b border-[#F3F7FC] last:border-0">
+      <td class="py-3 pr-4 font-inter text-[13px] font-semibold text-[#171E26]">${item.product ? item.product.name : 'N/A'}</td>
+      <td class="py-3 pr-4 font-inter text-[13px] text-[#171E26]/70">${item.quantity_ordered || 0}</td>
+      <td class="py-3 pr-4 font-inter text-[13px] text-[#171E26]/70">${item.quantity_received || 0}</td>
+      <td class="py-3 pr-4 font-inter text-[13px] text-[#171E26]/70">${formatCurrency(item.cost_price)}</td>
+      <td class="py-3 font-inter text-[13px] font-semibold text-[#171E26]">${formatCurrency((item.quantity_ordered || 0) * (item.cost_price || 0))}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderReceiveForm(items) {
-  receiveItems.innerHTML = '';
-  
   let hasPendingItems = false;
-  
-  items.forEach(function(item) {
+  let html = '';
+
+  items.forEach(function (item) {
     const remaining = (item.quantity_ordered || 0) - (item.quantity_received || 0);
-    
+
     if (remaining <= 0) return;
-    
+
     hasPendingItems = true;
-    
-    const div = document.createElement('div');
-    div.style.cssText = 'padding: 10px; border-bottom: 1px solid var(--border);';
-    div.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-        <div style="flex: 1; min-width: 150px;">
-          <strong>${item.product ? item.product.name : 'Product'}</strong>
-          <div style="color: var(--text-muted); font-size: 12px;">Remaining: ${remaining}</div>
+
+    html += `<div class="py-3.5 border-b border-[#F3F7FC] last:border-0">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-[140px] flex-1">
+          <p class="font-inter text-[13px] font-semibold text-[#171E26]">${item.product ? item.product.name : 'Product'}</p>
+          <p class="font-inter text-[11px] text-[#171E26]/45">Remaining: ${remaining}</p>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <input type="number" 
-                 id="receive-quantity-${item.id}" 
-                 value="${remaining}" 
-                 min="1" 
-                 max="${remaining}"
-                 style="width: 80px; padding: 6px; border: 1px solid var(--border); border-radius: 4px;">
-          <input type="text" 
-                 id="receive-batch-${item.id}" 
-                 placeholder="Batch #"
-                 style="width: 120px; padding: 6px; border: 1px solid var(--border); border-radius: 4px;">
-          <input type="date" 
-                 id="receive-expiry-${item.id}"
-                 style="width: 150px; padding: 6px; border: 1px solid var(--border); border-radius: 4px;">
+        <div class="flex items-center gap-2 flex-wrap">
+          <input type="number" id="receive-quantity-${item.id}" value="${remaining}" min="1" max="${remaining}"
+            class="w-[76px] field-input">
+          <input type="text" id="receive-batch-${item.id}" placeholder="Batch #"
+            class="w-[120px] field-input">
+          <input type="date" id="receive-expiry-${item.id}"
+            class="w-[150px] field-input">
         </div>
       </div>
-    `;
-    receiveItems.appendChild(div);
+    </div>`;
   });
-  
+
   if (!hasPendingItems) {
-    receiveItems.innerHTML = '<div class="empty-state">All items have been received</div>';
+    receiveItems.innerHTML = `<div class="text-center py-8">
+      <i class="ph-light ph-check-circle text-2xl text-[#1F7A44]/60 mb-1.5"></i>
+      <p class="font-inter text-[13px] text-[#171E26]/40">All items have been received</p>
+    </div>`;
     receiveSubmitBtn.disabled = true;
   } else {
+    receiveItems.innerHTML = html;
     receiveSubmitBtn.disabled = false;
   }
 }
@@ -154,18 +164,18 @@ async function loadPODetails() {
     window.location.href = '/staff/purchase-orders';
     return;
   }
-  
+
   poLoading.style.display = 'block';
   poContent.style.display = 'none';
   poError.style.display = 'none';
-  
+
   try {
     const po = await Api.get(`/staff/purchase-orders/${poId}`);
-    
+
     renderPOInfo(po);
     renderPOItems(po.items || []);
     renderReceiveForm(po.items || []);
-    
+
     poLoading.style.display = 'none';
     poContent.style.display = 'block';
   } catch (error) {
@@ -175,14 +185,14 @@ async function loadPODetails() {
   }
 }
 
-receiveBtn.addEventListener('click', function() {
+receiveBtn.addEventListener('click', function () {
   receiveError.style.display = 'none';
   receiveModal.style.display = 'flex';
 });
 
-cancelBtn.addEventListener('click', async function() {
+cancelBtn.addEventListener('click', async function () {
   if (!confirm('Are you sure you want to cancel this purchase order?')) return;
-  
+
   try {
     await Api.post(`/staff/purchase-orders/${poId}/cancel`);
     loadPODetails();
@@ -191,33 +201,33 @@ cancelBtn.addEventListener('click', async function() {
   }
 });
 
-closeReceiveBtn.addEventListener('click', function() {
+closeReceiveBtn.addEventListener('click', function () {
   receiveModal.style.display = 'none';
 });
 
-cancelReceiveBtn.addEventListener('click', function() {
+cancelReceiveBtn.addEventListener('click', function () {
   receiveModal.style.display = 'none';
 });
 
-receiveModal.addEventListener('click', function(event) {
+receiveModal.addEventListener('click', function (event) {
   if (event.target === receiveModal) {
     receiveModal.style.display = 'none';
   }
 });
 
-receiveForm.addEventListener('submit', async function(event) {
+receiveForm.addEventListener('submit', async function (event) {
   event.preventDefault();
   receiveSubmitBtn.disabled = true;
   receiveError.style.display = 'none';
-  
+
   const items = [];
   const po = await Api.get(`/staff/purchase-orders/${poId}`);
-  
-  po.items.forEach(function(item) {
+
+  po.items.forEach(function (item) {
     const quantityInput = document.getElementById(`receive-quantity-${item.id}`);
     const batchInput = document.getElementById(`receive-batch-${item.id}`);
     const expiryInput = document.getElementById(`receive-expiry-${item.id}`);
-    
+
     if (quantityInput && Number(quantityInput.value) > 0) {
       if (!batchInput || !batchInput.value.trim()) {
         receiveError.textContent = 'Please enter batch numbers for all items.';
@@ -225,14 +235,14 @@ receiveForm.addEventListener('submit', async function(event) {
         receiveSubmitBtn.disabled = false;
         return;
       }
-      
+
       if (!expiryInput || !expiryInput.value) {
         receiveError.textContent = 'Please enter expiry dates for all items.';
         receiveError.style.display = 'block';
         receiveSubmitBtn.disabled = false;
         return;
       }
-      
+
       items.push({
         purchase_order_item_id: item.id,
         quantity_received: Number(quantityInput.value),
@@ -241,14 +251,14 @@ receiveForm.addEventListener('submit', async function(event) {
       });
     }
   });
-  
+
   if (items.length === 0) {
     receiveError.textContent = 'Please enter quantities to receive.';
     receiveError.style.display = 'block';
     receiveSubmitBtn.disabled = false;
     return;
   }
-  
+
   try {
     await Api.post(`/staff/purchase-orders/${poId}/receive`, { items });
     receiveModal.style.display = 'none';
@@ -256,7 +266,7 @@ receiveForm.addEventListener('submit', async function(event) {
   } catch (error) {
     if (error.status === 422 && error.data && error.data.errors) {
       const messages = [];
-      Object.keys(error.data.errors).forEach(function(key) {
+      Object.keys(error.data.errors).forEach(function (key) {
         if (Array.isArray(error.data.errors[key])) {
           messages.push(...error.data.errors[key]);
         } else {

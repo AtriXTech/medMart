@@ -35,10 +35,10 @@ function updateTotals() {
   const subtotal = cart.reduce(function(sum, item) {
     return sum + (item.price * item.quantity);
   }, 0);
-  
+
   const discount = Number(discountInput.value) || 0;
   const total = subtotal - discount;
-  
+
   subtotalDisplay.textContent = formatCurrency(subtotal);
   discountDisplay.textContent = formatCurrency(discount);
   totalDisplay.textContent = formatCurrency(total);
@@ -46,43 +46,54 @@ function updateTotals() {
 
 function renderCart() {
   cartItems.innerHTML = '';
-  
+
   if (cart.length === 0) {
-    cartItems.innerHTML = '<div class="empty-state">Cart is empty</div>';
+    cartItems.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-10 text-center">
+        <i class="ph ph-shopping-cart-simple text-3xl text-[#171E26]/20"></i>
+        <p class="font-inter text-sm text-[#171E26]/45 mt-2">Cart is empty</p>
+      </div>
+    `;
+    updateTotals();
     return;
   }
-  
+
   cart.forEach(function(item, index) {
     const div = document.createElement('div');
-    div.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border);';
+    div.className = 'flex items-center justify-between gap-3 py-3 border-b border-[#EAF1FB] last:border-0';
     div.innerHTML = `
-      <div style="flex: 1;">
-        <strong>${item.name}</strong>
-        <div style="color: var(--text-muted); font-size: 12px;">${formatCurrency(item.price)} each</div>
+      <div class="min-w-0 flex-1">
+        <p class="font-inter text-[14px] font-semibold text-[#171E26] truncate">${item.name}</p>
+        <p class="font-inter text-[12px] text-[#171E26]/45">${formatCurrency(item.price)} each</p>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <button class="btn btn-secondary" onclick="updateQuantity(${index}, -1)" style="padding: 4px 8px;">-</button>
-        <span>${item.quantity}</span>
-        <button class="btn btn-secondary" onclick="updateQuantity(${index}, 1)" style="padding: 4px 8px;">+</button>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button type="button" onclick="updateQuantity(${index}, -1)"
+                class="h-7 w-7 flex items-center justify-center rounded-lg bg-[#F7FAFD] hover:bg-[#EAF1FB] text-[#171E26] font-semibold text-sm transition">−</button>
+        <span class="font-inter text-[14px] font-medium text-[#171E26] w-5 text-center">${item.quantity}</span>
+        <button type="button" onclick="updateQuantity(${index}, 1)"
+                class="h-7 w-7 flex items-center justify-center rounded-lg bg-[#F7FAFD] hover:bg-[#EAF1FB] text-[#171E26] font-semibold text-sm transition">+</button>
       </div>
-      <div style="min-width: 100px; text-align: right;">
-        <strong>${formatCurrency(item.price * item.quantity)}</strong>
-        <button class="btn btn-danger" onclick="removeFromCart(${index})" style="padding: 2px 6px; margin-left: 8px;">×</button>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <strong class="font-inter text-[14px] font-semibold text-[#171E26] whitespace-nowrap">${formatCurrency(item.price * item.quantity)}</strong>
+        <button type="button" onclick="removeFromCart(${index})" aria-label="Remove item"
+                class="h-6 w-6 flex items-center justify-center rounded-md text-red-400 hover:bg-red-50 hover:text-red-500 transition">
+          <i class="ph ph-x text-sm"></i>
+        </button>
       </div>
     `;
     cartItems.appendChild(div);
   });
-  
+
   updateTotals();
 }
 
 window.updateQuantity = function(index, change) {
   cart[index].quantity += change;
-  
+
   if (cart[index].quantity <= 0) {
     cart.splice(index, 1);
   }
-  
+
   renderCart();
 };
 
@@ -93,39 +104,43 @@ window.removeFromCart = function(index) {
 
 function renderProductGrid(products) {
   productGrid.innerHTML = '';
-  
+
   if (!products || products.length === 0) {
-    productGrid.innerHTML = '<div class="empty-state">No products found</div>';
+    productGrid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+        <i class="ph ph-package text-4xl text-[#171E26]/20"></i>
+        <p class="font-inter text-sm text-[#171E26]/45 mt-3">No products found</p>
+      </div>
+    `;
     return;
   }
-  
+
   products.forEach(function(product) {
+    const inStock = product.stock_quantity > 0;
+
     const card = document.createElement('div');
-    card.className = 'product-card';
-    card.style.cssText = 'background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform 0.2s;';
-    card.onmouseover = function() { card.style.transform = 'translateY(-2px)'; };
-    card.onmouseout = function() { card.style.transform = 'translateY(0)'; };
+    card.className = 'bg-white rounded-2xl border border-[#EAF1FB] overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all';
     card.onclick = function() { addToCart(product); };
-    
-    const imageHtml = product.image_url 
-      ? `<img src="${product.image_url}" alt="${product.name}" style="width: 100%; height: 150px; object-fit: cover;">`
-      : `<div style="width: 100%; height: 150px; background: var(--bg); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
-          <span style="font-size: 48px;">📦</span>
+
+    const imageHtml = product.image_url
+      ? `<img src="${product.image_url}" alt="${product.name}" class="w-full h-[130px] object-cover">`
+      : `<div class="w-full h-[130px] bg-[#F7FAFD] flex items-center justify-center">
+          <i class="ph ph-package text-3xl text-[#171E26]/20"></i>
         </div>`;
-    
+
     card.innerHTML = `
       ${imageHtml}
-      <div style="padding: 12px;">
-        <div style="font-weight: 600; margin-bottom: 4px;">${product.name}</div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: var(--primary); font-weight: 600;">${formatCurrency(product.price)}</span>
-          <span class="badge ${product.stock_quantity > 0 ? 'badge-success' : 'badge-danger'}">
-            ${product.stock_quantity > 0 ? 'In Stock' : 'Out'}
+      <div class="p-3">
+        <p class="font-inter text-[13px] font-semibold text-[#171E26] truncate">${product.name}</p>
+        <div class="flex items-center justify-between mt-1.5">
+          <span class="font-manrope text-[14px] font-bold text-[#2775E4]">${formatCurrency(product.price)}</span>
+          <span class="font-inter text-[10px] font-semibold px-2 py-1 rounded-full ${inStock ? 'bg-[#DBEBFB] text-[#2775E4]' : 'bg-red-50 text-red-500'}">
+            ${inStock ? 'In Stock' : 'Out'}
           </span>
         </div>
       </div>
     `;
-    
+
     productGrid.appendChild(card);
   });
 }
@@ -137,7 +152,12 @@ async function loadProducts() {
     renderProductGrid(allProducts);
   } catch (error) {
     console.error('Unable to load products:', error);
-    productGrid.innerHTML = '<div class="empty-state">Unable to load products</div>';
+    productGrid.innerHTML = `
+      <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+        <i class="ph ph-warning-circle text-4xl text-red-300"></i>
+        <p class="font-inter text-sm text-[#171E26]/45 mt-3">Unable to load products</p>
+      </div>
+    `;
   }
 }
 
@@ -146,12 +166,12 @@ function searchProducts(query) {
     renderProductGrid(allProducts);
     return;
   }
-  
+
   const filtered = allProducts.filter(function(product) {
     return product.name.toLowerCase().includes(query.toLowerCase()) ||
            (product.barcode && product.barcode.includes(query));
   });
-  
+
   renderProductGrid(filtered);
 }
 
@@ -160,11 +180,11 @@ function addToCart(product) {
     alert('Product is out of stock');
     return;
   }
-  
+
   const existingItem = cart.find(function(item) {
     return item.id === product.id;
   });
-  
+
   if (existingItem) {
     if (existingItem.quantity >= product.stock_quantity) {
       alert('Not enough stock available');
@@ -179,7 +199,7 @@ function addToCart(product) {
       quantity: 1
     });
   }
-  
+
   renderCart();
 }
 
@@ -188,11 +208,11 @@ async function processSale() {
     alert('Cart is empty');
     return;
   }
-  
+
   checkoutBtn.disabled = true;
   checkoutBtn.textContent = 'Processing...';
   posError.style.display = 'none';
-  
+
   const saleData = {
     customer_name: customerNameInput.value.trim() || 'Walk-in Customer',
     payment_method: paymentMethodSelect.value,
@@ -205,15 +225,15 @@ async function processSale() {
       };
     })
   };
-  
+
   try {
     const result = await Api.post('/staff/sales', saleData);
-    
+
     cart = [];
     customerNameInput.value = '';
     discountInput.value = '';
     renderCart();
-    
+
     showReceipt(result);
     loadProducts();
   } catch (error) {
@@ -230,7 +250,7 @@ async function processSale() {
     } else {
       posError.textContent = error.message || 'Unable to process sale.';
     }
-    posError.style.display = 'block';
+    posError.style.display = 'flex';
   } finally {
     checkoutBtn.disabled = false;
     checkoutBtn.textContent = 'Complete Sale';
@@ -239,48 +259,48 @@ async function processSale() {
 
 function showReceipt(sale) {
   const items = sale.items || [];
-  
+
   let itemsHtml = '';
   items.forEach(function(item) {
     itemsHtml += `
-      <tr>
-        <td>${item.product ? item.product.name : 'Product'}</td>
-        <td>${item.quantity}</td>
-        <td>${formatCurrency(item.unit_price)}</td>
-        <td>${formatCurrency(item.line_total || item.unit_price * item.quantity)}</td>
+      <tr class="border-b border-[#EAF1FB] last:border-0">
+        <td class="py-2 font-inter text-[13px] text-[#171E26]">${item.product ? item.product.name : 'Product'}</td>
+        <td class="py-2 font-inter text-[13px] text-[#171E26] text-center">${item.quantity}</td>
+        <td class="py-2 font-inter text-[13px] text-[#171E26] text-right">${formatCurrency(item.unit_price)}</td>
+        <td class="py-2 font-inter text-[13px] font-semibold text-[#171E26] text-right">${formatCurrency(item.line_total || item.unit_price * item.quantity)}</td>
       </tr>
     `;
   });
-  
+
   receiptContent.innerHTML = `
-    <div style="text-align: center; margin-bottom: 20px;">
-      <h3>MedMart Pharmacy</h3>
-      <p style="margin: 4px 0;">Receipt #${sale.id}</p>
-      <p style="margin: 4px 0;">Date: ${formatDate(sale.created_at)}</p>
-      <p style="margin: 4px 0;">Customer: ${sale.customer_name || 'Walk-in Customer'}</p>
-      <p style="margin: 4px 0;">Cashier: ${sale.cashier || 'N/A'}</p>
+    <div class="text-center mb-5 pb-5 border-b border-dashed border-[#EAF1FB]">
+      <h3 class="font-manrope font-extrabold text-[#171E26]">MedMart Pharmacy</h3>
+      <p class="font-inter text-[13px] text-[#171E26]/60 mt-1">Receipt #${sale.id}</p>
+      <p class="font-inter text-[13px] text-[#171E26]/60">Date: ${formatDate(sale.created_at)}</p>
+      <p class="font-inter text-[13px] text-[#171E26]/60">Customer: ${sale.customer_name || 'Walk-in Customer'}</p>
+      <p class="font-inter text-[13px] text-[#171E26]/60">Cashier: ${sale.cashier || 'N/A'}</p>
     </div>
-    <table>
+    <table class="w-full">
       <thead>
-        <tr>
-          <th>Item</th>
-          <th>Qty</th>
-          <th>Price</th>
-          <th>Total</th>
+        <tr class="border-b border-[#EAF1FB]">
+          <th class="py-2 text-left font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Item</th>
+          <th class="py-2 text-center font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Qty</th>
+          <th class="py-2 text-right font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Price</th>
+          <th class="py-2 text-right font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Total</th>
         </tr>
       </thead>
       <tbody>
         ${itemsHtml}
       </tbody>
     </table>
-    <div style="margin-top: 20px; text-align: right;">
-      <p><strong>Subtotal:</strong> ${formatCurrency(sale.subtotal)}</p>
-      <p><strong>Discount:</strong> ${formatCurrency(sale.discount_total)}</p>
-      <p style="font-size: 18px;"><strong>Total:</strong> ${formatCurrency(sale.total)}</p>
-      <p><strong>Payment Method:</strong> ${sale.payment_method}</p>
+    <div class="mt-4 pt-4 border-t border-[#EAF1FB] space-y-1.5 text-right">
+      <p class="font-inter text-[13px] text-[#171E26]/70">Subtotal: <strong class="text-[#171E26]">${formatCurrency(sale.subtotal)}</strong></p>
+      <p class="font-inter text-[13px] text-[#171E26]/70">Discount: <strong class="text-[#171E26]">${formatCurrency(sale.discount_total)}</strong></p>
+      <p class="font-manrope text-lg font-extrabold text-[#2775E4]">Total: ${formatCurrency(sale.total)}</p>
+      <p class="font-inter text-[13px] text-[#171E26]/70">Payment Method: <strong class="text-[#171E26] capitalize">${sale.payment_method}</strong></p>
     </div>
   `;
-  
+
   receiptModal.style.display = 'flex';
 }
 

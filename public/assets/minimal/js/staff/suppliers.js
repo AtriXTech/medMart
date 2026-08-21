@@ -1,3 +1,19 @@
+/*
+  CHANGE SUMMARY (vs. previous version):
+  - UNCHANGED: openModal(), closeModal(), loadSuppliers() (same endpoint
+    GET /staff/suppliers, same data.data || data fallback), the create/edit
+    submit handler (same POST /staff/suppliers and PATCH /staff/suppliers/:id,
+    same 422 error handling), window.editSupplier / window.deleteSupplier
+    (unchanged, including the onclick='editSupplier(${JSON.stringify(...)})'
+    pattern in the rendered rows — flagging as a pre-existing fragility:
+    a supplier name containing a single quote could break that attribute,
+    but I didn't change it since that's a functional fix, not a style one,
+    and you asked me not to touch logic. Say the word if you want that
+    hardened later.)
+  - CHANGED (presentation only): renderSuppliers() now emits Tailwind-styled
+    rows instead of plain <td> text, with proper Edit/Delete action buttons.
+*/
+
 const suppliersError = document.getElementById('suppliers-error');
 const suppliersLoading = document.getElementById('suppliers-loading');
 const suppliersContent = document.getElementById('suppliers-content');
@@ -21,7 +37,7 @@ function openModal(title, supplier = null) {
   supplierFormTitle.textContent = title;
   supplierFormError.style.display = 'none';
   supplierFormError.textContent = '';
-  
+
   if (supplier) {
     supplierIdInput.value = supplier.id;
     supplierNameInput.value = supplier.name;
@@ -39,7 +55,7 @@ function openModal(title, supplier = null) {
     supplierAddressInput.value = '';
     supplierSubmitBtn.textContent = 'Create Supplier';
   }
-  
+
   supplierModal.style.display = 'flex';
 }
 
@@ -48,36 +64,43 @@ function closeModal() {
 }
 
 function renderSuppliers(suppliers) {
-  suppliersTableBody.innerHTML = '';
-  
   if (!suppliers || suppliers.length === 0) {
-    suppliersTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">No suppliers found</td></tr>';
+    suppliersTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-14">
+      <i class="ph-light ph-truck text-3xl text-[#171E26]/20 block mb-2"></i>
+      <p class="font-inter text-[13px] text-[#171E26]/45">No suppliers found</p>
+    </td></tr>`;
     return;
   }
 
-  suppliers.forEach(function(supplier) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${supplier.name}</td>
-      <td>${supplier.contact_name || 'N/A'}</td>
-      <td>${supplier.email || 'N/A'}</td>
-      <td>${supplier.phone || 'N/A'}</td>
-      <td>
-        <button class="btn btn-secondary" onclick='editSupplier(${JSON.stringify(supplier)})'>Edit</button>
-        <button class="btn btn-danger" onclick="deleteSupplier(${supplier.id})">Delete</button>
+  suppliersTableBody.innerHTML = suppliers.map(function (supplier) {
+    const cell = function (value) {
+      return value
+        ? `<span class="text-[#171E26]/70">${value}</span>`
+        : `<span class="text-[#171E26]/30">N/A</span>`;
+    };
+
+    return `<tr class="table-row border-b border-[#F3F7FC] last:border-0">
+      <td class="py-3 pr-4 font-inter text-[13px] font-semibold text-[#171E26]">${supplier.name}</td>
+      <td class="py-3 pr-4 font-inter text-[13px]">${cell(supplier.contact_name)}</td>
+      <td class="py-3 pr-4 font-inter text-[13px]">${cell(supplier.email)}</td>
+      <td class="py-3 pr-4 font-inter text-[13px]">${cell(supplier.phone)}</td>
+      <td class="py-3 text-right whitespace-nowrap">
+        <button onclick='editSupplier(${JSON.stringify(supplier)})'
+          class="px-3 py-1.5 rounded-lg border border-[#DBEBFB] font-inter text-[12px] font-semibold text-[#171E26] hover:bg-[#F7FAFD]">Edit</button>
+        <button onclick="deleteSupplier(${supplier.id})"
+          class="px-3 py-1.5 rounded-lg font-inter text-[12px] font-semibold text-[#9C3A32] hover:bg-[#FDEDEC] ml-1.5">Delete</button>
       </td>
-    `;
-    suppliersTableBody.appendChild(tr);
-  });
+    </tr>`;
+  }).join('');
 }
 
 async function loadSuppliers() {
   if (!Auth.requireAuth()) return;
-  
+
   suppliersLoading.style.display = 'block';
   suppliersContent.style.display = 'none';
   suppliersError.style.display = 'none';
-  
+
   try {
     const data = await Api.get('/staff/suppliers');
     renderSuppliers(data.data || data);
@@ -90,13 +113,13 @@ async function loadSuppliers() {
   }
 }
 
-window.editSupplier = function(supplier) {
+window.editSupplier = function (supplier) {
   openModal('Edit Supplier', supplier);
 };
 
-window.deleteSupplier = async function(id) {
+window.deleteSupplier = async function (id) {
   if (!confirm('Are you sure you want to delete this supplier?')) return;
-  
+
   try {
     await Api.delete(`/staff/suppliers/${id}`);
     loadSuppliers();
@@ -105,24 +128,24 @@ window.deleteSupplier = async function(id) {
   }
 };
 
-createSupplierBtn.addEventListener('click', function() {
+createSupplierBtn.addEventListener('click', function () {
   openModal('Create Supplier');
 });
 
 closeSupplierModalBtn.addEventListener('click', closeModal);
 cancelSupplierModalBtn.addEventListener('click', closeModal);
 
-supplierModal.addEventListener('click', function(event) {
+supplierModal.addEventListener('click', function (event) {
   if (event.target === supplierModal) {
     closeModal();
   }
 });
 
-supplierForm.addEventListener('submit', async function(event) {
+supplierForm.addEventListener('submit', async function (event) {
   event.preventDefault();
   supplierSubmitBtn.disabled = true;
   supplierFormError.style.display = 'none';
-  
+
   const formData = {
     name: supplierNameInput.value.trim(),
     contact_name: supplierContactNameInput.value.trim(),
@@ -130,7 +153,7 @@ supplierForm.addEventListener('submit', async function(event) {
     phone: supplierPhoneInput.value.trim(),
     address: supplierAddressInput.value.trim()
   };
-  
+
   try {
     const supplierId = supplierIdInput.value;
     if (supplierId) {
@@ -143,7 +166,7 @@ supplierForm.addEventListener('submit', async function(event) {
   } catch (error) {
     if (error.status === 422 && error.data && error.data.errors) {
       const messages = [];
-      Object.keys(error.data.errors).forEach(function(key) {
+      Object.keys(error.data.errors).forEach(function (key) {
         messages.push(...error.data.errors[key]);
       });
       supplierFormError.textContent = messages.join(', ');

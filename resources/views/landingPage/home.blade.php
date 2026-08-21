@@ -118,8 +118,8 @@
 
     <!-- Desktop auth buttons -->
     <div class="hidden md:flex gap-3 md:gap-5 items-center">
-        <button class="py-2 px-3 md:px-4 rounded-2xl hover:scale-[1.01] cursor-pointer shadow-md text-[16px] md:text-[20px] hover:bg-[white] hover:text-[#2775E4] hover:border-1 hover:border-[#2775E4] rounded-xl font-inter bg-[#2775E4]  text-white capitalize text-center tracking-wider">login</button>
-        <button class="py-2 px-3 md:px-4 rounded-2xl hover:scale-[1.01] cursor-pointer shadow-md text-[16px] md:text-[20px] hover:bg-[white] hover:text-[#2775E4] hover:border-1 hover:border-[#2775E4] rounded-xl font-inter bg-[#2775E4]  text-white capitalize text-center tracking-wider">signup</button>
+        <a href='{{route('login')}}'><button class="py-2 px-3 md:px-4 rounded-2xl hover:scale-[1.01] cursor-pointer shadow-md text-[16px] md:text-[20px] hover:bg-[white] hover:text-[#2775E4] hover:border-1 hover:border-[#2775E4] rounded-xl font-inter bg-[#2775E4]  text-white capitalize text-center tracking-wider">login</button></a>
+        <a href="{{ route('register') }}"><button class="py-2 px-3 md:px-4 rounded-2xl hover:scale-[1.01] cursor-pointer shadow-md text-[16px] md:text-[20px] hover:bg-[white] hover:text-[#2775E4] hover:border-1 hover:border-[#2775E4] rounded-xl font-inter bg-[#2775E4]  text-white capitalize text-center tracking-wider">signup</button></a>
     </div>
 
     <!-- Hamburger button (mobile only) -->
@@ -157,8 +157,8 @@
         <a href="#faq" onclick="closeMobileMenu()" class="font-inter text-[17px] font-medium text-[#171E26] hover:text-[#2775E4] px-2 py-3">FAQs</a>
 
         <div class="flex gap-3 px-2 pt-3 pb-2">
-            <button class="flex-1 py-2.5 rounded-xl shadow-md text-[16px] font-inter bg-[#2775E4] text-white capitalize tracking-wider">login</button>
-            <button class="flex-1 py-2.5 rounded-xl shadow-md text-[16px] font-inter bg-[#2775E4] text-white capitalize tracking-wider">signup</button>
+            <a href='{{ route('login') }}'><button class="flex-1 py-2.5 rounded-xl shadow-md text-[16px] font-inter bg-[#2775E4] text-white capitalize tracking-wider">login</button></a>
+            <a href='{{ route('register') }}'><button class="flex-1 py-2.5 rounded-xl shadow-md text-[16px] font-inter bg-[#2775E4] text-white capitalize tracking-wider">signup</button></a>
         </div>
     </div>
 </nav>
@@ -170,12 +170,12 @@
     </h1>
     <p class="text-[#171E26] font-inter font-normal text-base sm:text-lg md:text-xl mt-4">
 MedMart lets your customers order from your pharmacy from anywhere, while giving you the tools to manage products, inventory, payments, and orders — all from one platform.    </p>
-    <button class="px-7 py-3.5 rounded-full bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-semibold shadow-lg shadow-[#2775E4]/20 hover:scale-[1.02] transition capitalize tracking-wider text-[18px] md:text-[20px] my-3">
+    <a href='{{ route('register') }}'><button class="px-7 py-3.5 rounded-full bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-semibold shadow-lg shadow-[#2775E4]/20 hover:scale-[1.02] transition capitalize tracking-wider text-[18px] md:text-[20px] my-3">
       Get Started
-    </button>
+    </button></a>
     <p class="font-inter text-lg md:text-xl capitalize">
       Already have an account?
-      <a href="#" class="bg-gradient-to-br from-[#2775E4] to-[#08AEBC] bg-clip-text text-transparent hover:text-[#2775E4]">login</a>
+      <a href="{{route('login') }}" class="bg-gradient-to-br from-[#2775E4] to-[#08AEBC] bg-clip-text text-transparent hover:text-[#2775E4]">login</a>
     </p>
   </div>
 
@@ -658,15 +658,15 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
             Give your customers a simpler way to order from your pharmacy — without changing the way your pharmacy operates.
         </p>
  
-        <button class="px-8 py-3.5 rounded-full bg-white text-[#2775E4] font-inter font-semibold text-lg tracking-wide hover:scale-[1.02] transition shadow-lg mt-8">
+        <a href="{{route('register') }}"><button class="px-8 py-3.5 rounded-full bg-white text-[#2775E4] font-inter font-semibold text-lg tracking-wide hover:scale-[1.02] transition shadow-lg mt-8">
             Get Started
-        </button>
+        </button></a>
  
         <p class="font-inter text-white/80 text-sm mt-8">
             Already using MedMart?
-            <button class="font-inter font-semibold text-white underline underline-offset-4 hover:text-white/90 transition ml-1">
+           <a href="{{ route('login') }}"><button class="font-inter font-semibold text-white underline underline-offset-4 hover:text-white/90 transition ml-1">
                 Login
-            </button>
+            </button></a>
         </p>
      </div>
    </section>
@@ -689,7 +689,7 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
                 <ul class="space-y-3">
                     <li><a href="#features" class="font-inter text-white/60 text-sm hover:text-white transition">Features</a></li>
                     <li><a href="#how-it-works" class="font-inter text-white/60 text-sm hover:text-white transition">How It Works</a></li>
-                    <li><a href="#pricing" class="font-inter text-white/60 text-sm hover:text-white transition">Pricing</a></li>
+                    <li><a href="{{route('pricing')}}#pricing" class="font-inter text-white/60 text-sm hover:text-white transition">Pricing</a></li>
                     <li><a href="#faq" class="font-inter text-white/60 text-sm hover:text-white transition">FAQs</a></li>
                 </ul>
             </div>
@@ -697,9 +697,9 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
             <div>
                 <p class="font-manrope text-white font-bold text-sm mb-4">For Pharmacies</p>
                 <ul class="space-y-3">
-                    <li><a href="#" class="font-inter text-white/60 text-sm hover:text-white transition">Get Started</a></li>
-                    <li><a href="#" class="font-inter text-white/60 text-sm hover:text-white transition">Login</a></li>
-                    <li><a href="#" class="font-inter text-white/60 text-sm hover:text-white transition">Contact Support</a></li>
+                    <li><a href="{{route('register')}}" class="font-inter text-white/60 text-sm hover:text-white transition">Get Started</a></li>
+                    <li><a href="{{route('login')}}" class="font-inter text-white/60 text-sm hover:text-white transition">Login</a></li>
+                    <li><a href="{{route('contact')}}" class="font-inter text-white/60 text-sm hover:text-white transition">Contact Support</a></li>
                 </ul>
             </div>
  

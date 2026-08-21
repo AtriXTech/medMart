@@ -91,36 +91,52 @@ function renderProducts(products) {
     productsTableBody.innerHTML = "";
 
     if (!products || products.length === 0) {
-        productsTableBody.innerHTML =
-            '<tr><td colspan="8" class="empty-state">No products found</td></tr>';
+        productsTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="py-14 text-center">
+                    <i class="ph ph-package text-3xl text-[#171E26]/20"></i>
+                    <p class="font-inter text-sm text-[#171E26]/45 mt-2">No products found</p>
+                </td>
+            </tr>
+        `;
         return;
     }
 
     products.forEach(function (product) {
         const tr = document.createElement("tr");
+        tr.className = "border-b border-[#EAF1FB] hover:bg-[#F7FAFD] transition";
+
+        const imageHtml = product.image_url
+            ? `<img src="${product.image_url}" alt="${product.name}" class="w-9 h-9 object-cover rounded-lg flex-shrink-0">`
+            : `<div class="w-9 h-9 rounded-lg bg-[#F7FAFD] flex items-center justify-center flex-shrink-0"><i class="ph ph-package text-[#171E26]/25 text-base"></i></div>`;
+
         tr.innerHTML = `
-      <td>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          ${
-              product.image_url
-                  ? `<img src="${product.image_url}" alt="${product.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">`
-                  : `<div style="width: 40px; height: 40px; background: var(--bg); border-radius: 4px; display: flex; align-items: center; justify-content: center;">📦</div>`
-          }
-          <strong>${product.name}</strong>
+      <td class="py-3 px-3">
+        <div class="flex items-center gap-3">
+          ${imageHtml}
+          <strong class="font-inter text-[14px] font-semibold text-[#171E26]">${product.name}</strong>
         </div>
       </td>
-      <td>${product.category ? product.category.name : "N/A"}</td>
-      <td>${product.barcode || "N/A"}</td>
-      <td>${formatCurrency(product.price)}</td>
-      <td>${product.stock_quantity || 0}</td>
-      <td>
-        <span class="badge ${product.is_available ? "badge-success" : "badge-danger"}">
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${product.category ? product.category.name : "N/A"}</td>
+      <td class="py-3 px-3 font-inter text-[13px] text-[#171E26]/60">${product.barcode || "N/A"}</td>
+      <td class="py-3 px-3 font-inter text-[14px] font-semibold text-[#171E26]">${formatCurrency(product.price)}</td>
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${product.stock_quantity || 0}</td>
+      <td class="py-3 px-3">
+        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${product.is_available ? "bg-[#DBEBFB] text-[#2775E4]" : "bg-red-50 text-red-500"}">
           ${product.is_available ? "Available" : "Unavailable"}
         </span>
       </td>
-      <td>
-        <button class="btn btn-secondary" onclick="viewProduct(${product.id})">View</button>
-        <button class="btn btn-secondary" onclick='editProduct(${JSON.stringify(product)})'>Edit</button>
+      <td class="py-3 px-3">
+        <div class="flex gap-2">
+          <button type="button" onclick="viewProduct(${product.id})"
+                  class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#171E26] hover:bg-[#F7FAFD] transition">
+            View
+          </button>
+          <button type="button" onclick='editProduct(${JSON.stringify(product)})'
+                  class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#2775E4] hover:bg-[#DBEBFB] transition">
+            Edit
+          </button>
+        </div>
       </td>
     `;
         productsTableBody.appendChild(tr);
@@ -133,7 +149,7 @@ function renderPagination() {
     if (totalPages <= 1) return;
 
     const prevBtn = document.createElement("button");
-    prevBtn.className = "btn btn-secondary";
+    prevBtn.className = "rounded-lg border border-[#DBEBFB] px-4 py-2 font-inter text-sm font-semibold text-[#171E26] hover:bg-[#F7FAFD] disabled:opacity-40 disabled:cursor-not-allowed transition";
     prevBtn.textContent = "Previous";
     prevBtn.disabled = currentPage === 1;
     prevBtn.onclick = function () {
@@ -142,12 +158,12 @@ function renderPagination() {
     paginationContainer.appendChild(prevBtn);
 
     const pageInfo = document.createElement("span");
+    pageInfo.className = "mx-3 font-inter text-sm text-[#171E26]/60";
     pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    pageInfo.style.margin = "0 12px";
     paginationContainer.appendChild(pageInfo);
 
     const nextBtn = document.createElement("button");
-    nextBtn.className = "btn btn-secondary";
+    nextBtn.className = "rounded-lg border border-[#DBEBFB] px-4 py-2 font-inter text-sm font-semibold text-[#171E26] hover:bg-[#F7FAFD] disabled:opacity-40 disabled:cursor-not-allowed transition";
     nextBtn.textContent = "Next";
     nextBtn.disabled = currentPage === totalPages;
     nextBtn.onclick = function () {
@@ -195,6 +211,9 @@ async function loadProducts(page = 1) {
     if (categoryFilter.value) {
         params.append("category_id", categoryFilter.value);
     }
+    if (availabilityFilter.value) {
+        params.append("availability", availabilityFilter.value);
+    }
 
     try {
         const data = await Api.get(`/staff/products?${params.toString()}`);
@@ -206,7 +225,7 @@ async function loadProducts(page = 1) {
     } catch (error) {
         productsLoading.style.display = "none";
         productsError.textContent = error.message || "Unable to load products.";
-        productsError.style.display = "block";
+        productsError.style.display = "flex";
     }
 }
 
@@ -323,7 +342,7 @@ productForm.addEventListener("submit", async function (event) {
                 productFormError.textContent =
                     data.message || "Unable to save product.";
             }
-            productFormError.style.display = "block";
+            productFormError.style.display = "flex";
             return;
         }
 
@@ -332,7 +351,7 @@ productForm.addEventListener("submit", async function (event) {
     } catch (error) {
         productFormError.textContent =
             error.message || "Unable to save product.";
-        productFormError.style.display = "block";
+        productFormError.style.display = "flex";
     } finally {
         productSubmitBtn.disabled = false;
     }
