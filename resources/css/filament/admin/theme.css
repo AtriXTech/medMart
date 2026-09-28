@@ -1,0 +1,24 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* =========================================================
+   MedMart Design System
+   ========================================================= */
+
+@theme {
+    --color-medmart-blue: #2775E4;
+    --color-medmart-teal: #08AEBC;
+    --color-medmart-dark-teal: #058A98;
+
+    --color-medmart-hero: #E9F3FE;
+    --color-medmart-shape: #B1D0FB;
+    --color-medmart-light-blue: #DBEBFB;
+
+    --color-medmart-text: #171E26;
+    --color-medmart-white: #FFFFFF;
+
+    --font-medmart-heading: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-medmart-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}

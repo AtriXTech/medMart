@@ -23,16 +23,26 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('aggregate', 'status');
 
+        $ordersByStatusToday = Order::query()
+            ->whereDate('created_at', today())
+            ->select('status', DB::raw('count(*) as aggregate'))
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
         $statusCounts = [];
+        $statusCountsToday = [];
 
         foreach (OrderStatus::cases() as $status) {
             $statusCounts[$status->value] = (int) ($ordersByStatus[$status->value] ?? 0);
+            $statusCountsToday[$status->value] = (int) ($ordersByStatusToday[$status->value] ?? 0);
         }
 
         return response()->json([
             'orders' => [
                 'total' => array_sum($statusCounts),
+                'today_total' => array_sum($statusCountsToday),
                 'by_status' => $statusCounts,
+                'by_status_today' => $statusCountsToday,
             ],
             'low_stock_products_count' => Product::whereColumn('stock_quantity', '<=', 'reorder_level')->count(),
             'pending_prescriptions_count' => Prescription::where('status', PrescriptionStatus::Pending)->count(),

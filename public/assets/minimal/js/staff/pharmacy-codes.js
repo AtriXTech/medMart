@@ -15,6 +15,11 @@ const closeCodeModalBtn = document.getElementById('close-code-modal-btn');
 const cancelCodeModalBtn = document.getElementById('cancel-code-modal-btn');
 const paginationContainer = document.getElementById('pagination-container');
 
+// NEW — copy toast elements (used only by copyCode(), replacing its alert())
+const copyToast = document.getElementById('copy-toast');
+const copyToastMessage = document.getElementById('copy-toast-message');
+let copyToastTimeout = null;
+
 let currentPage = 1;
 let totalPages = 1;
 
@@ -44,6 +49,19 @@ function badgeForStatus(isActive) {
     return '<span class="badge badge-success">Active</span>';
   }
   return '<span class="badge badge-danger">Inactive</span>';
+}
+
+// NEW — brief auto-dismissing toast, replaces the alert() in copyCode() below.
+function showCopyToast(message) {
+  copyToastMessage.textContent = message;
+  copyToast.classList.remove('opacity-0', '-translate-y-3', 'pointer-events-none');
+  copyToast.classList.add('opacity-100', 'translate-y-0');
+
+  clearTimeout(copyToastTimeout);
+  copyToastTimeout = setTimeout(function () {
+    copyToast.classList.add('opacity-0', '-translate-y-3', 'pointer-events-none');
+    copyToast.classList.remove('opacity-100', 'translate-y-0');
+  }, 1500);
 }
 
 function renderCodes(codes) {
@@ -119,7 +137,7 @@ async function loadCodes(page = 1) {
 
 window.copyCode = function(code) {
   navigator.clipboard.writeText(code).then(function() {
-    alert('Code copied to clipboard!');
+    showCopyToast('Code copied to clipboard!');
   }).catch(function() {
     prompt('Copy this code:', code);
   });
@@ -134,6 +152,7 @@ codeModal.addEventListener('click', function(event) {
     closeModal();
   }
 });
+
 
 codeForm.addEventListener('submit', async function(event) {
   event.preventDefault();

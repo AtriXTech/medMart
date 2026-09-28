@@ -34,6 +34,10 @@ class Pharmacy extends Model
         'settings' => 'array',
     ];
 
+    public function orders(): HasMany
+{
+    return $this->hasMany(Order::class);
+}
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

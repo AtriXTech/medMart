@@ -1,3 +1,18 @@
+/*
+  CHANGE SUMMARY (vs. previous version):
+  - UNCHANGED: all element IDs/lookups, loadProfile() (GET /customer/profile),
+    the profile-form submit handler (PATCH /customer/profile, same 422
+    handling, same 3-second success auto-hide), the password-form submit
+    handler (POST /customer/profile/password, same 422 handling, same
+    3-second success auto-hide, same form.reset()).
+  - CHANGED (presentation only): renderProfile()'s injected markup rebuilt
+    with Tailwind to match the rest of the customer app's card styling.
+  - Switched all style.display assignments on the four alert banners from
+    'block' to 'flex', since the Blade page now styles them with a
+    flex-based icon+text layout — matches the pattern used on every other
+    page in this app.
+*/
+
 const profileError = document.getElementById('profile-error');
 const profileLoading = document.getElementById('profile-loading');
 const profileContent = document.getElementById('profile-content');
@@ -25,15 +40,18 @@ function formatDate(dateString) {
 
 function renderProfile(profile) {
     profileInfo.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
             <div>
-                <strong>Username:</strong> ${profile.username || 'N/A'}
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Username</p>
+                <p class="font-inter text-[14px] font-semibold text-[#171E26]">${profile.username || 'N/A'}</p>
             </div>
             <div>
-                <strong>Email Verified:</strong> ${profile.email_verified ? 'Yes' : 'No'}
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Email Verified</p>
+                <p class="font-inter text-[14px] text-[#171E26]">${profile.email_verified ? 'Yes' : 'No'}</p>
             </div>
             <div>
-                <strong>Member Since:</strong> ${formatDate(profile.created_at)}
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Member Since</p>
+                <p class="font-inter text-[14px] text-[#171E26]">${formatDate(profile.created_at)}</p>
             </div>
         </div>
     `;
@@ -58,7 +76,7 @@ async function loadProfile() {
     } catch (error) {
         profileLoading.style.display = 'none';
         profileError.textContent = error.message || 'Unable to load profile.';
-        profileError.style.display = 'block';
+        profileError.style.display = 'flex';
     }
 }
 
@@ -78,7 +96,7 @@ profileForm.addEventListener('submit', async function(event) {
         const updated = await CustomerApi.patch('/customer/profile', formData);
         renderProfile(updated);
         profileFormSuccess.textContent = 'Profile updated successfully!';
-        profileFormSuccess.style.display = 'block';
+        profileFormSuccess.style.display = 'flex';
         
         setTimeout(function() {
             profileFormSuccess.style.display = 'none';
@@ -93,7 +111,7 @@ profileForm.addEventListener('submit', async function(event) {
         } else {
             profileFormError.textContent = error.message || 'Unable to update profile.';
         }
-        profileFormError.style.display = 'block';
+        profileFormError.style.display = 'flex';
     } finally {
         profileSubmitBtn.disabled = false;
     }
@@ -115,7 +133,7 @@ passwordForm.addEventListener('submit', async function(event) {
         await CustomerApi.post('/customer/profile/password', formData);
         passwordForm.reset();
         passwordFormSuccess.textContent = 'Password changed successfully!';
-        passwordFormSuccess.style.display = 'block';
+        passwordFormSuccess.style.display = 'flex';
         
         setTimeout(function() {
             passwordFormSuccess.style.display = 'none';
@@ -130,7 +148,7 @@ passwordForm.addEventListener('submit', async function(event) {
         } else {
             passwordFormError.textContent = error.message || 'Unable to change password.';
         }
-        passwordFormError.style.display = 'block';
+        passwordFormError.style.display = 'flex';
     } finally {
         passwordSubmitBtn.disabled = false;
     }

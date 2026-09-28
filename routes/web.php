@@ -18,4 +18,5 @@ require __DIR__ . '/staff_minimal.php';
 
 //stable ui
 require __DIR__ . '/staff.php';
+require __DIR__ . '/super_admin.php';
 

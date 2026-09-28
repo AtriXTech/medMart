@@ -166,7 +166,7 @@
                                                    placeholder:text-[#171E26]/28
                                                    focus:outline-none focus:bg-white transition">
                                     </div>
-                                    <div class="field-error" id="pharmacy-name-error"></div>
+                                    <div class="field-error text-red-500" id="pharmacy-name-error"></div>
                                 </div>
 
                                 <div class="field">
@@ -183,7 +183,7 @@
                                                    placeholder:text-[#171E26]/28
                                                    focus:outline-none focus:bg-white transition">
                                     </div>
-                                    <div class="field-error" id="owner-name-error"></div>
+                                    <div class="field-error text-red-500" id="owner-name-error"></div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -201,7 +201,7 @@
                                                        placeholder:text-[#171E26]/28
                                                        focus:outline-none focus:bg-white transition">
                                         </div>
-                                        <div class="field-error" id="email-error"></div>
+                                        <div class="field-error text-red-500" id="email-error"></div>
                                     </div>
 
                                     <div class="field">
@@ -218,7 +218,7 @@
                                                        placeholder:text-[#171E26]/28
                                                        focus:outline-none focus:bg-white transition">
                                         </div>
-                                        <div class="field-error" id="phone-error"></div>
+                                        <div class="field-error text-red-500" id="phone-error"></div>
                                     </div>
                                 </div>
 
@@ -235,13 +235,13 @@
                                                    pl-11 pr-11 py-3 font-inter text-[15px] text-[#171E26]
                                                    placeholder:text-[#171E26]/28
                                                    focus:outline-none focus:bg-white transition">
-                                        <button type="button" aria-label="Show password"
+                                        <button type="button" id="toggle-password-btn" aria-label="Show password"
                                             class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/35
                                                    hover:text-[#2775E4] transition">
-                                            <i class="ph ph-eye text-lg"></i>
+                                            <i class="ph ph-eye text-lg" id="toggle-password-icon"></i>
                                         </button>
                                     </div>
-                                    <div class="field-error" id="password-error"></div>
+                                    <div class="field-error text-red-500" id="password-error"></div>
                                     <p class="font-inter text-xs text-[#171E26]/45 mt-1.5">Use at least 8 characters.</p>
                                 </div>
 
@@ -258,28 +258,38 @@
                                                    pl-11 pr-11 py-3 font-inter text-[15px] text-[#171E26]
                                                    placeholder:text-[#171E26]/28
                                                    focus:outline-none focus:bg-white transition">
-                                        <button type="button" aria-label="Show password"
+                                        <button type="button" id="toggle-password-confirmation-btn" aria-label="Show password"
                                             class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/35
                                                    hover:text-[#2775E4] transition">
-                                            <i class="ph ph-eye text-lg"></i>
+                                            <i class="ph ph-eye text-lg" id="toggle-password-confirmation-icon"></i>
                                         </button>
                                     </div>
-                                    <div class="field-error" id="password-confirmation-error"></div>
+                                    <div class="field-error text-red-500" id="password-confirmation-error"></div>
                                 </div>
                             </div>
 
-                            <label class="flex items-start gap-2.5 cursor-pointer mt-5">
-                                <input type="checkbox" id="terms"
-                                    class="mt-0.5 h-4 w-4 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
-                                <span class="font-inter text-xs text-[#171E26]/60 leading-relaxed">
-                                    By creating an account, you agree to the MedMart
-                                    <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
-                                    and
-                                    <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Privacy Policy</a>.
-                                </span>
-                            </label>
+                            <div class="mt-5">
+                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                    <input type="checkbox" id="terms"
+                                        class="mt-0.5 h-4 w-4 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
+                                    <span class="font-inter text-xs text-[#171E26]/60 leading-relaxed">
+                                        By creating an account, you agree to the MedMart
+                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
+                                        and
+                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Privacy Policy</a>.
+                                    </span>
+                                </label>
+                                {{-- NEW: safety-net message shown if the form is ever submitted
+                                     without the box checked (the button is disabled by default
+                                     below, but this covers edge cases like a browser submitting
+                                     on Enter despite a disabled submit button). --}}
+                                <p class="field-error text-red-500 mt-1.5" id="terms-error"></p>
+                            </div>
 
-                            <button type="submit" id="register-submit"
+                            {{-- CHANGED: disabled by default. terms.js (see below) enables
+                                 this the moment the checkbox is ticked, and disables it again
+                                 if unticked. --}}
+                            <button type="submit" id="register-submit" disabled
                                 class="login-submit w-full mt-5 px-7 py-3.5 rounded-full
                                        bg-gradient-to-r from-[#2775E4] to-[#08AEBC]
                                        text-white font-inter font-semibold tracking-wide

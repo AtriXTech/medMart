@@ -6,7 +6,6 @@ namespace App\Http\Resources\Staff;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class ProductResource extends JsonResource
 {
@@ -18,7 +17,7 @@ class ProductResource extends JsonResource
             'generic_name' => $this->generic_name,
             'description' => $this->description,
             'barcode' => $this->barcode,
-            'image_url' => $this->image_url ? Storage::url($this->image_url) : null,
+            'image_url' => $this->resolveImageUrl(),
             'requires_prescription' => $this->requires_prescription,
             'price' => $this->price,
             'reorder_level' => $this->reorder_level,
@@ -28,5 +27,22 @@ class ProductResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    private function resolveImageUrl(): ?string
+    {
+        $path = $this->image_url;
+        if (! $path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+        if (str_starts_with($path, 'storage/')) {
+            return '/' . $path;
+        }
+
+        return '/storage/' . $path;
     }
 }

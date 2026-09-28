@@ -1,4 +1,4 @@
-:root {
+/* :root {
   --bg: #f4f5f7;
   --surface: #ffffff;
   --border: #e2e4e9;
@@ -414,4 +414,5 @@ th {
 
 #sidebar-nav.permissions-loaded .nav-section {
     display: block;
-}
+} */
+ @import 'tailwindcss';

@@ -1,5 +1,23 @@
 <x-layouts.staff title="Pharmacy Codes" active="pharmacy-codes">
+<div id="copy-toast"
+     class="fixed top-5 right-5 z-50
+            opacity-0 -translate-y-3 pointer-events-none
+            transition-all duration-300">
 
+    <div class="flex items-center gap-2.5
+                rounded-xl
+                bg-[#171E26]
+                px-4 py-3
+                shadow-lg">
+
+        <i class="ph ph-check-circle text-[#08AEBC] text-xl"></i>
+
+        <span id="copy-toast-message"
+              class="font-inter text-sm font-medium text-white">
+        </span>
+
+    </div>
+</div>
     <div class="mb-4">
         <h2 class="font-manrope font-bold text-[18px] md:text-[20px] text-[#171E26]">Pharmacy Codes</h2>
         <p class="font-inter text-[13px] text-[#171E26]/45 mt-1">Generate and manage codes customers use to join your pharmacy.</p>

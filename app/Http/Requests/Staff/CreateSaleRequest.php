@@ -13,11 +13,19 @@ class CreateSaleRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $method = strtolower((string) $this->input('payment_method'));
+        if ($method === 'pos') {
+            $this->merge(['payment_method' => 'card']);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'customer_name' => ['nullable', 'string', 'max:255'],
-            'payment_method' => ['required', 'string', 'in:cash,card,transfer,other'],
+            'payment_method' => ['required', 'string', 'in:cash,card,transfer,other,pos'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],

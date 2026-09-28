@@ -29,6 +29,19 @@ function formatDate(dateString) {
   return date.toLocaleDateString();
 }
 
+// Stock quantity takes priority over the is_available flag — a product with
+// zero stock can't actually be sold regardless of how is_available is set,
+// so "Out of Stock" overrides "Available" whenever stock_quantity <= 0.
+function stockBadge(product) {
+  if (Number(product.stock_quantity) <= 0) {
+    return { label: 'Out of Stock', classes: 'bg-red-50 text-red-500' };
+  }
+  if (product.is_available) {
+    return { label: 'Available', classes: 'bg-[#DBEBFB] text-[#2775E4]' };
+  }
+  return { label: 'Unavailable', classes: 'bg-red-50 text-red-500' };
+}
+
 function renderProductInfo(product) {
   productInfo.innerHTML = `
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
@@ -62,8 +75,8 @@ function renderProductInfo(product) {
       </div>
       <div>
         <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Status</p>
-        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${product.is_available ? 'bg-[#DBEBFB] text-[#2775E4]' : 'bg-red-50 text-red-500'}">
-          ${product.is_available ? 'Available' : 'Unavailable'}
+        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${stockBadge(product).classes}">
+          ${stockBadge(product).label}
         </span>
       </div>
     </div>
@@ -162,22 +175,21 @@ async function loadProductDetails() {
   }
 }
 
-window.adjustBatch = function(id, currentQuantity) {
-  const newQuantity = prompt('Enter new quantity:', currentQuantity);
-  if (!newQuantity || newQuantity === currentQuantity) return;
+window.adjustBatch = async function(id, currentQuantity) {
+  const newQuantity = await UIModal.prompt('Enter new quantity:', currentQuantity);
+  if (newQuantity === null || newQuantity === '' || newQuantity === currentQuantity) return;
 
-  const reason = prompt('Reason for adjustment:', 'Manual adjustment');
+  const reason = await UIModal.prompt('Reason for adjustment:', 'Manual adjustment');
 
-  Api.patch(`/staff/products/${productId}/batches/${id}`, {
-    quantity: parseInt(newQuantity),
-    reason: reason || 'Manual adjustment'
-  })
-    .then(function() {
-      loadProductDetails();
-    })
-    .catch(function(error) {
-      alert(error.message || 'Unable to adjust batch.');
+  try {
+    await Api.patch(`/staff/products/${productId}/batches/${id}`, {
+      quantity: parseInt(newQuantity),
+      reason: reason || 'Manual adjustment'
     });
+    loadProductDetails();
+  } catch (error) {
+    await UIModal.alert(error.message || 'Unable to adjust batch.');
+  }
 };
 
 addBatchBtn.addEventListener('click', function() {
@@ -214,7 +226,15 @@ batchForm.addEventListener('submit', async function(event) {
     if (error.status === 422 && error.data && error.data.errors) {
       const messages = [];
       Object.keys(error.data.errors).forEach(function(key) {
-        messages.push(...error.data.errors[key]);
+        // Replace the raw Laravel "date after today" validation message with
+        // a friendlier one, keyed off the field name (expiry_date) rather
+        // than string-matching the exact sentence, since the wording could
+        // shift slightly across Laravel versions but the field key is stable.
+        if (key === 'expiry_date') {
+          messages.push("Can't add expired product");
+        } else {
+          messages.push(...error.data.errors[key]);
+        }
       });
       batchFormError.textContent = messages.join(', ');
     } else {

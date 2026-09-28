@@ -1,14 +1,16 @@
 /*
   CHANGE SUMMARY (vs. previous version):
-  - UNCHANGED: loadSuppliers() (GET /staff/suppliers?per_page=100),
-    searchProducts() (GET /staff/products?search=...&per_page=10),
-    addItem() — including the prompt() dialog for cost price, submitOrder()
-    (POST /staff/purchase-orders, same payload shape, same 422 error
-    handling, same redirect to /staff/purchase-orders on success),
-    window.updateItemQuantity / window.removeItem (still on window since
-    rendered rows call them via inline onchange/onclick).
-  - CHANGED (presentation only): renderItems() and the product search
-    results list now emit Tailwind markup instead of inline style strings.
+  - UNCHANGED: loadSuppliers(), searchProducts(), submitOrder()'s payload/
+    422 handling/redirect, window.updateItemQuantity / window.removeItem.
+  - CHANGED: all native dialogs replaced with UIModal (requires the shared
+    UIModal snippet to be pasted into the staff layout):
+    * addItem()'s alert('Product already added...') -> await UIModal.alert(...)
+    * addItem()'s prompt('Enter cost price...') -> await UIModal.prompt(...)
+      addItem() is now `async` to support these awaits. Its caller (the
+      search-result row click listener) calls it without awaiting, which is
+      fine — fire-and-forget, nothing after that call depends on it finishing.
+    * submitOrder()'s two validation alert()s -> await UIModal.alert(...)
+      submitOrder() was already async, so no signature change needed there.
 */
 
 const poError = document.getElementById('po-error');
@@ -115,18 +117,18 @@ function searchProducts(query) {
     });
 }
 
-function addItem(product) {
+async function addItem(product) {
   const existingItem = poItemsList.find(function (item) {
     return item.product_id === product.id;
   });
 
   if (existingItem) {
-    alert('Product already added to order');
+    await UIModal.alert('Product already added to order');
     return;
   }
 
-  const costPrice = prompt(`Enter cost price for ${product.name}:`, '0');
-  if (!costPrice) return;
+  const costPrice = await UIModal.prompt(`Enter cost price for ${product.name}:`, '0');
+  if (costPrice === null || costPrice === '') return;
 
   poItemsList.push({
     product_id: product.id,
@@ -159,12 +161,12 @@ async function loadSuppliers() {
 
 async function submitOrder() {
   if (!supplierSelect.value) {
-    alert('Please select a supplier');
+    await UIModal.alert('Please select a supplier');
     return;
   }
 
   if (poItemsList.length === 0) {
-    alert('Please add at least one item');
+    await UIModal.alert('Please add at least one item');
     return;
   }
 

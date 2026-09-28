@@ -33,6 +33,13 @@ const supplierSubmitBtn = document.getElementById('supplier-submit-btn');
 const closeSupplierModalBtn = document.getElementById('close-supplier-modal-btn');
 const cancelSupplierModalBtn = document.getElementById('cancel-supplier-modal-btn');
 
+// NEW — confirm modal elements (used only by the Delete category action)
+const confirmModal = document.getElementById('confirm-modal');
+const confirmModalTitle = document.getElementById('confirm-modal-title');
+const confirmModalMessage = document.getElementById('confirm-modal-message');
+const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel-btn');
+const confirmModalConfirmBtn = document.getElementById('confirm-modal-confirm-btn');
+
 function openModal(title, supplier = null) {
   supplierFormTitle.textContent = title;
   supplierFormError.style.display = 'none';
@@ -117,15 +124,53 @@ window.editSupplier = function (supplier) {
   openModal('Edit Supplier', supplier);
 };
 
-window.deleteSupplier = async function (id) {
-  if (!confirm('Are you sure you want to delete this supplier?')) return;
+let confirmModalAction = null;
 
-  try {
-    await Api.delete(`/staff/suppliers/${id}`);
-    loadSuppliers();
-  } catch (error) {
-    alert(error.message || 'Unable to delete supplier.');
-  }
+function showConfirmModal({ title, message, confirmText }) {
+    confirmModalTitle.textContent = title;
+    confirmModalMessage.textContent = message;
+    confirmModalConfirmBtn.textContent = confirmText;
+    confirmModal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+    confirmModal.style.display = 'none';
+    confirmModalAction = null;
+}
+
+confirmModalCancelBtn.addEventListener('click', closeConfirmModal);
+
+confirmModal.addEventListener('click', function(event) {
+    if (event.target === confirmModal) {
+        closeConfirmModal();
+    }
+});
+
+confirmModalConfirmBtn.addEventListener('click', function() {
+    const action = confirmModalAction;
+
+    closeConfirmModal();
+
+    if (action) {
+        action();
+    }
+});
+
+window.deleteSupplier = function(id) {
+    confirmModalAction = async function() {
+        try {
+            await Api.delete(`/staff/suppliers/${id}`);
+            loadSuppliers();
+        } catch (error) {
+            alert(error.message || 'Unable to delete supplier.');
+        }
+    };
+
+    showConfirmModal({
+        title: 'Delete supplier?',
+        message: 'Are you sure you want to delete this supplier?',
+        confirmText: 'Delete'
+    });
 };
 
 createSupplierBtn.addEventListener('click', function () {

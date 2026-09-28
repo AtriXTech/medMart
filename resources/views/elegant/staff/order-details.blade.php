@@ -16,12 +16,20 @@
         <div class="card mb-4 md:mb-5 rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
                 <p class="section-title m-0 font-manrope font-bold text-[16px] text-[#171E26]">Order Information</p>
-                <a href="/staff/orders"
-                   class="btn btn-secondary self-start sm:self-auto inline-flex items-center justify-center rounded-[0.65rem] px-4 py-2.5
-                          font-inter text-[12.5px] font-semibold bg-white border border-[#DBEBFB] text-[#171E26]
-                          hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4] transition">
-                    Back to Orders
-                </a>
+                <div class="flex items-center gap-2.5 self-start sm:self-auto">
+                    <button type="button" id="print-order-btn"
+                            class="btn btn-secondary inline-flex items-center gap-2 justify-center rounded-[0.65rem] px-4 py-2.5
+                                   font-inter text-[12.5px] font-semibold bg-white border border-[#DBEBFB] text-[#171E26]
+                                   hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4] transition">
+                        <i class="ph ph-printer text-base"></i> Print Receipt
+                    </button>
+                    <a href="/staff/orders"
+                       class="btn btn-secondary inline-flex items-center justify-center rounded-[0.65rem] px-4 py-2.5
+                              font-inter text-[12.5px] font-semibold bg-white border border-[#DBEBFB] text-[#171E26]
+                              hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4] transition">
+                        Back to Orders
+                    </a>
+                </div>
             </div>
             <div id="order-info"
                  class="[&>div]:!gap-3
@@ -53,7 +61,14 @@
             </div>
         </div>
 
-        <div class="card rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
+        {{-- Hidden on screen. This is what actually prints — built to look exactly
+             like the POS receipt (see order-details.js renderOrderReceipt()) rather
+             than printing the raw management cards above. --}}
+        <div id="order-receipt-printable" class="hidden">
+            <div id="order-receipt-content"></div>
+        </div>
+
+        <div class="card order-no-print rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
             <p class="section-title font-manrope font-bold text-[16px] text-[#171E26] mb-4">Update Status</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -61,6 +76,7 @@
                     <label for="status-select" class="field-label">Order Status</label>
                     <div class="relative">
                         <select id="status-select" class="field-input appearance-none pr-9">
+                            <option value="">Select Order Status</option>
                             <option value="processing">Processing</option>
                             <option value="ready_for_pickup">Ready for Pickup</option>
                             <option value="completed">Completed</option>
@@ -91,10 +107,14 @@
                 <div class="field">
                     <label for="delivery-status-select" class="field-label">Delivery Status</label>
                     <div class="relative">
+                        {{-- FIXED: options were "Pickup"/"Delivery" (fulfillment-type
+                             values, wrong domain entirely) instead of real delivery
+                             status values. Restored to pending/shipped/delivered,
+                             which is what this field is actually meant to hold and
+                             what the backend's delivery_status column expects. --}}
                         <select id="delivery-status-select" class="field-input appearance-none pr-9">
                             <option value="">Select Delivery Status</option>
                             <option value="pending">Pending</option>
-                            <option value="shipped">Shipped</option>
                             <option value="delivered">Delivered</option>
                         </select>
                         <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[#171E26]/35 pointer-events-none text-sm"></i>
@@ -111,6 +131,30 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    {{-- NEW: small info modal, used only to replace the native alert() that fires
+         when an order-status update is rejected (e.g. trying to move status
+         backward, which is intentionally blocked server-side). Single message +
+         OK button, matching your existing modal-backdrop/btn classes. --}}
+    <div id="info-modal"
+         class="modal-backdrop fixed inset-0 z-[60] items-center justify-center p-4
+                bg-[#171E26]/45 backdrop-blur-[2px]"
+         style="display: none;">
+        <div class="modal-content w-full max-w-[380px]
+                    bg-white border border-[#EAF1FB] rounded-2xl
+                    shadow-[0_28px_64px_-28px_rgba(23,30,38,0.35)]
+                    p-6 text-center">
+            <div class="mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center bg-red-50">
+                <i class="ph ph-warning text-2xl text-red-600"></i>
+            </div>
+            <h3 id="info-modal-title" class="font-manrope text-[17px] font-extrabold text-[#171E26] mb-1.5">Unable to Update Status</h3>
+            <p id="info-modal-message" class="font-inter text-[13.5px] text-[#171E26]/60 leading-relaxed mb-6"></p>
+            <button type="button" id="info-modal-close-btn"
+                    class="btn btn-primary w-full justify-center
+                           bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white
+                           shadow-lg shadow-[#2775E4]/20">OK</button>
         </div>
     </div>
 
@@ -142,6 +186,26 @@
                 @apply text-center py-10 px-4 font-inter text-sm text-[#171E26]/45;
             }
         </style>
+
+        {{-- Print scoping: identical technique to the POS receipt. Hide the whole
+             page, reveal only #order-receipt-printable, and hide anything inside
+             it that's marked order-no-print (the header row/buttons). Anything
+             marked order-print-only is hidden on screen and revealed only here. --}}
+        <style>
+            @media print {
+                body * { visibility: hidden; }
+                #order-receipt-printable, #order-receipt-printable * { visibility: visible; }
+                #order-receipt-printable {
+                    display: block !important;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                }
+            }
+        </style>
+
+        <script src="{{ asset('assets/minimal/js/staff/receipt-template.js') }}"></script>
         <script src="{{ asset('assets/minimal/js/staff/order-details.js') }}"></script>
     </x-slot:scripts>
 </x-layouts.staff>

@@ -59,12 +59,12 @@ class SettlementAccountController extends Controller
             'reason' => ['required', 'string', 'max:255'],
         ]);
 
-        $account->update([
-            'status' => 'rejected',
-            'reviewed_by_id' => Auth::id(),
-            'reviewed_at' => now(),
-            'rejection_reason' => $request->string('reason')->toString(),
-        ]);
+     $account->update([
+    'status' => 'approved',
+    'reviewed_by_id' => Auth::id(),
+    'reviewed_at' => now(),
+    'rejection_reason' => null,
+]);
 
         $owner = $account->pharmacy->users()->where('role', 'owner')->first();
         if ($owner) {

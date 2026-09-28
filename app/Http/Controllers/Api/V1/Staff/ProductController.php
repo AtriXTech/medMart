@@ -25,6 +25,9 @@ class ProductController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
+        $perPage = min(100, max(1, $request->integer('per_page', 20)));
+        $search = $request->string('search')->toString();
+
         $products = Product::query()
             ->with('category')
             ->when(
@@ -33,10 +36,20 @@ class ProductController extends Controller
             )
             ->when(
                 $request->filled('search'),
-                fn ($query) => $query->where('name', 'like', '%' . $request->string('search')->toString() . '%')
+                function ($query) use ($search) {
+                    $query->where(function ($inner) use ($search) {
+                        $inner->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('generic_name', 'like', '%' . $search . '%')
+                            ->orWhere('barcode', 'like', '%' . $search . '%');
+                    });
+                }
+            )
+            ->when(
+                $request->boolean('availability') || $request->input('availability') === '1',
+                fn ($query) => $query->where('is_available', true)
             )
             ->orderBy('name')
-            ->paginate(20);
+            ->paginate($perPage);
 
         return ProductResource::collection($products);
     }

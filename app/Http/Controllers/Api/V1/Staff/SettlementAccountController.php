@@ -24,19 +24,28 @@ class SettlementAccountController extends Controller
         return response()->json($account ? new SettlementAccountResource($account) : null);
     }
 
-    public function store(StoreSettlementAccountRequest $request): JsonResponse
-    {
-        $bank = Bank::findOrFail($request->integer('bank_id'));
+ public function store(StoreSettlementAccountRequest $request): JsonResponse
+{
+    $bank = Bank::findOrFail($request->integer('bank_id'));
 
-        $account = SettlementAccount::create([
+    $account = SettlementAccount::updateOrCreate(
+        [
             'pharmacy_id' => $request->user()->pharmacy_id,
+        ],
+        [
             'bank_id' => $bank->id,
             'bank_name' => $bank->name,
             'account_number' => $request->string('account_number')->toString(),
             'account_name' => $request->string('account_name')->toString(),
             'status' => 'pending',
-        ]);
+            'rejection_reason' => null,
+            'reviewed_by_id' => null,
+            'reviewed_at' => null,
+        ]
+    );
 
-        return response()->json(new SettlementAccountResource($account->load('bank')), 201);
-    }
+    return response()->json(
+        new SettlementAccountResource($account->load('bank'))
+    );
+}
 }

@@ -84,6 +84,59 @@
             </form>
         </div>
     </div>
+    <div id="confirm-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center
+            bg-[#171E26]/40 px-4">
+
+    <div class="w-full max-w-md rounded-2xl bg-white
+                border border-[#DBEBFB]
+                shadow-xl p-6">
+
+        <div class="flex items-start gap-4">
+
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center
+                        rounded-xl bg-red-50">
+                <i class="ph ph-trash text-xl text-red-500"></i>
+            </div>
+
+            <div>
+                <h3 id="confirm-modal-title"
+                    class="font-manrope text-lg font-bold text-[#171E26]">
+                    Delete category?
+                </h3>
+
+                <p id="confirm-modal-message"
+                   class="font-inter text-sm text-[#171E26]/55 mt-1.5 leading-relaxed">
+                    Are you sure you want to delete this category?
+                </p>
+            </div>
+
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+
+            <button type="button"
+                    id="confirm-modal-cancel-btn"
+                    class="px-4 py-2.5 rounded-xl
+                           border border-[#DBEBFB]
+                           font-inter text-sm font-semibold
+                           text-[#171E26]
+                           hover:bg-[#F7FAFD] transition">
+                Cancel
+            </button>
+
+            <button type="button"
+                    id="confirm-modal-confirm-btn"
+                    class="px-4 py-2.5 rounded-xl
+                           bg-red-500 text-white
+                           font-inter text-sm font-semibold
+                           hover:bg-red-600 transition">
+                Delete
+            </button>
+
+        </div>
+    </div>
+</div>
 
     <x-slot:scripts>
         <script src="{{ asset('assets/minimal/js/staff/product-categories.js') }}"></script>

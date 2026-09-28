@@ -1,19 +1,3 @@
-{{--
-    Intended path: resources/views/staff/dashboard.blade.php
-
-    CHANGE SUMMARY:
-    - Kept the exact loading/content/error pattern: #dashboard-error,
-      #dashboard-loading, #dashboard-content are still the three states
-      dashboard.js toggles. Nothing about that contract changed.
-    - #stat-grid and #status-table-body no longer exist — dashboard.js
-      was rewritten to match this new markup (new element IDs below).
-      See dashboard.js change summary for the full mapping.
-    - Added: KPI grid with visual hierarchy (primary vs operational),
-      Orders by Status bar chart, Today's Performance bar chart,
-      Needs Attention cards, Recent Orders list.
-    - Chart.js is loaded here (page-specific), not in the shared layout,
-      since only this page needs it.
---}}
 <x-layouts.staff title="Dashboard" active="dashboard">
 
     <div id="dashboard-error" class="hidden rounded-2xl bg-white border border-[#F5C9C4] p-8 text-center mb-6">
@@ -23,6 +7,7 @@
     </div>
 
     <div id="dashboard-loading">
+        <div class="skel h-[100px] rounded-2xl mb-4"></div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4">
             <div class="skel h-[104px] rounded-2xl"></div>
             <div class="skel h-[104px] rounded-2xl"></div>
@@ -35,12 +20,32 @@
 
     <div id="dashboard-content" class="hidden">
 
-        {{-- PRIMARY + OPERATIONAL METRICS --}}
-        <div id="stat-grid-primary" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4"></div>
-        <div id="stat-grid-operational" class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-8"></div>
+        {{-- WELCOME --}}
+        <div class="rounded-2xl bg-gradient-to-br from-[#2775E4] to-[#08AEBC] p-5 md:p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i id="welcome-icon" class="ph-fill ph-sun text-white text-xl"></i>
+                        <p class="font-manrope font-extrabold text-[20px] md:text-[22px] text-white" id="welcome-greeting">Good morning</p>
+                    </div>
+                    <p class="font-inter text-[13px] text-white/80 mt-1" id="welcome-pharmacy">Your Pharmacy</p>
+                    <p class="font-inter text-[12px] text-white/60 mt-0.5" id="welcome-date">Today</p>
+                </div>
+                <div class="flex gap-2.5 flex-shrink-0">
+                    <a href="/staff/pos" class="px-4 py-2.5 rounded-xl bg-white text-[#2775E4] font-inter text-[13px] font-semibold hover:opacity-90 transition">Open POS</a>
+                    <a href="/staff/orders" class="px-4 py-2.5 rounded-xl bg-white/15 border border-white/30 text-white font-inter text-[13px] font-semibold hover:bg-white/20 transition">View Orders</a>
+                </div>
+            </div>
+        </div>
 
-        {{-- ANALYTICS: ORDERS BY STATUS + TODAY'S PERFORMANCE --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {{-- BUSINESS PERFORMANCE --}}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-2.5">Business Performance</p>
+        <div id="stat-grid-primary" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4"></div>
+        <div id="stat-grid-secondary" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8"></div>
+
+        {{-- ANALYTICS --}}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-2.5">Analytics</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
 
             <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
                 <h3 class="font-manrope font-bold text-[16px] text-[#171E26]">Orders by Status</h3>
@@ -56,20 +61,31 @@
 
         </div>
 
-        {{-- NEEDS ATTENTION --}}
-        <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6 mb-4">
-            <h3 class="font-manrope font-bold text-[16px] text-[#171E26] mb-4">Needs Attention</h3>
-            <div id="attentionWrap" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        {{-- BUSINESS HEALTH --}}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-2.5">Business Health</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+
+            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
+                <h3 class="font-manrope font-bold text-[16px] text-[#171E26] mb-4">Inventory Health</h3>
+                <div id="inventoryHealthWrap" class="grid grid-cols-2 gap-3"></div>
+            </div>
+
+            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
+                <h3 class="font-manrope font-bold text-[16px] text-[#171E26] mb-4">Needs Attention</h3>
+                <div id="attentionWrap" class="grid grid-cols-1 gap-3"></div>
+            </div>
+
         </div>
 
-        {{-- RECENT ORDERS --}}
+        {{-- RECENT ACTIVITY --}}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-2.5">Recent Activity</p>
         <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6 mb-10">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-manrope font-bold text-[16px] text-[#171E26]">Recent Orders</h3>
                 <a href="/staff/orders" class="font-inter text-[13px] font-semibold text-[#2775E4] hover:underline flex items-center gap-1">View all orders <i class="ph-light ph-arrow-right"></i></a>
             </div>
-            <div id="ordersTableWrap" class="hidden md:block overflow-x-auto">
-                <table class="w-full text-left">
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[560px] text-left">
                     <thead>
                         <tr class="border-b border-[#EAF1FB]">
                             <th class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 pb-3">Order</th>
@@ -83,7 +99,6 @@
                     <tbody id="ordersTableBody"></tbody>
                 </table>
             </div>
-            <div id="ordersCardsWrap" class="md:hidden space-y-3"></div>
         </div>
 
     </div>

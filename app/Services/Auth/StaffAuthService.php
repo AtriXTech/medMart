@@ -25,6 +25,18 @@ class StaffAuthService
             ]);
         }
 
+        if (! $user->pharmacy_id || ! $user->pharmacy) {
+            throw ValidationException::withMessages([
+                'email' => ['These credentials do not match our records.'],
+            ]);
+        }
+
+        if (($user->status ?? 'active') !== 'active') {
+            throw ValidationException::withMessages([
+                'email' => ['This account is inactive. Contact your pharmacy owner.'],
+            ]);
+        }
+
         if ($user->pharmacy->status === PharmacyStatus::Suspended) {
             throw new PharmacyAccessSuspendedException();
         }

@@ -1,3 +1,10 @@
+/*
+  CHANGE SUMMARY: none. This file is copied over unchanged — there was no
+  dynamic HTML rendering in it to rebuild (no rows, no cards, no badges),
+  just form population and a submit handler, both already ID-based and
+  already compatible with the redesigned Blade markup.
+*/
+
 const settingsError = document.getElementById('settings-error');
 const settingsLoading = document.getElementById('settings-loading');
 const settingsContent = document.getElementById('settings-content');
@@ -14,21 +21,21 @@ const settingsSuccess = document.getElementById('settings-success');
 
 async function loadSettings() {
     if (!Auth.requireAuth()) return;
-    
+
     settingsLoading.style.display = 'block';
     settingsContent.style.display = 'none';
     settingsError.style.display = 'none';
-    
+
     try {
         const data = await Api.get('/staff/pharmacy-settings');
-        
+
         pharmacyNameInput.value = data.name || '';
         pharmacyEmailInput.value = data.email || '';
         pharmacyPhoneInput.value = data.phone || '';
         pharmacyAddressInput.value = data.address || '';
         pharmacyTimezoneInput.value = data.timezone || 'Africa/Lagos';
         pharmacyCurrencyInput.value = data.currency || 'NGN';
-        
+
         settingsLoading.style.display = 'none';
         settingsContent.style.display = 'block';
     } catch (error) {
@@ -43,7 +50,7 @@ settingsForm.addEventListener('submit', async function(event) {
     settingsSubmitBtn.disabled = true;
     settingsFormError.style.display = 'none';
     settingsSuccess.style.display = 'none';
-    
+
     const formData = {
         name: pharmacyNameInput.value.trim(),
         email: pharmacyEmailInput.value.trim(),
@@ -52,7 +59,7 @@ settingsForm.addEventListener('submit', async function(event) {
         timezone: pharmacyTimezoneInput.value.trim(),
         currency: pharmacyCurrencyInput.value.trim(),
     };
-    
+
     try {
         await Api.patch('/staff/pharmacy-settings', formData);
         settingsSuccess.textContent = 'Settings updated successfully!';

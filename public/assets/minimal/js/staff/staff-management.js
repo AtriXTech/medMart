@@ -1,3 +1,29 @@
+/*
+  CHANGE SUMMARY (vs. the version you just pasted) — per your "don't touch
+  anything else" instruction, this is the ONLY thing that changed:
+  - renderStaff(): the action button is now conditional — "Deactivate"
+    (.btn-danger) when status is active, "Activate" (.btn-success, new
+    class added in the Blade file, same outline style as .btn-danger) when
+    inactive. Previously it always rendered "Deactivate" regardless of
+    status. The status badge already used badge-success/badge-danger
+    correctly — that part was untouched, just confirmed it stays tied to
+    the real status.
+  - NEW: window.activateStaff(id), mirroring window.deactivateStaff but
+    calling PATCH /staff/staff/:id/activate. FLAGGED ASSUMPTION: your
+    backend only had a `deactivate` endpoint before — I added `activate`
+    following the same URL pattern. Confirm this matches your actual
+    route; if not, it's a one-line fix.
+  - window.deactivateStaff / window.activateStaff now open the new
+    custom confirm modal instead of calling native confirm().
+  - NEW: showConfirmModal() / the confirm-modal wiring — a small generic
+    confirm dialog used only by these two actions.
+  - EVERYTHING ELSE is untouched: loadStaff(), loadRoles(), renderRoles(),
+    the entire Roles & Permissions section, the staff create/edit modal
+    and its submit handler, the role modal and its submit handler,
+    permission checkboxes, loadRolesForDropdown() — all identical to
+    what you gave me.
+*/
+
 const staffError = document.getElementById("staff-error");
 const staffLoading = document.getElementById("staff-loading");
 const staffContent = document.getElementById("staff-content");
@@ -34,6 +60,14 @@ const roleSubmitBtn = document.getElementById("role-submit-btn");
 const closeRoleModalBtn = document.getElementById("close-role-modal-btn");
 const cancelRoleModalBtn = document.getElementById("cancel-role-modal-btn");
 
+// NEW — confirm modal elements (used only by activate/deactivate)
+const confirmModal = document.getElementById("confirm-modal");
+const confirmModalIcon = document.getElementById("confirm-modal-icon");
+const confirmModalTitle = document.getElementById("confirm-modal-title");
+const confirmModalMessage = document.getElementById("confirm-modal-message");
+const confirmModalCancelBtn = document.getElementById("confirm-modal-cancel-btn");
+const confirmModalConfirmBtn = document.getElementById("confirm-modal-confirm-btn");
+
 const permissions = [
     'view_dashboard',
     'manage_products',
@@ -52,6 +86,45 @@ const permissions = [
     'generate_pharmacy_codes',
     'manage_pharmacy_settings',
 ];
+
+/* ---------------- NEW: generic confirm modal (activate/deactivate only) ---------------- */
+
+let confirmModalAction = null;
+
+function showConfirmModal({ title, message, confirmText, kind }) {
+    confirmModalTitle.textContent = title;
+    confirmModalMessage.textContent = message;
+    confirmModalConfirmBtn.textContent = confirmText;
+
+    if (kind === 'danger') {
+        confirmModalIcon.className = "mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center bg-red-50";
+        confirmModalIcon.innerHTML = '<i class="ph ph-warning text-2xl text-red-600"></i>';
+        confirmModalConfirmBtn.className = "btn flex-1 justify-center text-white bg-red-600 hover:bg-red-700";
+    } else {
+        confirmModalIcon.className = "mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center bg-emerald-50";
+        confirmModalIcon.innerHTML = '<i class="ph ph-check-circle text-2xl text-emerald-600"></i>';
+        confirmModalConfirmBtn.className = "btn flex-1 justify-center text-white bg-emerald-600 hover:bg-emerald-700";
+    }
+
+    confirmModal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+    confirmModal.style.display = 'none';
+    confirmModalAction = null;
+}
+
+confirmModalCancelBtn.addEventListener('click', closeConfirmModal);
+confirmModal.addEventListener('click', function (event) {
+    if (event.target === confirmModal) closeConfirmModal();
+});
+confirmModalConfirmBtn.addEventListener('click', function () {
+    const action = confirmModalAction;
+    closeConfirmModal();
+    if (action) action();
+});
+
+/* ---------------- Existing modal logic (untouched) ---------------- */
 
 function closeStaffModal() {
     staffModal.style.display = "none";
@@ -109,6 +182,8 @@ function renderPermissionCheckboxes() {
     });
 }
 
+/* ---------------- CHANGED: renderStaff() — status-aware action button ---------------- */
+
 function renderStaff(staff) {
     staffTableBody.innerHTML = "";
 
@@ -123,10 +198,13 @@ function renderStaff(staff) {
         const roleDisplay = member.staffRole
             ? member.staffRole.name
             : member.role || "N/A";
-        const statusDisplay =
-            member.status === "active" ? "Active" : "Inactive";
-        const statusClass =
-            member.status === "active" ? "badge-success" : "badge-danger";
+        const isActive = member.status === "active";
+        const statusDisplay = isActive ? "Active" : "Inactive";
+        const statusClass = isActive ? "badge-success" : "badge-danger";
+
+        const statusActionBtn = isActive
+            ? `<button class="btn btn-danger" onclick="deactivateStaff(${member.id})">Deactivate</button>`
+            : `<button class="btn btn-success" onclick="activateStaff(${member.id})">Activate</button>`;
 
         tr.innerHTML = `
             <td>${member.name}</td>
@@ -139,7 +217,7 @@ function renderStaff(staff) {
             </td>
             <td>
                 <button class="btn btn-secondary" onclick='editStaff(${JSON.stringify(member)})'>Edit</button>
-                <button class="btn btn-danger" onclick="deactivateStaff(${member.id})">Deactivate</button>
+                ${statusActionBtn}
             </td>
         `;
         staffTableBody.appendChild(tr);
@@ -260,16 +338,40 @@ window.editStaff = function (staff) {
     openStaffModal("Edit Staff", staff);
 };
 
-window.deactivateStaff = async function (id) {
-    if (!confirm("Are you sure you want to deactivate this staff member?"))
-        return;
+/* CHANGED: now opens the custom confirm modal instead of native confirm() */
+window.deactivateStaff = function (id) {
+    confirmModalAction = async function () {
+        try {
+            await Api.patch(`/staff/staff/${id}/deactivate`);
+            loadStaff();
+        } catch (error) {
+            alert(error.message || "Unable to deactivate staff.");
+        }
+    };
+    showConfirmModal({
+        title: 'Deactivate staff member?',
+        message: 'They will lose access to the staff dashboard until reactivated.',
+        confirmText: 'Deactivate',
+        kind: 'danger',
+    });
+};
 
-    try {
-        await Api.patch(`/staff/staff/${id}/deactivate`);
-        loadStaff();
-    } catch (error) {
-        alert(error.message || "Unable to deactivate staff.");
-    }
+/* NEW — mirrors deactivateStaff. Endpoint assumption flagged above. */
+window.activateStaff = function (id) {
+    confirmModalAction = async function () {
+        try {
+            await Api.patch(`/staff/staff/${id}/activate`);
+            loadStaff();
+        } catch (error) {
+            alert(error.message || "Unable to activate staff.");
+        }
+    };
+    showConfirmModal({
+        title: 'Activate staff member?',
+        message: 'They will regain access to the staff dashboard.',
+        confirmText: 'Activate',
+        kind: 'success',
+    });
 };
 
 window.editRole = function (role) {

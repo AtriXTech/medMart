@@ -9,6 +9,7 @@ use App\Traits\BelongsToPharmacy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Pharmacy;
 
 class SubscriptionPayment extends Model
 {
@@ -34,4 +35,9 @@ class SubscriptionPayment extends Model
     {
         return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');
     }
+
+    public function pharmacy(): BelongsTo
+{
+    return $this->belongsTo(Pharmacy::class);
+}
 }

@@ -57,18 +57,43 @@ class BatchController extends Controller
         return response()->json(new BatchResource($batch));
     }
 
+    /**
+     * CHANGED: previously hardcoded to a fixed 90-day "expiring soon" window
+     * and always excluded already-expired batches (expiry_date >= now()).
+     * Now accepts two optional query params:
+     *   - `days` (int, default 90): the window size in days, only used when
+     *     status is `expiring`.
+     *   - `status` (`expiring` | `expired`, default `expiring`): switches
+     *     between the "expiring within N days" query and an "already
+     *     expired" query. Any other/missing value falls back to `expiring`.
+     * Everything else (pharmacy scoping, quantity > 0, ordering, pagination
+     * shape) is unchanged.
+     */
     public function expiringSoon(Request $request): JsonResponse
     {
         $pharmacyId = $request->user()->pharmacy_id;
 
-        $batches = Batch::where('pharmacy_id', $pharmacyId)
+        $status = $request->query('status', 'expiring');
+        if (!in_array($status, ['expiring', 'expired'], true)) {
+            $status = 'expiring';
+        }
+
+        $days = $request->integer('days', 90);
+
+        $query = Batch::where('pharmacy_id', $pharmacyId)
             ->where('quantity', '>', 0)
             ->whereNotNull('expiry_date')
-            ->where('expiry_date', '<=', now()->addDays(90))
-            ->where('expiry_date', '>=', now())
             ->with('product')
-            ->orderBy('expiry_date')
-            ->paginate(20);
+            ->orderBy('expiry_date');
+
+        if ($status === 'expired') {
+            $query->where('expiry_date', '<', now());
+        } else {
+            $query->where('expiry_date', '>=', now())
+                  ->where('expiry_date', '<=', now()->addDays($days));
+        }
+
+        $batches = $query->paginate(20);
 
         return response()->json([
             'data' => $batches->items(),

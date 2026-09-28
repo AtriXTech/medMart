@@ -229,6 +229,31 @@
         </div>
     </div>
 
+    {{-- NEW: Custom confirm modal — used ONLY by the staff activate/deactivate
+         actions, replacing native confirm() for those two cases. Built with the
+         exact same modal-backdrop/modal-content treatment as the two modals
+         above for visual consistency. Nothing else on this page uses it. --}}
+    <div id="confirm-modal"
+         class="modal-backdrop fixed inset-0 z-[60] items-center justify-center p-4
+                bg-[#171E26]/45 backdrop-blur-[2px]"
+         style="display: none;">
+        <div class="modal-content w-full max-w-[380px]
+                    bg-white border border-[#EAF1FB] rounded-2xl
+                    shadow-[0_28px_64px_-28px_rgba(23,30,38,0.35)]
+                    p-6 text-center">
+            <div id="confirm-modal-icon" class="mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center"></div>
+            <h3 id="confirm-modal-title" class="font-manrope text-[17px] font-extrabold text-[#171E26] mb-1.5">Are you sure?</h3>
+            <p id="confirm-modal-message" class="font-inter text-[13.5px] text-[#171E26]/60 leading-relaxed mb-6"></p>
+            <div class="flex items-center gap-2.5">
+                <button type="button" id="confirm-modal-cancel-btn"
+                        class="btn btn-secondary flex-1 justify-center bg-white border border-[#DBEBFB] text-[#171E26]
+                               hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4]">Cancel</button>
+                <button type="button" id="confirm-modal-confirm-btn"
+                        class="btn flex-1 justify-center text-white"></button>
+            </div>
+        </div>
+    </div>
+
     <x-slot:scripts>
         <style type="text/tailwindcss">
             .badge {
@@ -254,6 +279,10 @@
             }
             .btn-danger {
                 @apply bg-white border border-[#F5C9C4] text-red-700 hover:bg-red-50;
+            }
+            /* {{-- NEW: mirrors .btn-danger's outline style for the Activate action --}} */
+            .btn-success {
+                @apply bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50;
             }
 
             .empty-state {

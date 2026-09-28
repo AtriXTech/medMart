@@ -21,38 +21,49 @@ function formatDate(dateString) {
 
 function badgeForStatus(status) {
     const map = {
-        pending: "badge-warning",
-        processing: "badge-warning",
-        shipped: "badge-warning",
-        delivered: "badge-success",
-        completed: "badge-success",
-        cancelled: "badge-danger",
+        pending: "bg-amber-50 text-amber-600",
+        processing: "bg-amber-50 text-amber-600",
+        shipped: "bg-amber-50 text-amber-600",
+        delivered: "bg-[#DBEBFB] text-[#2775E4]",
+        completed: "bg-[#DBEBFB] text-[#2775E4]",
+        cancelled: "bg-red-50 text-red-500",
     };
-    const cls = map[status] || "badge-muted";
-    return `<span class="badge ${cls}">${status}</span>`;
+    const cls = map[status] || "bg-[#F7FAFD] text-[#171E26]/50";
+    return `<span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${cls}">${status}</span>`;
 }
 
 function renderOrders(orders) {
     ordersTableBody.innerHTML = "";
 
     if (!orders || orders.length === 0) {
-        ordersTableBody.innerHTML =
-            '<tr><td colspan="8" class="empty-state">No orders found</td></tr>';
+        ordersTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="py-14 text-center">
+                    <i class="ph ph-shopping-bag-open text-3xl text-[#171E26]/20"></i>
+                    <p class="font-inter text-sm text-[#171E26]/45 mt-2">No orders found</p>
+                </td>
+            </tr>
+        `;
         return;
     }
 
     orders.forEach(function (order) {
+        console.log(order)
         const tr = document.createElement("tr");
+        tr.className = "border-b border-[#EAF1FB] hover:bg-[#F7FAFD] transition";
         tr.innerHTML = `
-      <td>${order.order_number || order.id}</td>
-      <td>${order.customer ? order.customer.name : "N/A"}</td>
-      <td>${formatCurrency(order.total_amount || order.total)}</td>
-      <td>${badgeForStatus(order.status)}</td>
-      <td>${badgeForStatus(order.delivery_status || "pending")}</td>
-      <td>${order.items_count || 0}</td>
-      <td>${formatDate(order.created_at)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="viewOrder(${order.id})">View</button>
+      <td class="py-3 px-3 font-inter text-[14px] font-medium text-[#171E26]">${order.order_number || order.id}</td>
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]">${order.customer ? order.customer.name : "N/A"}</td>
+      <td class="py-3 px-3 font-inter text-[14px] font-semibold text-[#171E26]">${formatCurrency(order.total_amount || order.total)}</td>
+      <td class="py-3 px-3">${badgeForStatus(order.status)}</td>
+      <td class="py-3 px-3">${badgeForStatus(order.delivery_status || "pending")}</td>
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${order.items[0].quantity || 0}</td>
+      <td class="py-3 px-3 font-inter text-[13px] text-[#171E26]/60 whitespace-nowrap">${formatDate(order.created_at)}</td>
+      <td class="py-3 px-3">
+        <button type="button" onclick="viewOrder(${order.id})"
+                class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#2775E4] hover:bg-[#DBEBFB] transition">
+          View
+        </button>
       </td>
     `;
         ordersTableBody.appendChild(tr);
@@ -65,7 +76,7 @@ function renderPagination() {
     if (totalPages <= 1) return;
 
     const prevBtn = document.createElement("button");
-    prevBtn.className = "btn btn-secondary";
+    prevBtn.className = "rounded-lg border border-[#DBEBFB] px-4 py-2 font-inter text-sm font-semibold text-[#171E26] hover:bg-[#F7FAFD] disabled:opacity-40 disabled:cursor-not-allowed transition";
     prevBtn.textContent = "Previous";
     prevBtn.disabled = currentPage === 1;
     prevBtn.onclick = function () {
@@ -74,12 +85,12 @@ function renderPagination() {
     paginationContainer.appendChild(prevBtn);
 
     const pageInfo = document.createElement("span");
+    pageInfo.className = "mx-3 font-inter text-sm text-[#171E26]/60";
     pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    pageInfo.style.margin = "0 12px";
     paginationContainer.appendChild(pageInfo);
 
     const nextBtn = document.createElement("button");
-    nextBtn.className = "btn btn-secondary";
+    nextBtn.className = "rounded-lg border border-[#DBEBFB] px-4 py-2 font-inter text-sm font-semibold text-[#171E26] hover:bg-[#F7FAFD] disabled:opacity-40 disabled:cursor-not-allowed transition";
     nextBtn.textContent = "Next";
     nextBtn.disabled = currentPage === totalPages;
     nextBtn.onclick = function () {
@@ -114,7 +125,7 @@ async function loadOrders(page = 1) {
     } catch (error) {
         ordersLoading.style.display = "none";
         ordersError.textContent = error.message || "Unable to load orders.";
-        ordersError.style.display = "block";
+        ordersError.style.display = "flex";
     }
 }
 

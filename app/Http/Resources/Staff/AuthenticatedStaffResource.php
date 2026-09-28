@@ -15,7 +15,7 @@ class AuthenticatedStaffResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role,
+            'role' => $this->role instanceof \App\Enums\StaffRole ? $this->role->value : $this->role,
             'pharmacy_id' => $this->pharmacy_id,
         ];
     }

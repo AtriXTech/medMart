@@ -41,6 +41,19 @@ function formatCurrency(amount) {
     return "₦" + value.toLocaleString();
 }
 
+// Stock quantity takes priority over the is_available flag — a product with
+// zero stock can't actually be sold regardless of how is_available is set,
+// so "Out of Stock" overrides "Available" whenever stock_quantity <= 0.
+function stockBadge(product) {
+    if (Number(product.stock_quantity) <= 0) {
+        return { label: "Out of Stock", classes: "bg-red-50 text-red-500" };
+    }
+    if (product.is_available) {
+        return { label: "Available", classes: "bg-[#DBEBFB] text-[#2775E4]" };
+    }
+    return { label: "Unavailable", classes: "bg-red-50 text-red-500" };
+}
+
 function openModal(title, product = null) {
     productFormTitle.textContent = title;
     productFormError.style.display = "none";
@@ -122,8 +135,8 @@ function renderProducts(products) {
       <td class="py-3 px-3 font-inter text-[14px] font-semibold text-[#171E26]">${formatCurrency(product.price)}</td>
       <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${product.stock_quantity || 0}</td>
       <td class="py-3 px-3">
-        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${product.is_available ? "bg-[#DBEBFB] text-[#2775E4]" : "bg-red-50 text-red-500"}">
-          ${product.is_available ? "Available" : "Unavailable"}
+        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${stockBadge(product).classes}">
+          ${stockBadge(product).label}
         </span>
       </td>
       <td class="py-3 px-3">
@@ -135,6 +148,10 @@ function renderProducts(products) {
           <button type="button" onclick='editProduct(${JSON.stringify(product)})'
                   class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#2775E4] hover:bg-[#DBEBFB] transition">
             Edit
+          </button>
+          <button type="button" onclick="deleteProduct(${product.id})"
+                  class="rounded-lg border border-red-200 px-3 py-1.5 font-inter text-[13px] font-semibold text-red-500 hover:bg-red-50 transition">
+            Delete
           </button>
         </div>
       </td>
@@ -196,10 +213,37 @@ async function loadCategories() {
 async function loadProducts(page = 1) {
     if (!Auth.requireAuth()) return;
 
-    currentPage = page;
     productsLoading.style.display = "block";
     productsContent.style.display = "none";
     productsError.style.display = "none";
+
+    try {
+        if (availabilityFilter.value) {
+            // The API's `availability` param only reflects the manual
+            // is_available flag, not actual stock_quantity — but the Status
+            // badge in this table prioritizes stock_quantity (a product with
+            // 0 stock always shows "Out of Stock" regardless of
+            // is_available, see stockBadge()). Filtering must match what's
+            // actually displayed, so when this filter is active we fetch the
+            // full (search/category-filtered) catalog and filter + paginate
+            // client-side instead of relying on the server's availability
+            // param, which gave inconsistent results with what the table
+            // showed. Trade-off: this fetches more data upfront than normal
+            // server pagination, since there's no server-side stock-status
+            // filter to rely on.
+            await loadProductsFilteredByStock(page);
+        } else {
+            await loadProductsFromServer(page);
+        }
+    } catch (error) {
+        productsLoading.style.display = "none";
+        productsError.textContent = error.message || "Unable to load products.";
+        productsError.style.display = "flex";
+    }
+}
+
+async function loadProductsFromServer(page) {
+    currentPage = page;
 
     const params = new URLSearchParams();
     params.append("page", currentPage);
@@ -211,26 +255,75 @@ async function loadProducts(page = 1) {
     if (categoryFilter.value) {
         params.append("category_id", categoryFilter.value);
     }
-    if (availabilityFilter.value) {
-        params.append("availability", availabilityFilter.value);
-    }
 
-    try {
+    const data = await Api.get(`/staff/products?${params.toString()}`);
+    renderProducts(data.data);
+    totalPages = data.meta ? data.meta.last_page : 1;
+    renderPagination();
+    productsLoading.style.display = "none";
+    productsContent.style.display = "block";
+}
+
+async function loadProductsFilteredByStock(page) {
+    // Walk every page of the catalog (respecting search/category filters)
+    // since there's no server-side stock-status filter to rely on.
+    const perPage = 100;
+    let fetchPage = 1;
+    let lastPage = 1;
+    let all = [];
+
+    do {
+        const params = new URLSearchParams();
+        params.append("page", fetchPage);
+        params.append("per_page", perPage);
+        if (searchInput.value.trim()) {
+            params.append("search", searchInput.value.trim());
+        }
+        if (categoryFilter.value) {
+            params.append("category_id", categoryFilter.value);
+        }
+
         const data = await Api.get(`/staff/products?${params.toString()}`);
-        renderProducts(data.data);
-        totalPages = data.meta ? data.meta.last_page : 1;
-        renderPagination();
-        productsLoading.style.display = "none";
-        productsContent.style.display = "block";
-    } catch (error) {
-        productsLoading.style.display = "none";
-        productsError.textContent = error.message || "Unable to load products.";
-        productsError.style.display = "flex";
-    }
+        all = all.concat(data.data || []);
+        lastPage = (data.meta && data.meta.last_page) || 1;
+        fetchPage += 1;
+    } while (fetchPage <= lastPage);
+
+    // Same priority logic as stockBadge(): zero stock always counts as
+    // "Out of Stock" regardless of is_available.
+    const wantOutOfStock = availabilityFilter.value === "0";
+    const filtered = all.filter(function (p) {
+        const outOfStock = Number(p.stock_quantity) <= 0;
+        return wantOutOfStock ? outOfStock : (!outOfStock && p.is_available);
+    });
+
+    // Paginate the filtered results ourselves (20 per page, matching the
+    // normal server page size) since this is now happening in-memory.
+    const perPageClient = 20;
+    totalPages = Math.max(1, Math.ceil(filtered.length / perPageClient));
+    currentPage = Math.min(page, totalPages);
+    const start = (currentPage - 1) * perPageClient;
+    const pageItems = filtered.slice(start, start + perPageClient);
+
+    renderProducts(pageItems);
+    renderPagination();
+    productsLoading.style.display = "none";
+    productsContent.style.display = "block";
 }
 
 window.viewProduct = function (id) {
     window.location.href = `/staff/product-details?id=${id}`;
+};
+
+window.deleteProduct = async function (id) {
+    if (!(await UIModal.confirm('Are you sure you want to delete this product? This cannot be undone.', { danger: true }))) return;
+
+    try {
+        await Api.delete(`/staff/products/${id}`);
+        loadProducts(currentPage);
+    } catch (error) {
+        await UIModal.alert(error.message || 'Unable to delete product.');
+    }
 };
 
 window.editProduct = function (product) {
@@ -286,6 +379,44 @@ productForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     productSubmitBtn.disabled = true;
     productFormError.style.display = "none";
+
+    const name = productNameInput.value.trim();
+    const barcode = productBarcodeInput.value.trim();
+    const editingId = productIdInput.value ? Number(productIdInput.value) : null;
+
+    // Client-side duplicate pre-check. This is best-effort only — the API's
+    // StoreProductRequest has no unique validation on name/barcode at all,
+    // so this can't fully prevent duplicates (e.g. a race condition between
+    // two staff creating at the same moment would still slip through), but
+    // it catches the common case of accidentally re-creating an existing
+    // product. The real fix is adding unique:products,name and/or
+    // unique:products,barcode validation on the backend.
+    try {
+        const checkParams = new URLSearchParams();
+        checkParams.append("search", name);
+        checkParams.append("per_page", 20);
+        const checkData = await Api.get(`/staff/products?${checkParams.toString()}`);
+        const existing = (checkData.data || []).find(function (p) {
+            if (editingId && p.id === editingId) return false;
+            const nameMatches = p.name && p.name.trim().toLowerCase() === name.toLowerCase();
+            const barcodeMatches = barcode && p.barcode && p.barcode.trim() === barcode;
+            return nameMatches || barcodeMatches;
+        });
+
+        if (existing) {
+            const isBarcodeClash = barcode && existing.barcode && existing.barcode.trim() === barcode;
+            productFormError.textContent = isBarcodeClash
+                ? `A product with barcode "${barcode}" already exists (${existing.name}).`
+                : `A product named "${existing.name}" already exists.`;
+            productFormError.style.display = "flex";
+            productSubmitBtn.disabled = false;
+            return;
+        }
+    } catch (error) {
+        console.error("Duplicate check failed, proceeding with submission:", error);
+        // Don't block submission just because the pre-check itself failed —
+        // fall through to the normal save flow below.
+    }
 
     const formData = new FormData();
     formData.append("name", productNameInput.value.trim());

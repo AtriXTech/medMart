@@ -19,6 +19,7 @@ class CustomerLinkResource extends JsonResource
                 'name' => $this->customer->name,
                 'email' => $this->customer->email,
                 'email_verified' => $this->customer->email_verified_at !== null,
+                'phone' => $this->customer->phone,
             ]),
             'is_active' => $this->is_active,
             'is_suspended' => $this->is_suspended,

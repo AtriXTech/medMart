@@ -1,24 +1,22 @@
 {{--
     Intended path: resources/views/staff/purchase-order-details.blade.php
 
-    CHANGE SUMMARY:
-    - Every static ID purchase-order-details.js binds to is preserved
-      exactly: po-error, po-loading, po-content, po-info, po-items-table,
+    CHANGE SUMMARY (vs. previous version):
+    - UNCHANGED: every static ID purchase-order-details.js binds to
+      (po-error, po-loading, po-content, po-info, po-items-table,
       receive-btn, cancel-btn, receive-modal, receive-form, receive-items,
-      receive-error, receive-submit-btn, close-receive-btn, cancel-receive-btn.
-    - The dynamic per-item IDs the JS generates and later reads back
-      (receive-quantity-${id}, receive-batch-${id}, receive-expiry-${id})
-      are untouched — I didn't rename anything in renderReceiveForm()'s
-      output pattern.
-    - #receive-btn / #cancel-btn: the JS toggles these with
-      style.display = 'inline-flex' / 'none' (not 'block'), so I kept
-      that exact value rather than switching to a Tailwind class, same
-      "don't mix class-based and inline-style visibility" rule as before.
-    - #po-error, #po-loading→#po-content, #receive-modal, #receive-error:
-      all plain inline style="display:none" to match what the JS toggles.
-    - Not changed, just flagging: cancelBtn still uses a native confirm()
-      dialog before cancelling an order. Left as-is, same reasoning as the
-      prompt() note on the PO create page — interaction change, not styling.
+      receive-error, receive-submit-btn, close-receive-btn,
+      cancel-receive-btn), the dynamic per-item receive-* IDs, the
+      inline-style display toggling on receive-btn/cancel-btn
+      ('inline-flex'/'none'), the receive modal, everything else.
+    - NEW: #confirm-modal, replacing the native confirm() dialog that
+      used to run on "Cancel Order". Follows the same overlay pattern
+      already used by #receive-modal on this page (Tailwind
+      fixed/inset-0/z-50 classes + style.display 'flex'/'none' toggle),
+      and reuses this page's own existing color tokens: the danger
+      (red/#9C3A32-family) styling already used on the Cancel Order
+      button, and the neutral border/[#DBEBFB] styling already used on
+      Back/Cancel-style buttons elsewhere on this page.
 --}}
 <x-layouts.staff title="Purchase Order Details" active="purchase-orders">
 
@@ -96,6 +94,25 @@
                         class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter font-semibold text-[13px] shadow-sm shadow-[#2775E4]/20 disabled:opacity-60">Receive Items</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- CONFIRM MODAL (Cancel Order) --}}
+    {{-- NEW: replaces native confirm(). Same overlay pattern as #receive-modal
+         above (fixed inset-0 z-50, style.display 'none'/'flex'). --}}
+    <div id="confirm-modal" style="display: none;" class="fixed inset-0 z-50 items-center justify-center bg-[#171E26]/50 px-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-[380px] p-6 text-center">
+            <div id="confirm-modal-icon" class="mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center bg-[#FDEDEC]">
+                <i class="ph-light ph-warning text-2xl text-[#9C3A32]"></i>
+            </div>
+            <h3 id="confirm-modal-title" class="font-manrope font-bold text-[16px] text-[#171E26] mb-1.5">Cancel purchase order?</h3>
+            <p id="confirm-modal-message" class="font-inter text-[13px] text-[#171E26]/60 leading-relaxed mb-6"></p>
+            <div class="flex items-center gap-2.5">
+                <button type="button" id="confirm-modal-cancel-btn"
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-[#DBEBFB] font-inter font-semibold text-[13px] text-[#171E26] hover:bg-[#F7FAFD]">No, go back</button>
+                <button type="button" id="confirm-modal-confirm-btn"
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-[#F5C9C4] font-inter font-semibold text-[13px] text-[#9C3A32] hover:bg-[#FDEDEC]">Cancel Order</button>
+            </div>
         </div>
     </div>
 

@@ -18,8 +18,27 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'requires_prescription' => $this->requires_prescription,
             'price' => $this->price,
+            'image_url' => $this->resolveImageUrl(),
+            'stock_quantity' => $this->stock_quantity,
             'in_stock' => $this->is_available && $this->stock_quantity > 0,
             'category' => $this->whenLoaded('category', fn () => $this->category?->name),
         ];
+    }
+
+    private function resolveImageUrl(): ?string
+    {
+        $path = $this->image_url;
+        if (! $path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+        if (str_starts_with($path, 'storage/')) {
+            return '/' . $path;
+        }
+
+        return '/storage/' . $path;
     }
 }

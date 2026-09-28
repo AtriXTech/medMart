@@ -1,19 +1,26 @@
 {{--
     Intended path: resources/views/components/layouts/staff.blade.php
-    (adjust if your project keeps layout components elsewhere)
 
-    CHANGE SUMMARY:
-    - Fully rebuilt in Tailwind. app.css is no longer loaded from this layout.
-      Any other staff page still using app.css classes (.card, .btn, .stat-grid,
-      .badge, .alert, etc.) will render unstyled until migrated — confirmed
-      acceptable, migrating page-by-page.
-    - Permission-gating logic is UNCHANGED: same data-permission attributes,
-      same hidden-by-permission / permissions-loaded classes (now driven by
-      Tailwind's `hidden` utility instead of the old <style> block), same
-      applyPermissions() fetch against /staff/profile.
-    - Auth.requireAuth(), Api.getUser(), logout button: unchanged.
-    - All nav hrefs and active-state logic: unchanged.
-    - Added: mobile drawer nav (the old layout had no mobile handling).
+    CHANGE SUMMARY (this revision):
+    - Added "Out of Stock" under Inventory on both desktop and mobile nav.
+      Assumed route /staff/out-of-stock and permission manage_products
+      (same as Products/Expiring Batches) — correct these if the real
+      route differs.
+    - Mobile drawer no longer clones the desktop sidebar's innerHTML.
+      It now has its own dedicated markup: larger touch targets (py-3.5
+      vs py-2.5), bigger text/icons, clearer section dividers. Both navs
+      still share the same data-permission attributes, so
+      applyPermissions() continues to gate both correctly without any
+      change to that logic.
+    - Added a one-time scrollIntoView() for the active nav item on page
+      load (both desktop and mobile), so it's always visible without a
+      manual scroll on pages further down the list. This does NOT scroll
+      continuously or fight the user's own scrolling — it positions once,
+      on load, then leaves the nav alone.
+    - Note: the actual "Expiring Batches highlights Products" bug lives in
+      expiring-batches.blade.php (active="products" instead of
+      active="expiring-batches"), not in this layout — the layout's check
+      was already correct. Fixed separately.
 --}}
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +28,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} · MedMart Staff</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    @vite('resources/css/app.css')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
@@ -49,6 +56,10 @@
         #sidebar-nav a[data-permission]{ display:none; }
         #sidebar-nav.permissions-loaded a[data-permission]{ display:flex; }
         #sidebar-nav.permissions-loaded a[data-permission].hidden-by-permission{ display:none; }
+
+        #sidebar-nav-mobile a[data-permission]{ display:none; }
+        #sidebar-nav-mobile.permissions-loaded a[data-permission]{ display:flex; }
+        #sidebar-nav-mobile.permissions-loaded a[data-permission].hidden-by-permission{ display:none; }
 
         /* Shared form field styling — used across staff pages (POS, Settings, Staff, etc.) */
         .field-input{
@@ -147,6 +158,10 @@
                    class="nav-link {{ $active === 'expiring-batches' ? 'active' : '' }} relative items-center gap-3 px-3 py-2.5 rounded-xl font-inter text-[14px] font-medium text-[#171E26]/70">
                     <i class="ph-light ph-hourglass-medium nav-icon text-[18px] text-[#171E26]/45"></i> Expiring Batches
                 </a>
+                <a href="/staff/out-of-stock" data-permission="manage_products"
+                   class="nav-link {{ $active === 'out-of-stock' ? 'active' : '' }} relative items-center gap-3 px-3 py-2.5 rounded-xl font-inter text-[14px] font-medium text-[#171E26]/70">
+                    <i class="ph-light ph-warning-circle nav-icon text-[18px] text-[#171E26]/45"></i> Out of Stock
+                </a>
             </div>
 
             <div>
@@ -158,10 +173,6 @@
                 <a href="/staff/orders" data-permission="manage_orders"
                    class="nav-link {{ $active === 'orders' ? 'active' : '' }} relative items-center gap-3 px-3 py-2.5 rounded-xl font-inter text-[14px] font-medium text-[#171E26]/70">
                     <i class="ph-light ph-shopping-bag-open nav-icon text-[18px] text-[#171E26]/45"></i> Orders
-                </a>
-                <a href="/staff/prescriptions" data-permission="manage_prescriptions"
-                   class="nav-link {{ $active === 'prescriptions' ? 'active' : '' }} relative items-center gap-3 px-3 py-2.5 rounded-xl font-inter text-[14px] font-medium text-[#171E26]/70">
-                    <i class="ph-light ph-file-rx nav-icon text-[18px] text-[#171E26]/45"></i> Prescriptions
                 </a>
             </div>
 
@@ -212,18 +223,121 @@
     </aside>
 
     {{-- ================= MOBILE DRAWER ================= --}}
+    {{-- Dedicated mobile markup (not cloned from desktop): bigger touch targets,
+         bigger text/icons, clearer section dividers. --}}
     <div id="sidebarOverlay" onclick="closeDrawer()" class="hidden fixed inset-0 bg-[#171E26]/40 z-40 opacity-0"></div>
-    <aside id="sidebarDrawer" class="fixed lg:hidden top-0 left-0 h-full w-[280px] bg-white z-50 -translate-x-full flex flex-col">
-        <div class="h-[68px] flex items-center justify-between px-5 border-b border-[#EAF1FB]">
+    <aside id="sidebarDrawer" class="fixed lg:hidden top-0 left-0 h-full w-[300px] bg-white z-50 -translate-x-full flex flex-col">
+        <div class="h-[68px] flex items-center justify-between px-5 border-b border-[#EAF1FB] flex-shrink-0">
             <div class="flex items-center gap-2.5">
                 <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2775E4] to-[#08AEBC] flex items-center justify-center"><i class="ph-fill ph-cross text-white text-lg"></i></div>
                 <p class="font-manrope font-extrabold text-[15px] text-[#171E26]">MedMart</p>
             </div>
             <button onclick="closeDrawer()" aria-label="Close menu" class="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/60"><i class="ph ph-x text-xl"></i></button>
         </div>
-        <nav id="sidebar-nav-mobile" class="flex-1 overflow-y-auto sidebar-scroll py-5 px-3">
-            {{-- Populated by JS: mirrors #sidebar-nav so permission logic only needs to run once. --}}
+
+        <nav id="sidebar-nav-mobile" class="flex-1 overflow-y-auto sidebar-scroll px-2 pb-4">
+
+            <div class="pt-4 pb-2">
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/35 px-3.5 mb-1.5">Main</p>
+                <a href="/staff/dashboard" data-permission="view_dashboard"
+                   class="nav-link {{ $active === 'dashboard' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <span class="nav-bar absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-gradient-to-b from-[#2775E4] to-[#08AEBC] opacity-0"></span>
+                    <i class="ph-light ph-squares-four nav-icon text-[20px] text-[#171E26]/45"></i> Dashboard
+                </a>
+                <a href="/staff/pos" data-permission="process_sales"
+                   class="nav-link {{ $active === 'pos' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-cash-register nav-icon text-[20px] text-[#171E26]/45"></i> POS
+                </a>
+                <a href="/staff/sales" data-permission="view_sales"
+                   class="nav-link {{ $active === 'sales' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-chart-line-up nav-icon text-[20px] text-[#171E26]/45"></i> Sales
+                </a>
+            </div>
+
+            <div class="pt-3 pb-2 border-t border-[#F3F7FC]">
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/35 px-3.5 mb-1.5 mt-2">Inventory</p>
+                <a href="/staff/products" data-permission="manage_products"
+                   class="nav-link {{ $active === 'products' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-package nav-icon text-[20px] text-[#171E26]/45"></i> Products
+                </a>
+                <a href="/staff/product-categories" data-permission="manage_categories"
+                   class="nav-link {{ $active === 'product-categories' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-tag nav-icon text-[20px] text-[#171E26]/45"></i> Categories
+                </a>
+                <a href="/staff/suppliers" data-permission="manage_suppliers"
+                   class="nav-link {{ $active === 'suppliers' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-truck nav-icon text-[20px] text-[#171E26]/45"></i> Suppliers
+                </a>
+                <a href="/staff/purchase-orders" data-permission="manage_purchase_orders"
+                   class="nav-link {{ $active === 'purchase-orders' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-clipboard-text nav-icon text-[20px] text-[#171E26]/45"></i> Purchase Orders
+                </a>
+                <a href="/staff/expiring-batches" data-permission="manage_products"
+                   class="nav-link {{ $active === 'expiring-batches' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-hourglass-medium nav-icon text-[20px] text-[#171E26]/45"></i> Expiring Batches
+                </a>
+                <a href="/staff/out-of-stock" data-permission="manage_products"
+                   class="nav-link {{ $active === 'out-of-stock' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-warning-circle nav-icon text-[20px] text-[#171E26]/45"></i> Out of Stock
+                </a>
+            </div>
+
+            <div class="pt-3 pb-2 border-t border-[#F3F7FC]">
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/35 px-3.5 mb-1.5 mt-2">Customers</p>
+                <a href="/staff/customers" data-permission="manage_customers"
+                   class="nav-link {{ $active === 'customers' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-users nav-icon text-[20px] text-[#171E26]/45"></i> Customers
+                </a>
+                <a href="/staff/orders" data-permission="manage_orders"
+                   class="nav-link {{ $active === 'orders' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-shopping-bag-open nav-icon text-[20px] text-[#171E26]/45"></i> Orders
+                </a>
+            </div>
+
+            <div class="pt-3 pb-2 border-t border-[#F3F7FC]">
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/35 px-3.5 mb-1.5 mt-2">Management</p>
+                <a href="/staff/staff-management" data-permission="manage_staff"
+                   class="nav-link {{ $active === 'staff-management' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-identification-badge nav-icon text-[20px] text-[#171E26]/45"></i> Staff & Roles
+                </a>
+                <a href="/staff/pharmacy-codes" data-permission="generate_pharmacy_codes"
+                   class="nav-link {{ $active === 'pharmacy-codes' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-qr-code nav-icon text-[20px] text-[#171E26]/45"></i> Pharmacy Codes
+                </a>
+                <a href="/staff/settlement" data-permission="manage_settlement"
+                   class="nav-link {{ $active === 'settlement' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-bank nav-icon text-[20px] text-[#171E26]/45"></i> Settlement Account
+                </a>
+            </div>
+
+            <div class="pt-3 pb-2 border-t border-[#F3F7FC]">
+                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/35 px-3.5 mb-1.5 mt-2">Account</p>
+                <a href="/staff/subscription" data-permission="manage_subscription"
+                   class="nav-link {{ $active === 'subscription' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-crown nav-icon text-[20px] text-[#171E26]/45"></i> Subscription
+                </a>
+                <a href="/staff/pharmacy-settings" data-permission="manage_pharmacy_settings"
+                   class="nav-link {{ $active === 'pharmacy-settings' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                    <i class="ph-light ph-gear nav-icon text-[20px] text-[#171E26]/45"></i> Pharmacy Settings
+                </a>
+            </div>
         </nav>
+
+        <div class="p-3 border-t border-[#EAF1FB] flex-shrink-0">
+            <a href="/staff/profile" class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#F7FAFD]">
+                <div class="h-9 w-9 rounded-full bg-gradient-to-br from-[#2775E4] to-[#08AEBC] flex items-center justify-center text-white font-manrope font-bold text-sm flex-shrink-0">
+                    <span id="staff-user-initial-mobile">M</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="font-inter text-[14px] font-semibold text-[#171E26] truncate" id="staff-user-name-mobile"></p>
+                    <p class="font-inter text-[12px] text-[#171E26]/45">Profile</p>
+                </div>
+            </a>
+            <button id="logout-btn-mobile" type="button"
+                class="w-full mt-1 flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-[#F7FAFD] font-inter text-[14px] font-medium text-[#171E26]/60">
+                <i class="ph-light ph-sign-out text-[19px]"></i> Logout
+            </button>
+        </div>
     </aside>
 
     {{-- ================= MAIN COLUMN ================= --}}
@@ -246,9 +360,160 @@
     </div>
 </div>
 
+<div id="ui-modal"
+     style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; background-color:rgba(23,30,38,0.45); padding:24px 16px;">
+    <div class="bg-white rounded-2xl w-full max-w-[380px] p-6 shadow-xl">
+
+        <div id="ui-modal-icon-wrap" class="h-11 w-11 rounded-xl bg-[#DBEBFB] flex items-center justify-center mb-4">
+            <i id="ui-modal-icon" class="ph ph-info text-[#2775E4] text-xl"></i>
+        </div>
+
+        <p id="ui-modal-message" class="font-inter text-[14px] text-[#171E26] leading-relaxed"></p>
+
+        <input id="ui-modal-input" type="text"
+               class="w-full mt-4 rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition"
+               style="display:none;">
+
+        <div class="flex justify-end gap-2.5 mt-6">
+            <button type="button" id="ui-modal-cancel-btn"
+                    class="px-4 py-2.5 rounded-xl border border-[#DBEBFB] font-inter text-[14px] font-semibold text-[#171E26] hover:bg-[#F7FAFD] transition">
+                Cancel
+            </button>
+            <button type="button" id="ui-modal-confirm-btn"
+                    class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter text-[14px] font-semibold shadow-sm hover:opacity-95 transition">
+                OK
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
 <script src="{{ asset('assets/minimal/js/api.js') }}"></script>
 <script src="{{ asset('assets/minimal/js/auth.js') }}"></script>
 <script>
+
+    (function () {
+    const modal = document.getElementById('ui-modal');
+    const iconWrap = document.getElementById('ui-modal-icon-wrap');
+    const icon = document.getElementById('ui-modal-icon');
+    const messageEl = document.getElementById('ui-modal-message');
+    const input = document.getElementById('ui-modal-input');
+    const cancelBtn = document.getElementById('ui-modal-cancel-btn');
+    const confirmBtn = document.getElementById('ui-modal-confirm-btn');
+
+    let resolvePending = null;
+    let currentType = null; // 'alert' | 'confirm' | 'prompt'
+
+    function setConfirmDanger(isDanger) {
+        if (isDanger) {
+            confirmBtn.className = 'px-4 py-2.5 rounded-xl bg-red-500 text-white font-inter text-[14px] font-semibold shadow-sm hover:bg-red-600 transition';
+            iconWrap.className = 'h-11 w-11 rounded-xl bg-red-50 flex items-center justify-center mb-4';
+            icon.className = 'ph ph-warning text-red-500 text-xl';
+        } else {
+            confirmBtn.className = 'px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter text-[14px] font-semibold shadow-sm hover:opacity-95 transition';
+            iconWrap.className = 'h-11 w-11 rounded-xl bg-[#DBEBFB] flex items-center justify-center mb-4';
+            icon.className = 'ph ph-info text-[#2775E4] text-xl';
+        }
+    }
+
+    function open(type, message, options) {
+        return new Promise(function (resolve) {
+            currentType = type;
+            resolvePending = resolve;
+            messageEl.textContent = message;
+
+            const opts = options || {};
+            confirmBtn.textContent = opts.confirmText || 'OK';
+            cancelBtn.textContent = opts.cancelText || 'Cancel';
+            setConfirmDanger(!!opts.danger);
+
+            if (type === 'alert') {
+                cancelBtn.style.display = 'none';
+            } else {
+                cancelBtn.style.display = 'inline-block';
+            }
+
+            if (type === 'prompt') {
+                input.style.display = 'block';
+                input.value = opts.defaultValue != null ? opts.defaultValue : '';
+                setTimeout(function () { input.focus(); input.select(); }, 0);
+            } else {
+                input.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+        });
+    }
+
+    function close(result) {
+        modal.style.display = 'none';
+        if (resolvePending) {
+            resolvePending(result);
+            resolvePending = null;
+        }
+        currentType = null;
+    }
+
+    function handleConfirmClick() {
+        if (currentType === 'prompt') {
+            close(input.value);
+        } else if (currentType === 'confirm') {
+            close(true);
+        } else {
+            close(undefined); // alert
+        }
+    }
+
+    function handleCancelClick() {
+        if (currentType === 'prompt') {
+            close(null);
+        } else {
+            close(false);
+        }
+    }
+
+    confirmBtn.addEventListener('click', handleConfirmClick);
+    cancelBtn.addEventListener('click', handleCancelClick);
+
+    // Backdrop click = cancel (confirm/prompt) or OK (alert, since there's no cancel path)
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            if (currentType === 'alert') {
+                close(undefined);
+            } else {
+                handleCancelClick();
+            }
+        }
+    });
+
+    // Escape = same as backdrop click. Enter in the prompt input = submit.
+    document.addEventListener('keydown', function (event) {
+        if (modal.style.display !== 'flex') return;
+        if (event.key === 'Escape') {
+            if (currentType === 'alert') {
+                close(undefined);
+            } else {
+                handleCancelClick();
+            }
+        } else if (event.key === 'Enter' && currentType === 'prompt') {
+            handleConfirmClick();
+        }
+    });
+
+    window.UIModal = {
+        alert: function (message, options) {
+            return open('alert', message, options);
+        },
+        confirm: function (message, options) {
+            return open('confirm', message, options);
+        },
+        prompt: function (message, defaultValue, options) {
+            return open('prompt', message, Object.assign({ defaultValue: defaultValue }, options || {}));
+        }
+    };
+})();
+
     Auth.requireAuth();
     const staffUser = Api.getUser();
     if (staffUser) {
@@ -256,14 +521,13 @@
         document.getElementById('staff-user-name').textContent = name;
         document.getElementById('staff-user-name-topbar').textContent = name;
         document.getElementById('staff-user-initial').textContent = (name || 'M').charAt(0).toUpperCase();
+        document.getElementById('staff-user-name-mobile').textContent = name;
+        document.getElementById('staff-user-initial-mobile').textContent = (name || 'M').charAt(0).toUpperCase();
     }
     function doLogout() { Auth.logout(); }
     document.getElementById('logout-btn').addEventListener('click', doLogout);
     document.getElementById('logout-btn-topbar').addEventListener('click', doLogout);
-
-    // Mirror the desktop nav into the mobile drawer so we only fetch/apply
-    // permissions once against the desktop list, then clone it.
-    document.getElementById('sidebar-nav-mobile').innerHTML = document.getElementById('sidebar-nav').innerHTML;
+    document.getElementById('logout-btn-mobile').addEventListener('click', doLogout);
 
     async function applyPermissions() {
         const navs = [document.getElementById('sidebar-nav'), document.getElementById('sidebar-nav-mobile')];
@@ -295,6 +559,15 @@
         }
     }
     applyPermissions();
+
+    // One-time positioning so the active nav item is visible on load without
+    // a manual scroll — does not run again or fight the user's own scrolling.
+    function scrollActiveIntoView() {
+        document.querySelectorAll('.nav-link.active').forEach(function (el) {
+            el.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+        });
+    }
+    scrollActiveIntoView();
 
     function openDrawer(){
         document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');

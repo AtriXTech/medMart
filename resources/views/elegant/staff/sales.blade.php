@@ -55,21 +55,50 @@
     <div id="sale-modal"
          style="display:none; position:fixed; inset:0; z-index:50; align-items:center; justify-content:center; background-color:rgba(23,30,38,0.4); padding:0 16px;">
         <div class="bg-white rounded-2xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center justify-between mb-5 sale-no-print">
                 <h3 class="font-manrope text-lg font-bold text-[#171E26]">Sale Details</h3>
-                <button type="button" id="close-sale-modal-btn" aria-label="Close"
-                        class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/50">
-                    <i class="ph ph-x text-xl"></i>
-                </button>
+                <div class="flex items-center gap-2.5">
+                    <button type="button" id="print-sale-btn"
+                            class="rounded-lg border border-[#DBEBFB] px-3.5 py-2 font-inter text-[13px] font-semibold text-[#171E26] hover:bg-[#F7FAFD] transition flex items-center gap-1.5">
+                        <i class="ph ph-printer text-base"></i> Print Receipt
+                    </button>
+                    <button type="button" id="close-sale-modal-btn" aria-label="Close"
+                            class="h-9 w-9 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/50">
+                        <i class="ph ph-x text-xl"></i>
+                    </button>
+                </div>
             </div>
 
             <div id="sale-details">
-                {{-- Populated by sales.js --}}
+                {{-- Populated by sales.js — the on-screen management view --}}
+            </div>
+
+            {{-- Hidden on screen. This is what actually prints, formatted with the
+                 same MedMartReceipt template used by POS and Order Details. --}}
+            <div id="sale-receipt-printable" class="hidden">
+                <div id="sale-receipt-content"></div>
             </div>
         </div>
     </div>
 
     <x-slot:scripts>
+        {{-- Print scoping: identical technique used on the POS and Order Details
+             receipts. Hide the whole page, reveal only the printable block. --}}
+        <style>
+            @media print {
+                body * { visibility: hidden; }
+                #sale-receipt-printable, #sale-receipt-printable * { visibility: visible; }
+                #sale-receipt-printable {
+                    display: block !important;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                }
+            }
+        </style>
+
+        <script src="{{ asset('assets/minimal/js/staff/receipt-template.js') }}"></script>
         <script src="{{ asset('assets/minimal/js/staff/sales.js') }}"></script>
     </x-slot:scripts>
 </x-layouts.staff>

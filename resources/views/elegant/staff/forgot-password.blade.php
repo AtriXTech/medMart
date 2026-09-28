@@ -25,7 +25,7 @@
                     <input type="email" id="email" name="email" autocomplete="email" required
                         placeholder="you@example.com"
                         class="w-full rounded-xl border border-[#DBEBFB] px-4 py-3 font-inter text-[#171E26] placeholder:text-[#171E26]/30 focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
-                     <div class="field-error" id="email-error"></div>
+                     <div class="field-error text-red-500" id="email-error"></div>
                     </div>
 
                 <button type="submit" id="forgot-submit" class="w-full px-7 py-3.5 rounded-full bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter font-semibold tracking-wide shadow-lg shadow-[#2775E4]/20 hover:scale-[1.02] transition">

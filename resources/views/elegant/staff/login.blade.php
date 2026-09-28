@@ -252,7 +252,7 @@
                                                   focus:outline-none focus:bg-white transition">
                                 </div>
 
-                                <div class="field-error" id="email-error"></div>
+                                <div class="field-error text-red-500" id="email-error"></div>
                             </div>
 
                             <div class="field">
@@ -285,7 +285,7 @@
                                     </button>
                                 </div>
 
-                                <div class="field-error" id="password-error"></div>
+                                <div class="field-error text-red-500" id="password-error"></div>
                             </div>
 
                             <div class="flex flex-wrap items-center justify-between gap-3 pt-0.5">

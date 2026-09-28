@@ -1,3 +1,20 @@
+/*
+  CHANGE SUMMARY (vs. previous version):
+  - UNCHANGED: loadSales() (GET /staff/sales with page/per_page/date
+    params — original native date filter behavior, not the custom
+    Y/M/D selects from the previous revision), renderSales(),
+    renderPagination(), the date filter, close/backdrop-click modal
+    behavior, the on-screen "Sale Details" view.
+  - REMOVED: the invoice S/N search input and the custom Day/Month/Year
+    date select replacement — both reverted per your request, back to
+    the original single <input type="date">.
+  - KEPT: viewSale() still also calls the shared MedMartReceipt template
+    (receipt-template.js — same one POS and Order Details use) to
+    populate the hidden #sale-receipt-content block, and printSaleBtn
+    is wired to window.print(). This is the only change from your
+    original file.
+*/
+
 const salesError = document.getElementById('sales-error');
 const salesLoading = document.getElementById('sales-loading');
 const salesContent = document.getElementById('sales-content');
@@ -6,7 +23,9 @@ const dateFilter = document.getElementById('date-filter');
 const paginationContainer = document.getElementById('pagination-container');
 const saleModal = document.getElementById('sale-modal');
 const saleDetails = document.getElementById('sale-details');
+const saleReceiptContent = document.getElementById('sale-receipt-content');
 const closeSaleModalBtn = document.getElementById('close-sale-modal-btn');
+const printSaleBtn = document.getElementById('print-sale-btn');
 
 let currentPage = 1;
 let totalPages = 1;
@@ -112,6 +131,33 @@ async function loadSales(page = 1) {
   }
 }
 
+/* Populates the hidden print-only block using the shared MedMartReceipt
+   template — same one POS and Order Details use. */
+async function renderSaleReceipt(sale) {
+  const items = (sale.items || []).map(function (item) {
+    return {
+      name: item.product ? item.product.name : 'Product',
+      qty: item.quantity,
+      rate: item.unit_price,
+      amount: item.line_total || item.unit_price * item.quantity,
+    };
+  });
+
+  const pharmacy = await MedMartReceipt.loadPharmacy();
+
+  saleReceiptContent.innerHTML = MedMartReceipt.render({
+    pharmacy,
+    invoiceId: sale.id,
+    cashierName: sale.cashier || MedMartReceipt.getCashierName(),
+    date: sale.created_at,
+    items,
+    subtotal: sale.subtotal,
+    total: sale.total,
+    paymentMethod: sale.payment_method,
+    status: sale.status,
+  });
+}
+
 window.viewSale = async function(id) {
   try {
     const sale = await Api.get(`/staff/sales/${id}`);
@@ -159,6 +205,8 @@ window.viewSale = async function(id) {
       </div>
     `;
 
+    await renderSaleReceipt(sale);
+
     saleModal.style.display = 'flex';
   } catch (error) {
     alert(error.message || 'Unable to load sale details.');
@@ -173,6 +221,10 @@ saleModal.addEventListener('click', function(event) {
   if (event.target === saleModal) {
     saleModal.style.display = 'none';
   }
+});
+
+printSaleBtn.addEventListener('click', function() {
+  window.print();
 });
 
 dateFilter.addEventListener('change', function() {

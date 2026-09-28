@@ -19,70 +19,100 @@ function formatDate(dateString) {
 
 function badgeForStatus(status) {
   const map = {
-    pending: 'badge-warning',
-    processing: 'badge-warning',
-    shipped: 'badge-warning',
-    delivered: 'badge-success',
-    completed: 'badge-success',
-    cancelled: 'badge-danger',
+    pending: 'bg-amber-50 text-amber-600',
+    processing: 'bg-amber-50 text-amber-600',
+    shipped: 'bg-amber-50 text-amber-600',
+    delivered: 'bg-[#DBEBFB] text-[#2775E4]',
+    completed: 'bg-[#DBEBFB] text-[#2775E4]',
+    cancelled: 'bg-red-50 text-red-500',
   };
-  const cls = map[status] || 'badge-muted';
-  return `<span class="badge ${cls}">${status}</span>`;
+  const cls = map[status] || 'bg-[#F7FAFD] text-[#171E26]/50';
+  return `<span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${cls}">${status}</span>`;
 }
 
 function renderCustomerInfo(link) {
   const customer = link.customer || {};
-  
+
+  console.log(customer.phone);
+  console.log(customer);
+
+  const actionButton = link.is_suspended
+    ? `<button type="button" onclick="unsuspendCustomer()"
+               class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter text-[14px] font-semibold shadow-sm hover:opacity-95 transition">
+         Unsuspend Customer
+       </button>`
+    : `<button type="button" onclick="suspendCustomer()"
+               class="px-4 py-2.5 rounded-xl border border-red-200 text-red-500 font-inter text-[14px] font-semibold hover:bg-red-50 transition">
+         Suspend Customer
+       </button>`;
+
   customerInfo.innerHTML = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 mb-5">
       <div>
-        <strong>Name:</strong> ${customer.name || 'N/A'}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Name</p>
+        <p class="font-inter text-[14px] font-semibold text-[#171E26]">${customer.name || 'N/A'}</p>
       </div>
       <div>
-        <strong>Email:</strong> ${customer.email || 'N/A'}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Email</p>
+        <p class="font-inter text-[14px] text-[#171E26]">${customer.email || 'N/A'}</p>
       </div>
       <div>
-        <strong>Username:</strong> ${customer.username || 'N/A'}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Username</p>
+        <p class="font-inter text-[14px] text-[#171E26]">${customer.username || 'N/A'}</p>
       </div>
       <div>
-        <strong>Email Verified:</strong> ${customer.email_verified ? 'Yes' : 'No'}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Email Verified</p>
+        <p class="font-inter text-[14px] text-[#171E26]">${customer.email_verified ? 'Yes' : 'No'}</p>
       </div>
       <div>
-        <strong>Status:</strong> 
-        <span class="badge ${link.is_suspended ? 'badge-danger' : 'badge-success'}">
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Phone Number</p>
+        <p class="font-inter text-[14px] text-[#171E26]">${customer.phone || 'N/A'}</p>
+      </div>
+      <div>
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Status</p>
+        <span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${link.is_suspended ? 'bg-red-50 text-red-500' : 'bg-[#DBEBFB] text-[#2775E4]'}">
           ${link.is_suspended ? 'Suspended' : 'Active'}
         </span>
       </div>
       <div>
-        <strong>Linked Since:</strong> ${formatDate(link.linked_at)}
+        <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Linked Since</p>
+        <p class="font-inter text-[14px] text-[#171E26]">${formatDate(link.linked_at)}</p>
       </div>
     </div>
-    <div style="margin-top: 16px;">
-      ${link.is_suspended 
-        ? `<button class="btn btn-success" onclick="unsuspendCustomer()">Unsuspend Customer</button>`
-        : `<button class="btn btn-danger" onclick="suspendCustomer()">Suspend Customer</button>`
-      }
+    <div>
+      ${actionButton}
     </div>
   `;
 }
 
 function renderOrders(orders) {
   ordersTableBody.innerHTML = '';
-  
+
   if (!orders || orders.length === 0) {
-    ordersTableBody.innerHTML = '<tr><td colspan="5" class="empty-state">No orders found</td></tr>';
+    ordersTableBody.innerHTML = `
+      <tr>
+        <td colspan="5" class="py-12 text-center">
+          <i class="ph ph-shopping-bag-open text-3xl text-[#171E26]/20"></i>
+          <p class="font-inter text-sm text-[#171E26]/45 mt-2">No orders found</p>
+        </td>
+      </tr>
+    `;
     return;
   }
-  
+
   orders.forEach(function(order) {
     const tr = document.createElement('tr');
+    tr.className = 'border-b border-[#EAF1FB] hover:bg-[#F7FAFD] transition';
     tr.innerHTML = `
-      <td>${order.id}</td>
-      <td>${badgeForStatus(order.status)}</td>
-      <td>${formatCurrency(order.total)}</td>
-      <td>${formatDate(order.created_at)}</td>
-      <td>
-        <button class="btn btn-secondary" onclick="viewOrder(${order.id})">View</button>
+      <td class="py-3 px-3 font-inter text-[14px] font-medium text-[#171E26]">#${order.id}</td>
+      <td class="py-3 px-3">${badgeForStatus(order.status)}</td>
+      <td class="py-3 px-3 font-inter text-[14px] font-semibold text-[#171E26]">${formatCurrency(order.total)}</td>
+      <td class="py-3 px-3 font-inter text-[13px] text-[#171E26]/60 whitespace-nowrap">${formatDate(order.created_at)}</td>
+      <td class="py-3 px-3">
+        <button type="button" onclick="viewOrder(${order.id})"
+                class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#2775E4] hover:bg-[#DBEBFB] transition">
+          View
+        </button>
       </td>
     `;
     ordersTableBody.appendChild(tr);
@@ -95,46 +125,46 @@ async function loadCustomerDetails() {
     window.location.href = '/staff/customers';
     return;
   }
-  
+
   customerLoading.style.display = 'block';
   customerContent.style.display = 'none';
   customerError.style.display = 'none';
-  
+
   try {
     const link = await Api.get(`/staff/customers/${customerLinkId}`);
     const ordersData = await Api.get(`/staff/customers/${customerLinkId}/orders?per_page=20`);
-    
+
     renderCustomerInfo(link);
     renderOrders(ordersData.data || ordersData);
-    
+
     customerLoading.style.display = 'none';
     customerContent.style.display = 'block';
   } catch (error) {
     customerLoading.style.display = 'none';
     customerError.textContent = error.message || 'Unable to load customer details.';
-    customerError.style.display = 'block';
+    customerError.style.display = 'flex';
   }
 }
 
 window.suspendCustomer = async function() {
-  if (!confirm('Are you sure you want to suspend this customer?')) return;
-  
+  if (!(await UIModal.confirm('Are you sure you want to suspend this customer?', { danger: true }))) return;
+
   try {
     await Api.patch(`/staff/customers/${customerLinkId}/suspend`);
     loadCustomerDetails();
   } catch (error) {
-    alert(error.message || 'Unable to suspend customer.');
+    await UIModal.alert(error.message || 'Unable to suspend customer.');
   }
 };
 
 window.unsuspendCustomer = async function() {
-  if (!confirm('Are you sure you want to unsuspend this customer?')) return;
-  
+  if (!(await UIModal.confirm('Are you sure you want to unsuspend this customer?'))) return;
+
   try {
     await Api.patch(`/staff/customers/${customerLinkId}/unsuspend`);
     loadCustomerDetails();
   } catch (error) {
-    alert(error.message || 'Unable to unsuspend customer.');
+    await UIModal.alert(error.message || 'Unable to unsuspend customer.');
   }
 };
 

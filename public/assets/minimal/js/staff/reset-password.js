@@ -30,14 +30,14 @@ resetForm.addEventListener('submit', async function (event) {
   const passwordConfirmation = document.getElementById('password-confirmation').value;
 
   try {
-    const result = await Api.post('/staff/reset-password', { 
+    const result = await Api.post('/staff/reset-password', {
       token,
       email,
       password,
       password_confirmation: passwordConfirmation
     });
     resetSuccess.textContent = result.message || 'Password reset successful. You can now login.';
-    resetSuccess.style.display = 'block';
+    resetSuccess.style.display = 'flex';
     setTimeout(function() {
       window.location.href = '/staff/login';
     }, 2000);
@@ -54,7 +54,7 @@ resetForm.addEventListener('submit', async function (event) {
       }
     } else {
       resetError.textContent = error.message || 'Unable to reset password. Please try again.';
-      resetError.style.display = 'block';
+      resetError.style.display = 'flex';
     }
   } finally {
     resetSubmit.disabled = false;

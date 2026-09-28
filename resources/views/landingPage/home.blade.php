@@ -456,31 +456,7 @@ MedMart lets your customers order from your pharmacy from anywhere, while giving
             <div class="bg-white rounded-xl p-5 shadow-md">
                 <p class="font-inter text-xs font-semibold text-[#171E26]/50 mb-3">Dashboard Overview</p>
  
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="bg-gradient-to-br from-[#2775E4] to-[#08AEBC] rounded-xl p-3">
-                        <p class="font-inter text-[11px] text-white/80">New Orders</p>
-                        <p class="font-manrope text-xl font-bold text-white mt-1">12</p>
-                    </div>
-                    <div class="bg-[#F3F6FA] rounded-xl p-3">
-                        <p class="font-inter text-[11px] text-[#171E26]/60">Revenue Today</p>
-                        <p class="font-manrope text-xl font-bold text-[#171E26] mt-1">₦84,000</p>
-                    </div>
-                </div>
- 
-                <p class="font-inter text-[11px] font-semibold text-[#171E26]/50 mb-2">Recent Orders</p>
- 
-                <div class="flex items-center justify-between py-2.5 border-t border-[#DBEBFB]">
-                    <p class="font-inter text-xs text-[#171E26]">Paracetamol — #102</p>
-                    <span class="font-inter text-[10px] font-semibold text-[#2775E4] bg-[#DBEBFB] px-2 py-1 rounded-full">Pending</span>
-                </div>
-                <div class="flex items-center justify-between py-2.5 border-t border-[#DBEBFB]">
-                    <p class="font-inter text-xs text-[#171E26]">Vitamin C — #101</p>
-                    <span class="font-inter text-[10px] font-semibold text-[#08AEBC] bg-[#DBEBFB] px-2 py-1 rounded-full">Ready</span>
-                </div>
-                <div class="flex items-center justify-between py-2.5 border-t border-b border-[#DBEBFB]">
-                    <p class="font-inter text-xs text-[#171E26]">Amoxicillin — #100</p>
-                    <span class="font-inter text-[10px] font-semibold text-[#171E26]/50 bg-[#F3F6FA] px-2 py-1 rounded-full">Delivered</span>
-                </div>
+              <img src="{{ asset('images/dashboard.png') }}">
             </div>
         </div>
  

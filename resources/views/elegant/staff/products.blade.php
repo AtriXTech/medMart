@@ -63,7 +63,7 @@
         <div class="bg-white rounded-2xl border border-[#EAF1FB] p-4 md:p-5">
 
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[720px] border-collapse">
+                <table class="w-full min-w-[780px] border-collapse">
                     <thead>
                         <tr class="border-b border-[#EAF1FB]">
                             <th class="text-left py-3 px-3 font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40">Name</th>
@@ -156,7 +156,7 @@
                               class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition resize-none"></textarea>
                 </div>
 
-                <div class="sm:col-span-2">
+                <div class="sm:col-span-2 hidden">
                     <label class="flex items-center gap-2.5 cursor-pointer">
                         <input type="checkbox" id="product-requires-prescription"
                                class="h-4 w-4 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">

@@ -9,6 +9,8 @@ use App\Traits\BelongsToPharmacy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Pharmacy;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Payment extends Model
 {
@@ -35,4 +37,17 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function pharmacy(): BelongsTo
+{
+    return $this->belongsTo(Pharmacy::class);
+}
+
+public function settlements(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Settlement::class,
+        'settlement_payments'
+    );
+}
 }
