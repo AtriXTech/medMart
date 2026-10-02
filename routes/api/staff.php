@@ -18,7 +18,6 @@ use App\Http\Controllers\Api\V1\Staff\ProfileController;
 use App\Http\Controllers\Api\V1\Staff\PurchaseOrderController;
 use App\Http\Controllers\Api\V1\Staff\RoleController;
 use App\Http\Controllers\Api\V1\Staff\SaleController;
-use App\Http\Controllers\Api\V1\Staff\SettlementAccountController;
 use App\Http\Controllers\Api\V1\Staff\StaffController;
 use App\Http\Controllers\Api\V1\Staff\StockMovementController;
 use App\Http\Controllers\Api\V1\Staff\SubscriptionController;
@@ -65,11 +64,6 @@ Route::prefix('staff')->group(function () {
             Route::post('roles', [RoleController::class, 'store']);
             Route::patch('roles/{role}', [RoleController::class, 'update']);
             Route::delete('roles/{role}', [RoleController::class, 'destroy']);
-        });
-
-        Route::middleware('permission:manage_settlement')->group(function () {
-            Route::get('settlement-account', [SettlementAccountController::class, 'show']);
-            Route::post('settlement-account', [SettlementAccountController::class, 'store']);
         });
 
         Route::post('customer-accounts', [CustomerAccountController::class, 'store'])
