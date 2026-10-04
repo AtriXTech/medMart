@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Settlement\Enums\AccountStatus;
 use App\Traits\BelongsToPharmacy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,15 +25,26 @@ class SettlementAccount extends Model
         'rejection_reason',
         'reviewed_by_id',
         'reviewed_at',
+        'paystack_recipient_code',
+        'name_match_score',
+        'approved_at',
     ];
 
     protected $casts = [
+        'status' => AccountStatus::class,
+        'name_match_score' => 'integer',
         'reviewed_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function bank(): BelongsTo
     {
         return $this->belongsTo(Bank::class);
+    }
+
+    public function pharmacy(): BelongsTo
+    {
+        return $this->belongsTo(Pharmacy::class);
     }
 
     public function reviewedBy(): BelongsTo

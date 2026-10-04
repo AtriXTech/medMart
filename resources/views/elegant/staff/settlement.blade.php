@@ -1,154 +1,153 @@
-{{--
-    Intended path: resources/views/staff/settlement.blade.php
+<x-layouts.staff title="Settlement" active="settlement">
+    <div id="settlement-error" class="mb-4 rounded-xl border border-[#F5C6C2] bg-[#FDEDEC] px-4 py-3 font-inter text-[13px] text-[#9C3A32]" style="display: none;"></div>
+    <div id="settlement-success" class="mb-4 rounded-xl border border-[#BFE6CF] bg-[#E9F8EF] px-4 py-3 font-inter text-[13px] text-[#1F7A44]" style="display: none;"></div>
 
-    CHANGE SUMMARY:
-    - Every ID settlement.js binds to is preserved: settlement-error,
-      settlement-loading, settlement-content, current-account-info,
-      account-form, bank-id, account-number, account-name,
-      account-form-error, account-submit-btn, account-status.
-    - REDESIGNED per your layout: the account-form is no longer always
-      visible on the page — it now lives in #account-modal, opened via
-      the "Update Account"/"Add Account" button that settlement.js
-      renders inside #current-account-info.
-    - NEW sections/IDs (none of these existed before, no JS bindings to
-      preserve): the Customer Order Revenue hero card (#revenue-amount,
-      #revenue-toggle-btn, #revenue-toggle-icon, #revenue-refresh-btn,
-      #revenue-updated-text), the Settlement Status card (reuses
-      #account-status), the 3 stat tiles (#stats-grid), and Settlement
-      History (#history-status-filter, #history-date-filter,
-      #history-table-body).
-    - Several pieces of this layout aren't backed by any endpoint in the
-      API spec — mocked with static data in settlement.js. Full list in
-      my reply.
---}}
-<x-layouts.staff title="Settlement Account" active="settlement">
+    <div id="settlement-loading" class="py-16 text-center font-inter text-[13px] text-[#171E26]/50">Loading settlement...</div>
 
-    <div id="settlement-error" style="display: none;" class="rounded-xl bg-[#FDEDEC] border border-[#F5C9C4] text-[#9C3A32] font-inter text-[13px] px-4 py-3 mb-4"></div>
+    <div id="settlement-content" style="display: none;">
+        <div id="notice-area" class="mb-5 space-y-3"></div>
 
-    <div class="mb-6">
-        <h2 class="font-manrope font-extrabold text-[20px] md:text-[22px] text-[#171E26]">Settlement Account</h2>
-        <p class="font-inter text-[13px] text-[#171E26]/50 mt-0.5">Manage your pharmacy payouts and settlement activity.</p>
-    </div>
-
-    <div id="settlement-loading">
-        <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6 space-y-3 mb-4">
-            <div class="skel h-5 w-1/4"></div>
-            <div class="skel h-10 w-1/2"></div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6 space-y-3">
-                <div class="skel h-16 w-full"></div>
-            </div>
-            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6 space-y-3">
-                <div class="skel h-16 w-full"></div>
-            </div>
-        </div>
-        <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
-            <div class="skel h-24 w-full"></div>
-        </div>
-    </div>
-
-    <div id="settlement-content" style="display: none;" class="w-full">
-
-        {{-- Customer Order Revenue hero card (MOCK — see change summary) --}}
-        <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-5 md:p-7 mb-5">
-            <div class="flex items-center justify-between mb-1">
-                <p class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Customer Order Revenue</p>
-                <div class="flex items-center gap-1.5">
-                    <button type="button" id="revenue-toggle-btn" class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/50" aria-label="Toggle amount visibility">
-                        <i class="ph-light ph-eye text-[17px]" id="revenue-toggle-icon"></i>
-                    </button>
-                    <button type="button" id="revenue-refresh-btn" class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/50" aria-label="Refresh">
-                        <i class="ph-light ph-arrow-clockwise text-[17px]"></i>
-                    </button>
+        <div class="mb-5 rounded-3xl p-6 text-white shadow-sm md:p-8" style="background: linear-gradient(135deg, #2775E4 0%, #08AEBC 100%);">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="font-inter text-[12px] font-semibold uppercase tracking-wide text-white/70">Available for payout</p>
+                    <div class="mt-2 flex items-center gap-3">
+                        <p id="revenue-amount" class="font-manrope text-[30px] font-extrabold leading-none md:text-[38px]">₦0.00</p>
+                        <button type="button" id="revenue-toggle-btn" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 hover:bg-white/25" aria-label="Show or hide balance">
+                            <i id="revenue-toggle-icon" class="ph-light ph-eye text-[17px]"></i>
+                        </button>
+                    </div>
                 </div>
+                <button type="button" id="revenue-refresh-btn" class="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 hover:bg-white/25" aria-label="Refresh">
+                    <i class="ph-light ph-arrows-clockwise text-[17px]"></i>
+                </button>
             </div>
-            <p class="font-manrope font-extrabold text-[30px] md:text-[34px] text-[#171E26] mb-1.5" id="revenue-amount">₦0</p>
-            <p class="font-inter text-[13px] text-[#171E26]/45 mb-3">Total revenue generated from customer orders</p>
-            <div class="flex items-center gap-1.5">
-                <span class="h-1.5 w-1.5 rounded-full bg-[#2E9E5B]"></span>
-                <span class="font-inter text-[12px] text-[#171E26]/40" id="revenue-updated-text">Last updated 2 minutes ago</span>
-            </div>
+            <p id="next-payout-text" class="mt-4 font-inter text-[13px] text-white/85"></p>
+            <p id="revenue-updated-text" class="mt-1 font-inter text-[11.5px] text-white/60"></p>
         </div>
 
-        {{-- Settlement Account (real) + Settlement Status (real status, mock next-settlement date) --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-5 md:p-7">
-                <h3 class="font-manrope font-bold text-[15px] text-[#171E26] mb-4">Settlement Account</h3>
+        <div id="stats-grid" class="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4"></div>
+
+        <div class="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div class="rounded-2xl border border-[#EAF1FB] bg-white p-5 shadow-sm">
+                <p class="mb-3 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Settlement Account</p>
                 <div id="current-account-info"></div>
             </div>
-            <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-5 md:p-7">
-                <h3 class="font-manrope font-bold text-[15px] text-[#171E26] mb-4">Settlement Status</h3>
+            <div class="rounded-2xl border border-[#EAF1FB] bg-white p-5 shadow-sm">
+                <p class="mb-3 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Account Status</p>
                 <div id="account-status"></div>
             </div>
         </div>
 
-        {{-- Stat tiles (MOCK — see change summary) --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5" id="stats-grid"></div>
+        <div class="rounded-2xl border border-[#EAF1FB] bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center gap-2 border-b border-[#EAF1FB]">
+                <button type="button" data-tab="settlements" class="tab-btn -mb-px border-b-2 px-3 py-2 font-inter text-[13px] font-semibold">Settlements</button>
+                <button type="button" data-tab="ledger" class="tab-btn -mb-px border-b-2 px-3 py-2 font-inter text-[13px] font-semibold">Transactions</button>
+            </div>
 
-        {{-- Settlement History (MOCK data, real client-side filters) --}}
-        <div class="rounded-2xl bg-white border border-[#EAF1FB] shadow-sm p-4 md:p-6">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <h3 class="font-manrope font-bold text-[16px] text-[#171E26]">Settlement History</h3>
-                <div class="flex items-center gap-2">
-                    <select id="history-date-filter" class="field-input py-1.5! text-[12px]! w-[130px]">
-                        <option value="">All dates</option>
-                    </select>
-                    <select id="history-status-filter" class="field-input py-1.5! text-[12px]! w-[130px]">
+            <div id="tab-settlements">
+                <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <select id="history-status-filter" class="rounded-xl border border-[#EAF1FB] bg-white px-3 py-2 font-inter text-[13px] text-[#171E26]">
                         <option value="">All statuses</option>
-                        <option value="settled">Settled</option>
-                        <option value="pending">Pending</option>
+                        <option value="success">Paid</option>
+                        <option value="processing">Processing</option>
+                        <option value="pending">Queued</option>
+                        <option value="on_hold">On hold</option>
+                        <option value="failed">Failed</option>
+                        <option value="reversed">Reversed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <input type="date" id="history-from" class="rounded-xl border border-[#EAF1FB] bg-white px-3 py-2 font-inter text-[13px] text-[#171E26]" aria-label="From date">
+                    <input type="date" id="history-to" class="rounded-xl border border-[#EAF1FB] bg-white px-3 py-2 font-inter text-[13px] text-[#171E26]" aria-label="To date">
+                    <input type="text" id="history-search" placeholder="Search reference" class="rounded-xl border border-[#EAF1FB] bg-white px-3 py-2 font-inter text-[13px] text-[#171E26]">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-[#EAF1FB]">
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Date</th>
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Amount</th>
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Status</th>
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Reference</th>
+                                <th class="py-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+                <div id="history-pagination" class="mt-4 flex items-center justify-between"></div>
+            </div>
+
+            <div id="tab-ledger" style="display: none;">
+                <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <select id="ledger-type-filter" class="rounded-xl border border-[#EAF1FB] bg-white px-3 py-2 font-inter text-[13px] text-[#171E26]">
+                        <option value="">All types</option>
+                        <option value="sale_credit">Sales</option>
+                        <option value="gateway_fee">Processing fees</option>
+                        <option value="platform_fee">Platform commission</option>
+                        <option value="refund_debit">Refunds</option>
+                        <option value="fee_reversal">Fee reversals</option>
+                        <option value="payout_debit">Payouts</option>
+                        <option value="payout_reversal">Payout reversals</option>
+                        <option value="adjustment">Adjustments</option>
                     </select>
                 </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[560px]">
-                    <thead>
-                        <tr class="border-b border-[#EAF1FB]">
-                            <th class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 pb-3 pr-4 text-left">Date</th>
-                            <th class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 pb-3 pr-4 text-left">Amount</th>
-                            <th class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 pb-3 pr-4 text-left">Status</th>
-                            <th class="font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40 pb-3 pr-4 text-left">Reference</th>
-                            <th class="pb-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-table-body"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-[#EAF1FB]">
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Date</th>
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Type</th>
+                                <th class="py-2 pr-4 font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Order</th>
+                                <th class="py-2 text-right font-inter text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body"></tbody>
+                    </table>
+                </div>
+                <div id="ledger-pagination" class="mt-4 flex items-center justify-between"></div>
             </div>
         </div>
     </div>
 
-    {{-- Update/Add Account modal --}}
-    <div id="account-modal" style="display: none;" class="fixed inset-0 z-50 items-center justify-center bg-[#171E26]/50 px-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-[460px] max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-manrope font-bold text-[16px] text-[#171E26]">Update Settlement Account</h3>
-                <button type="button" id="close-account-modal-btn" class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-[#F7FAFD] text-[#171E26]/50"><i class="ph ph-x text-lg"></i></button>
+    <div id="account-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/40 p-4" style="display: none;">
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div class="mb-4 flex items-center justify-between">
+                <p class="font-manrope text-[17px] font-bold text-[#171E26]">Settlement Account</p>
+                <button type="button" id="close-account-modal-btn" class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F3F7FC]" aria-label="Close">
+                    <i class="ph-light ph-x text-[17px]"></i>
+                </button>
             </div>
-
-            <div id="account-form-error" style="display: none;" class="rounded-xl bg-[#FDEDEC] border border-[#F5C9C4] text-[#9C3A32] font-inter text-[13px] px-4 py-3 mb-4"></div>
-
-            <form id="account-form" class="space-y-4">
-                <div>
-                    <label for="bank-id" class="field-label">Bank Name</label>
-                    <select id="bank-id" required class="field-input">
+            <p class="mb-4 font-inter text-[12.5px] leading-relaxed text-[#171E26]/60">We verify the account name with your bank. It should match your pharmacy's registered name. New accounts are reviewed before payouts begin.</p>
+            <div id="account-form-error" class="mb-3 rounded-xl border border-[#F5C6C2] bg-[#FDEDEC] px-4 py-3 font-inter text-[13px] text-[#9C3A32]" style="display: none;"></div>
+            <form id="account-form">
+                <div class="mb-4">
+                    <label for="bank-id" class="mb-1.5 block font-inter text-[12px] font-semibold text-[#171E26]/70">Bank</label>
+                    <select id="bank-id" required class="w-full rounded-xl border border-[#EAF1FB] bg-white px-3 py-2.5 font-inter text-[13px] text-[#171E26]">
                         <option value="">Select Bank</option>
                     </select>
                 </div>
-                <div>
-                    <label for="account-number" class="field-label">Account Number</label>
-                    <input type="text" id="account-number" required class="field-input">
+                <div class="mb-5">
+                    <label for="account-number" class="mb-1.5 block font-inter text-[12px] font-semibold text-[#171E26]/70">Account Number</label>
+                    <input type="text" id="account-number" required inputmode="numeric" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit NUBAN" class="w-full rounded-xl border border-[#EAF1FB] bg-white px-3 py-2.5 font-inter text-[13px] text-[#171E26]">
                 </div>
-                <div>
-                    <label for="account-name" class="field-label">Account Name</label>
-                    <input type="text" id="account-name" required class="field-input">
-                </div>
-                <div class="flex justify-end gap-2.5 pt-2">
-                    <button type="button" id="cancel-account-modal-btn" class="px-4 py-2.5 rounded-xl border border-[#DBEBFB] font-inter font-semibold text-[13px] text-[#171E26] hover:bg-[#F7FAFD]">Cancel</button>
-                    <button type="submit" id="account-submit-btn"
-                        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter font-semibold text-[13px] shadow-sm shadow-[#2775E4]/20 disabled:opacity-60">Save Settlement Account</button>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancel-account-modal-btn" class="rounded-xl border border-[#EAF1FB] px-4 py-2 font-inter text-[12.5px] font-semibold text-[#171E26]/70 hover:bg-[#F3F7FC]">Cancel</button>
+                    <button type="submit" id="account-submit-btn" class="rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] px-4 py-2 font-inter text-[12.5px] font-semibold text-white disabled:opacity-60">Verify &amp; Submit</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/40 p-4" style="display: none;">
+        <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+            <div class="mb-4 flex items-center justify-between">
+                <p class="font-manrope text-[17px] font-bold text-[#171E26]">Settlement Details</p>
+                <button type="button" id="close-detail-modal-btn" class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F3F7FC]" aria-label="Close">
+                    <i class="ph-light ph-x text-[17px]"></i>
+                </button>
+            </div>
+            <div id="detail-body"></div>
         </div>
     </div>
 
