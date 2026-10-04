@@ -16,7 +16,9 @@ class SettlementsTable extends TableWidget
 {
     protected static bool $isDiscovered = false;
 
-    protected int | string | array $columnSpan = 'full';
+     protected static ?int $sort = 6;
+protected int|string|array $columnSpan = 'full';
+
 
     public function table(Table $table): Table
     {

@@ -13,10 +13,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PharmacyOrderPerformance extends BaseWidget
 {
+     protected static bool $isDiscovered = false;
     protected static ?string $heading = 'Pharmacy Order Performance';
+  protected static ?int $sort = 4;
 
-    protected int|string|array $columnSpan = 'full';
-
+protected int|string|array $columnSpan = 'full';
     public function table(Table $table): Table
     {
         return $table

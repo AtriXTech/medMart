@@ -6,6 +6,8 @@ const usernameError = document.getElementById('username-error');
 const emailError = document.getElementById('email-error');
 const passwordError = document.getElementById('password-error');
 const pharmacyCodeError = document.getElementById('pharmacy-code-error');
+const termsCheckbox = document.getElementById('terms');
+const termsError = document.getElementById('terms-error');
 
 function clearErrors() {
   registerError.style.display = 'none';
@@ -15,6 +17,7 @@ function clearErrors() {
   emailError.textContent = '';
   passwordError.textContent = '';
   pharmacyCodeError.textContent = '';
+    termsError.textContent = '';
 }
 
 function showFieldErrors(errors) {
@@ -25,9 +28,21 @@ function showFieldErrors(errors) {
   if (errors.pharmacy_code) pharmacyCodeError.textContent = errors.pharmacy_code[0];
 }
 
+termsCheckbox.addEventListener('change', function () {
+  registerSubmit.disabled = !termsCheckbox.checked;
+  if (termsCheckbox.checked) {
+    termsError.textContent = '';
+  }
+});
+
 registerForm.addEventListener('submit', async function(event) {
   event.preventDefault();
   clearErrors();
+    if (!termsCheckbox.checked) {
+    termsError.textContent = 'You must accept the Terms of Service and Privacy Policy to continue.';
+    return;
+  }
+  
   registerSubmit.disabled = true;
   registerSubmit.textContent = 'Creating Account...';
 

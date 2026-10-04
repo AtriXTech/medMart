@@ -10,9 +10,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class PlatformStatsOverview extends StatsOverviewWidget
 {
-    protected static ?int $sort = 1; // Appears first
-
-    protected int | string | array $columnSpan = 'full'; // Takes 100% width
+protected static ?int $sort = 2;
+protected int|string|array $columnSpan = 'full';
     protected function getStats(): array
     {
         return [
@@ -37,12 +36,12 @@ class PlatformStatsOverview extends StatsOverviewWidget
                 '₦' . number_format(
                     Order::withoutGlobalScopes()
                         ->whereDate('created_at', today())
-                        ->where('status', 'completed')
+                        ->where('status', 'received')
                         ->sum('total'),
                     2
                 )
             )
-                ->description('Completed orders today')
+                ->description('Received orders today')
                 ->descriptionIcon('heroicon-m-banknotes'),
         ];
     }

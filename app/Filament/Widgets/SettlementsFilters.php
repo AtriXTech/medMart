@@ -10,7 +10,9 @@ class SettlementsFilters extends Widget
 {
     protected static bool $isDiscovered = false;
 
-    protected int | string | array $columnSpan = 'full';
+     protected static ?int $sort = 1;
+protected int|string|array $columnSpan = 'full';
+
 
     protected string $view = 'filament.widgets.settlements-filters';
 }

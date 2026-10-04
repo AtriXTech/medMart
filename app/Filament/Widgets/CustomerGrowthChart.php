@@ -10,10 +10,10 @@ class CustomerGrowthChart extends ChartWidget
     protected  ?string $heading = 'Customer Growth';
 
     protected  ?string $description = 'New user signups';
-    protected static ?int $sort = 2; // Appears second
-
-protected int | string | array $columnSpan = [
-    'md' => 6, // 6 out of 12 columns (exactly 50% width)
+  
+  protected static ?int $sort = 4;
+protected int|string|array $columnSpan = [
+    'lg' => 1,
 ];
 
     protected function getData(): array

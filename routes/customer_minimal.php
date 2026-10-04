@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('customer')->group(function () {
     Route::view('login', 'elegant.customer.login');
+     Route::view('privacy-policy','elegant.legalPages.Customer-facing.privacyPolicy')->name('privacyPolicy');
+     Route::view('Terms-and-condition','elegant.legalPages.Customer-facing.termsAndCondition')->name('termsAndCondition');;
+     Route::view('refund-and-cancellation-policy','elegant.legalPages.Customer-facing.refundAndCancellationPolicy')->name('refundAndCancellationPolicy');;
+     Route::view('cookie-policy','elegant.legalPages.Customer-facing.cookiePolicy')->name('cookiePolicy');;
+     Route::view('disclaimer','elegant.legalPages.Customer-facing.disclaimer')->name('disclaimer');;
     Route::view('register', 'elegant.customer.register');
     Route::view('forgot-password', 'elegant.customer.forgot-password');
     Route::view('reset-password', 'minimal.customer.reset-password');

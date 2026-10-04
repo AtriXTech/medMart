@@ -13,11 +13,9 @@ class OrdersOverview extends ChartWidget
     protected  ?string $heading = 'Orders Overview';
 
     protected  ?string $description = 'Orders over the last 7 days';
-    protected static ?int $sort = 3;
-  
-
-protected int | string | array $columnSpan = [
-    'md' => 6, // 6 out of 12 columns (exactly 50% width)
+ protected static ?int $sort = 5;
+protected int|string|array $columnSpan = [
+    'lg' => 1,
 ];
 
     protected function getData(): array

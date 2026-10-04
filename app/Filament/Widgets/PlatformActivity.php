@@ -11,10 +11,10 @@ use Filament\Widgets\Widget;
 class PlatformActivity extends Widget
 {
     protected string $view = 'filament.widgets.platform-activity';
+  protected static ?int $sort = 7;
+protected int|string|array $columnSpan = 'full';
 
-    protected static ?int $sort = 4; // Appears first
 
-    protected int | string | array $columnSpan = 'full'; // Takes 100% width
 
     protected function getViewData(): array
     {

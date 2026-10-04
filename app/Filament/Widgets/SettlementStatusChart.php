@@ -13,10 +13,11 @@ class SettlementStatusChart extends ChartWidget
     protected static bool $isDiscovered = false;
 
 
-    protected int | string | array $columnSpan = [
-        'default' => 'full',
-        'md' => 1,
-    ];
+     protected static ?int $sort = 4;
+protected int|string|array $columnSpan = [
+    'lg' => 1,
+];
+
 
     protected ?string $heading = 'Settlement Status';
 

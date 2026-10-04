@@ -14,7 +14,9 @@ class SettlementsStatsOverview extends StatsOverviewWidget
 {
     protected static bool $isDiscovered = false;
 
-    protected int | string | array $columnSpan = 'full';
+      protected static ?int $sort = 2;
+protected int|string|array $columnSpan = 'full';
+
 
     public array $settlementFilters = [
         'dateFrom' => null,

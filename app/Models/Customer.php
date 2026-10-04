@@ -48,6 +48,10 @@ class Customer extends Authenticatable
             ->withTimestamps();
     }
 
+    public function orders(): HasMany
+{
+    return $this->hasMany(Order::class);
+}
     public function carts(): HasMany
     {
         return $this->hasMany(Cart::class);

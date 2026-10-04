@@ -12,9 +12,11 @@ class OrderStatusDistribution extends ChartWidget
   
     protected ?string $description = 'Current distribution of platform orders.';
   protected static bool $isDiscovered = false;
-    protected int|string|array $columnSpan = [
-        'lg' => 1,
-    ];
+  protected static ?int $sort = 3;
+
+protected int|string|array $columnSpan = [
+    'lg' => 1,
+];
 
   protected function getData(): array
 {

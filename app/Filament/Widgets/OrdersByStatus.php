@@ -11,10 +11,9 @@ class OrdersByStatus extends Widget
 {
     protected  string $view = 'filament.widgets.orders-by-status';
     // protected static bool $isDiscovered = false;
-    protected static ?int $sort = 3;
-
-protected int | string | array $columnSpan = [
-    'md' => 6, // 6 out of 12 columns (exactly 50% width)
+   protected static ?int $sort = 6;
+protected int|string|array $columnSpan = [
+    'lg' => 1,
 ];
     protected function getViewData(): array
     {

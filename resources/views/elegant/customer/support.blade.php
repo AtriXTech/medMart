@@ -33,7 +33,23 @@
         <div id="faq-panel" style="display: none;" class="px-5 pb-5"></div>
 
         <div class="border-t border-[#F3F7FC]"></div>
+        {{-- policy --}}
+        <button type="button" id="policy-toggle-btn" class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
+            <i class="ph-light ph-lock text-[26px] text-[#171E26] mt-0.5"></i>
+            <div class="flex-1">
+                <p class="font-manrope font-bold text-[17px] text-[#171E26]">Policies</p>
+                <p class="font-inter text-[14px] text-[#171E26]/45 mt-0.5">Find quick answers to common questions</p>
+            </div>
+            <i class="ph-light ph-caret-right text-[18px] text-[#171E26]/30 mt-1.5 transition-transform" id="policy-toggle-icon"></i>
+        </button>
 
+        
+
+        <div id="policy-panel" style="display: none;" class="px-5 pb-5"></div>
+
+        <div class="border-t border-[#F3F7FC]"></div>
+
+        
         {{-- Chat --}}
         <button type="button" id="chat-toggle-btn" class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
             <i class="ph-light ph-chat-circle-text text-[26px] text-[#171E26] mt-0.5"></i>
@@ -54,6 +70,20 @@
     </div>
 
     <x-slot:scripts>
+
+    <!-- Inside your index.blade.php file -->
+
+<script>
+    // Create a global object to hold all your named Laravel routes
+    window.LaravelRoutes = {
+        privacyPolicy: `{{ route('privacyPolicy') }}`,
+        termsAndCondition: `{{ route('termsAndCondition') }}`,
+        refundAndCancellationPolicy: `{{ route('refundAndCancellationPolicy') }}`,
+        cookiePolicy: `{{ route('cookiePolicy') }}`,
+        disclaimer: `{{ route('disclaimer') }}`
+    };
+</script>
+
         <script src="{{ asset('assets/minimal/js/customer/support.js') }}"></script>
     </x-slot:scripts>
 </x-layouts.customer>

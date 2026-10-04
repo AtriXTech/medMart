@@ -6,9 +6,13 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('staff')->group(function () {
 
     Route::view('login', 'elegant.staff.login')->name('login');
+    Route::view('terms-and-condition','elegant.legalPages.pharmacy-facing.termsAndCondition')->name('termsAndConditional');
+    Route::view('subscription-and-billing','elegant.legalPages.pharmacy-facing.subscriptionAndBilling')->name('subscriptionAndBilling');
+    Route::view('privacy-and-data-processing','elegant.legalPages.pharmacy-facing.privacyAndDataProcessing')->name('privacyAndDataProcessing');
     Route::view('forgot-password', 'elegant.staff.forgot-password');
     Route::view('reset-password', 'elegant.staff.reset-password');
     Route::view('dashboard', 'elegant.staff.dashboard');
+    Route::view('legal-pages', 'elegant.staff.legal-pages')->name('legalPages');
     Route::view('onboarding', 'elegant.pharmacy.onboarding');
     Route::view('products', 'elegant.staff.products');
     Route::view('product-details', 'elegant.staff.product-details');

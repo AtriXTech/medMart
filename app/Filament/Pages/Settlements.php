@@ -50,6 +50,11 @@ class Settlements extends Page
         );
     }
 
+    protected int|array $headerWidgetsColumns = [
+    'sm' => 1,
+    'md' => 2,
+    'lg' => 3,
+];
 protected function getHeaderWidgets(): array
 {
     return [
@@ -61,9 +66,5 @@ protected function getHeaderWidgets(): array
         SettlementsTable::class,
     ];
 }
-protected int | string | array $headerWidgetsColumns = [
-    'default' => 1,
-    'md' => 3,
-    'xl' => 3,
-];
+
 }

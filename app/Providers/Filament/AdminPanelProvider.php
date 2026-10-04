@@ -14,6 +14,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use App\Filament\Pages\CustomerDetails;
 // use Filament\Pages\Dashboard;
 use Filament\Panel;
 use App\Filament\Pages\PharmacyOrderPerformanceDetails;
@@ -52,17 +53,22 @@ class AdminPanelProvider extends PanelProvider
                 in: app_path('Filament/Pages'),
                 for: 'App\\Filament\\Pages'
             )
+
             ->pages([
                 Dashboard::class,
                 Customers::class,
                 Orders::class,
                 PharmacyOrderPerformanceDetails::class,
+                CustomerDetails::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Widgets'),
                 for: 'App\\Filament\\Widgets'
             )
+
+
             ->widgets([
+                AccountWidget::class,
                 PlatformStatsOverview::class,
 
                 PharmacyGrowthChart::class,
@@ -73,7 +79,7 @@ class AdminPanelProvider extends PanelProvider
 
                 PlatformActivity::class,
 
-                // AccountWidget::class,
+
             ])
             ->middleware([
                 EncryptCookies::class,

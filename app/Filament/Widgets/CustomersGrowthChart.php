@@ -8,10 +8,11 @@ use Filament\Widgets\ChartWidget;
 class CustomersGrowthChart extends ChartWidget
 {
     protected ?string $heading = 'Customer Growth';
-       protected static ?int $sort = 2; // Appears second
 protected static bool $isDiscovered = false;
-protected int | string | array $columnSpan = [
-    'md' => 6, // 6 out of 12 columns (exactly 50% width)
+
+  protected static ?int $sort = 2;
+protected int|string|array $columnSpan = [
+    'lg' => 1,
 ];
 
     protected ?string $description =

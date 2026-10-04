@@ -13,7 +13,9 @@ class SettlementFlow extends Widget
 {
     protected static bool $isDiscovered = false;
 
-    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 5;
+protected int|string|array $columnSpan = 'full';
+
 
     protected string $view = 'filament.widgets.settlement-flow';
 

@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Hash;
 
 class StaffController extends Controller
 {
@@ -37,7 +38,7 @@ class StaffController extends Controller
         $roleId = $request->integer('staff_role_id');
         $role = Role::find($roleId);
 
-        if (!$role || (int) $role->pharmacy_id !== (int) $request->user()->pharmacy_id) {
+        if (!$role) {
             return response()->json([
                 'message' => 'Please select a valid role.',
                 'errors' => ['staff_role_id' => ['The selected role is invalid.']],
@@ -49,7 +50,7 @@ class StaffController extends Controller
             'name' => $request->string('name')->toString(),
             'email' => $request->string('email')->toString(),
             'phone' => $request->string('phone')->toString(),
-            'password' => $request->string('password')->toString(),
+            'password' => Hash::make($request->string('password')->toString()),
             'role' => $this->determineSystemRole($role),
             'status' => 'active',
             'staff_role_id' => $role->id,
@@ -76,6 +77,10 @@ class StaffController extends Controller
     {
         $data = $request->validated();
 
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
         $user->update($data);
 
         if ($request->filled('staff_role_id')) {
@@ -95,6 +100,13 @@ class StaffController extends Controller
     public function deactivate(User $user): JsonResponse
     {
         $user->update(['status' => 'inactive']);
+
+        return response()->json(new StaffResource($user->load('staffRole')));
+    }
+    
+    public function activate(User $user): JsonResponse
+    {
+        $user->update(['status' => 'active']);
 
         return response()->json(new StaffResource($user->load('staffRole')));
     }

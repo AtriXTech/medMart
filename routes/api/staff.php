@@ -58,6 +58,7 @@ Route::prefix('staff')->group(function () {
             Route::post('staff', [StaffController::class, 'store']);
             Route::patch('staff/{user}', [StaffController::class, 'update']);
             Route::patch('staff/{user}/deactivate', [StaffController::class, 'deactivate']);
+            Route::patch('staff/{user}/activate', [StaffController::class, 'activate']);
         });
 
         Route::middleware('permission:manage_roles')->group(function () {

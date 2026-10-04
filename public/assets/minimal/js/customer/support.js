@@ -14,13 +14,55 @@ const faqToggleBtn = document.getElementById('faq-toggle-btn');
 const faqToggleIcon = document.getElementById('faq-toggle-icon');
 const faqPanel = document.getElementById('faq-panel');
 
+const policyToggleBtn = document.getElementById('policy-toggle-btn');
+const policyToggleIcon = document.getElementById('policy-toggle-icon');
+const policyPanel = document.getElementById('policy-panel');
+
 const chatToggleBtn = document.getElementById('chat-toggle-btn');
 const chatToggleIcon = document.getElementById('chat-toggle-icon');
 const chatPanel = document.getElementById('chat-panel');
 const chatLoading = document.getElementById('chat-loading');
 const chatContent = document.getElementById('chat-content');
 
-/* ==================== FAQ — starter draft, edit freely ==================== */
+
+
+// function renderPolicies(){
+   
+// }
+const privacyPolicy = window.LaravelRoutes.privacyPolicy; 
+const termsAndCondition = window.LaravelRoutes.termsAndCondition; 
+const refundAndCancellationPolicy = window.LaravelRoutes.refundAndCancellationPolicy; 
+const cookiePolicy = window.LaravelRoutes.cookiePolicy; 
+const disclaimer = window.LaravelRoutes.disclaimer; 
+
+console.log(privacyPolicy); // This will now log the real URL string!
+
+policyToggleBtn.addEventListener('click', function () {
+    const isOpen = policyPanel.style.display === 'block';
+    policyPanel.style.display = isOpen ? 'none' : 'block';
+    
+    const policies = [
+        { name: 'Privacy Policy', url: privacyPolicy, icon: 'ph-shield-check' },
+        { name: 'Terms & Conditions', url: termsAndCondition, icon: 'ph-file-text' },
+        { name: 'Refund Policy', url: refundAndCancellationPolicy, icon: 'ph-receipt' },
+        { name: 'Cookie Policy', url: cookiePolicy, icon: 'ph-cookie' },
+        { name: 'Disclaimer', url: disclaimer, icon: 'ph-warning-circle' }
+    ];
+
+  policyPanel.innerHTML = `
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        ${policies.map(policy => `
+            <a href="${policy.url}"
+               class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter font-semibold text-[14px] shadow-md shadow-[#2775E4]/20 mb-2">
+                <i class="ph-fill ${policy.icon} text-[18px]"></i>
+                ${policy.name}
+            </a>
+        `).join('')}
+    </div>
+`;
+    
+    policyToggleIcon.style.transform = isOpen ? '' : 'rotate(90deg)';
+});/* ==================== FAQ — starter draft, edit freely ==================== */
 
 const FAQS = [
     { q: 'How do I place an order?', a: 'Browse products from your linked pharmacy, add items to your cart, and tap Checkout. Choose pickup or delivery before confirming your order.' },
@@ -35,7 +77,7 @@ const FAQS = [
 
 function renderFaqs() {
     faqPanel.innerHTML = FAQS.map(function (item, index) {
-        return `<div class="border-t border-[#F3F7FC] first:border-t-0 py-3">
+        return `<div class=" border-t border-[#F3F7FC] first:border-t-0 py-3">
             <button type="button" class="faq-item-toggle w-full flex items-center justify-between gap-3 text-left" data-index="${index}">
                 <span class="font-inter text-[14px] font-semibold text-[#171E26]">${item.q}</span>
                 <i class="ph-light ph-plus text-[16px] text-[#171E26]/40 flex-shrink-0 faq-item-icon"></i>

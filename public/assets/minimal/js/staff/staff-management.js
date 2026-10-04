@@ -200,11 +200,11 @@ function renderStaff(staff) {
             : member.role || "N/A";
         const isActive = member.status === "active";
         const statusDisplay = isActive ? "Active" : "Inactive";
-        const statusClass = isActive ? "badge-success" : "badge-danger";
+        const statusClass = isActive ? "bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-1" : "bg-white border border-[#F5C9C4] text-red-700 hover:bg-red-50 px-1";
 
         const statusActionBtn = isActive
-            ? `<button class="btn btn-danger" onclick="deactivateStaff(${member.id})">Deactivate</button>`
-            : `<button class="btn btn-success" onclick="activateStaff(${member.id})">Activate</button>`;
+            ? `<button class="btn bg-white border border-[#F5C9C4] text-red-700 hover:bg-red-50 ml-3 px-1" onclick="deactivateStaff(${member.id})">Deactivate</button>`
+            : `<button class="btn bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 ml-3 px-1" onclick="activateStaff(${member.id})">Activate</button>`;
 
         tr.innerHTML = `
             <td>${member.name}</td>
@@ -216,7 +216,7 @@ function renderStaff(staff) {
                 </span>
             </td>
             <td>
-                <button class="btn btn-secondary" onclick='editStaff(${JSON.stringify(member)})'>Edit</button>
+                <button class=" bg-white border border-[#DBEBFB] text-[#171E26] px-1 hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4];" onclick='editStaff(${JSON.stringify(member)})'>Edit</button>
                 ${statusActionBtn}
             </td>
         `;
@@ -241,7 +241,7 @@ function renderRoles(roles) {
             <td>${role.description || "N/A"}</td>
             <td>${permissionCount} permissions</td>
             <td>
-                <button class="btn btn-secondary" onclick='editRole(${JSON.stringify(role)})'>Edit</button>
+                <button class="btn bg-white border border-[#DBEBFB] text-[#171E26] px-1 hover:bg-[#F7FAFD] hover:border-[#2775E4] hover:text-[#2775E4]" onclick='editRole(${JSON.stringify(role)})'>Edit</button>
                 ${!role.is_system ? `<button class="btn btn-danger" onclick="deleteRole(${role.id})">Delete</button>` : ""}
             </td>
         `;

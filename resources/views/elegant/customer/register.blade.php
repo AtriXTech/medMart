@@ -81,7 +81,24 @@
                     <div class="field-error text-red-500" id="pharmacy-code-error"></div>
                 </div>
 
-                <button type="submit" id="register-submit" class="btn btn-primary btn-block w-full px-5 py-3 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter text-[14px] font-semibold shadow-sm hover:opacity-95 transition disabled:opacity-60 mt-2">
+                <div class="mt-5">
+                                <label class="flex items-start gap-2.5 cursor-pointer">
+                                    <input type="checkbox" id="terms"
+                                        class="mt-0.5 h-4 w-4 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
+                                    <span class="font-inter text-xs text-[#171E26]/60 leading-relaxed">
+                                        By creating an account, you agree to the MedMart
+                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
+                                        and
+                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Privacy Policy</a>.
+                                    </span>
+                                </label>
+                                {{-- NEW: safety-net message shown if the form is ever submitted
+                                     without the box checked (the button is disabled by default
+                                     below, but this covers edge cases like a browser submitting
+                                     on Enter despite a disabled submit button). --}}
+                                <p class="field-error text-red-500 mt-1.5" id="terms-error"></p>
+                            </div>
+                <button type="submit" id="register-submit" disabled class="btn btn-primary btn-block w-full px-5 py-3 rounded-xl bg-gradient-to-r from-[#2775E4] to-[#08AEBC] text-white font-inter text-[14px] font-semibold shadow-sm hover:opacity-95 transition disabled:opacity-60 mt-2">
                     Create Account
                 </button>
             </form>

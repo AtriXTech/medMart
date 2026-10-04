@@ -7,6 +7,9 @@ use App\Filament\Widgets\OrderStatsOverview;
 use App\Filament\Widgets\OrdersOverviewChart;
 use App\Filament\Widgets\OrderStatusDistribution;
 use App\Filament\Widgets\PharmacyOrderPerformance;
+use App\Filament\Widgets\DailyOrderVolume;
+use App\Filament\Widgets\ProcessingPerformance;
+use App\Filament\Widgets\OrdersNeedsAttention;
 use Filament\Pages\Page;
 
 class Orders extends Page
@@ -17,6 +20,12 @@ class Orders extends Page
 
     protected string $view = 'filament.pages.orders';
 
+protected int|array $headerWidgetsColumns = [
+    'sm' => 1,
+    'md' => 2,
+    'lg' => 3,
+];
+
 protected function getHeaderWidgets(): array
 {
     return [
@@ -24,6 +33,9 @@ protected function getHeaderWidgets(): array
         OrdersOverviewChart::class,
         OrderStatusDistribution::class,
         PharmacyOrderPerformance::class,
+        DailyOrderVolume::class,
+        ProcessingPerformance::class,
+        OrdersNeedsAttention::class,
     ];
 }
 }

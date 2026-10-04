@@ -11,6 +11,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class CustomerStatsOverview extends StatsOverviewWidget
 {
     protected static bool $isDiscovered = false;
+      protected static ?int $sort = 1;
+protected int|string|array $columnSpan = 'full';
+
+
     protected function getStats(): array
     {
         // Total registered customers on the platform.
