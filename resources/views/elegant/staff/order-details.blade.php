@@ -61,9 +61,6 @@
             </div>
         </div>
 
-        {{-- Hidden on screen. This is what actually prints — built to look exactly
-             like the POS receipt (see order-details.js renderOrderReceipt()) rather
-             than printing the raw management cards above. --}}
         <div id="order-receipt-printable" class="hidden">
             <div id="order-receipt-content"></div>
         </div>
@@ -77,10 +74,6 @@
                     <div class="relative">
                         <select id="status-select" class="field-input appearance-none pr-9">
                             <option value="">Select Order Status</option>
-                            <option value="processing">Processing</option>
-                            <option value="ready_for_pickup">Ready for Pickup</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
                         </select>
                         <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[#171E26]/35 pointer-events-none text-sm"></i>
                     </div>
@@ -103,19 +96,15 @@
                 </div>
             </div>
 
-            <div class="mt-5 pt-5 border-t border-[#EAF1FB] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div id="delivery-section" style="display: none;" class="mt-5 pt-5 border-t border-[#EAF1FB] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="field">
                     <label for="delivery-status-select" class="field-label">Delivery Status</label>
                     <div class="relative">
-                        {{-- FIXED: options were "Pickup"/"Delivery" (fulfillment-type
-                             values, wrong domain entirely) instead of real delivery
-                             status values. Restored to pending/shipped/delivered,
-                             which is what this field is actually meant to hold and
-                             what the backend's delivery_status column expects. --}}
                         <select id="delivery-status-select" class="field-input appearance-none pr-9">
                             <option value="">Select Delivery Status</option>
                             <option value="pending">Pending</option>
-                            <option value="delivered">Delivered</option>
+                            <option value="dispatched">Dispatched</option>
+                            <option value="delivered">Delivered (completes the order)</option>
                         </select>
                         <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[#171E26]/35 pointer-events-none text-sm"></i>
                     </div>
@@ -134,10 +123,6 @@
         </div>
     </div>
 
-    {{-- NEW: small info modal, used only to replace the native alert() that fires
-         when an order-status update is rejected (e.g. trying to move status
-         backward, which is intentionally blocked server-side). Single message +
-         OK button, matching your existing modal-backdrop/btn classes. --}}
     <div id="info-modal"
          class="modal-backdrop fixed inset-0 z-[60] items-center justify-center p-4
                 bg-[#171E26]/45 backdrop-blur-[2px]"
@@ -187,10 +172,6 @@
             }
         </style>
 
-        {{-- Print scoping: identical technique to the POS receipt. Hide the whole
-             page, reveal only #order-receipt-printable, and hide anything inside
-             it that's marked order-no-print (the header row/buttons). Anything
-             marked order-print-only is hidden on screen and revealed only here. --}}
         <style>
             @media print {
                 body * { visibility: hidden; }

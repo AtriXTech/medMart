@@ -1,20 +1,3 @@
-/*
-  CHANGE SUMMARY (vs. previous version):
-  - NEW: updateStatusBtn now shows "Updating Status..." and disables
-    itself while the request is in flight, reset in a finally block —
-    guarantees it can never get stuck disabled after an error, which
-    would produce exactly the "works sometimes, not others" symptom you
-    described. Combined with the Blade file's class cleanup on this
-    button, this addresses the inconsistent-click-area report.
-  - NEW: updateDeliveryBtn gets the same treatment — "Updating Delivery
-    Status..." while in flight, same finally-guaranteed reset.
-  - CHANGED: updateDeliveryBtn's catch block now calls showInfoModal()
-    instead of alert(), same as the order-status one already did.
-  - UNCHANGED: loadOrder(), renderOrderInfo(), renderOrderItems(),
-    renderOrderReceipt() (shared MedMartReceipt template), badgeForStatus(),
-    printOrderBtn, both PATCH endpoints and their payload shapes.
-*/
-
 const orderError = document.getElementById('order-error');
 const orderLoading = document.getElementById('order-loading');
 const orderContent = document.getElementById('order-content');
@@ -25,6 +8,7 @@ const updateStatusBtn = document.getElementById('update-status-btn');
 const updateDeliveryBtn = document.getElementById('update-delivery-btn');
 const statusSelect = document.getElementById('status-select');
 const deliveryStatusSelect = document.getElementById('delivery-status-select');
+const deliverySection = document.getElementById('delivery-section');
 const statusReasonInput = document.getElementById('status-reason');
 const printOrderBtn = document.getElementById('print-order-btn');
 
@@ -34,6 +18,17 @@ const infoModalMessage = document.getElementById('info-modal-message');
 const infoModalCloseBtn = document.getElementById('info-modal-close-btn');
 
 const orderId = new URLSearchParams(window.location.search).get('id');
+
+const STATUS_FLOW = ['received', 'processing', 'ready_for_pickup', 'completed', 'cancelled'];
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 function formatCurrency(amount) {
   const value = Number(amount || 0);
@@ -46,19 +41,45 @@ function formatDate(dateString) {
   return date.toLocaleString();
 }
 
-function badgeForStatus(status) {
+function statusLabel(status, fulfillmentType) {
+  const isDelivery = fulfillmentType === 'delivery';
+  const labels = {
+    pending_payment: 'Pending Payment',
+    paid: 'Paid',
+    received: 'Received',
+    processing: 'Processing',
+    ready_for_pickup: isDelivery ? 'Ready for Dispatch' : 'Ready for Pickup',
+    completed: isDelivery ? 'Delivered' : 'Picked Up',
+    cancelled: 'Cancelled',
+  };
+  return labels[status] || String(status || 'N/A').replace(/_/g, ' ');
+}
+
+function deliveryLabel(status) {
+  const labels = {
+    pending: 'Pending',
+    dispatched: 'Dispatched',
+    delivered: 'Delivered',
+  };
+  return labels[status] || 'Pending';
+}
+
+function badgeForStatus(label, status) {
   const map = {
     pending: 'badge-warning',
+    pending_payment: 'badge-warning',
+    paid: 'badge-warning',
+    received: 'badge-warning',
     processing: 'badge-warning',
+    dispatched: 'badge-warning',
     ready_for_pickup: 'badge-success',
+    delivered: 'badge-success',
     completed: 'badge-success',
     cancelled: 'badge-danger',
   };
   const cls = map[status] || 'badge-muted';
-  return `<span class="badge ${cls}">${status}</span>`;
+  return `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
 }
-
-/* ---------------- Small info modal (order-status + delivery-status errors) ---------------- */
 
 function showInfoModal(message, title) {
   infoModalTitle.textContent = title || 'Unable to Update Status';
@@ -75,16 +96,41 @@ infoModal.addEventListener('click', function (event) {
   if (event.target === infoModal) closeInfoModal();
 });
 
+function renderStatusOptions(order) {
+  const options = ['<option value="">Select Order Status</option>'];
+
+  STATUS_FLOW.forEach(function (status) {
+    options.push(`<option value="${status}">${escapeHtml(statusLabel(status, order.fulfillment_type))}</option>`);
+  });
+
+  statusSelect.innerHTML = options.join('');
+  statusSelect.value = STATUS_FLOW.includes(order.status) ? order.status : '';
+}
+
+function renderDeliverySection(order) {
+  const isDelivery = order.fulfillment_type === 'delivery';
+  deliverySection.style.display = isDelivery ? 'grid' : 'none';
+
+  if (!isDelivery) return;
+
+  const closed = order.status === 'completed' || order.status === 'cancelled';
+  deliveryStatusSelect.value = order.delivery_status || 'pending';
+  deliveryStatusSelect.disabled = closed;
+  updateDeliveryBtn.disabled = closed;
+}
+
 function renderOrderInfo(order) {
+  const isDelivery = order.fulfillment_type === 'delivery';
+
   let fields = `
       <div>
-        <strong>Order ID:</strong> ${order.id}
+        <strong>Order ID:</strong> ${escapeHtml(order.id)}
       </div>
       <div>
-        <strong>Status:</strong> ${badgeForStatus(order.status)}
+        <strong>Status:</strong> ${badgeForStatus(statusLabel(order.status, order.fulfillment_type), order.status)}
       </div>
       <div>
-        <strong>Customer:</strong> ${order.customer ? order.customer.name : 'N/A'}
+        <strong>Customer:</strong> ${order.customer ? escapeHtml(order.customer.name) : 'N/A'}
       </div>
       <div>
         <strong>Subtotal:</strong> ${formatCurrency(order.subtotal)}
@@ -93,11 +139,19 @@ function renderOrderInfo(order) {
         <strong>Total:</strong> ${formatCurrency(order.total)}
       </div>
       <div>
-        <strong>Fulfillment:</strong> ${order.fulfillment_type || 'N/A'}
+        <strong>Fulfillment:</strong> ${isDelivery ? 'Delivery' : 'Pickup'}
       </div>
+  `;
+
+  if (isDelivery) {
+    fields += `
       <div>
-        <strong>Delivery Status:</strong> ${badgeForStatus(order.delivery_status)}
+        <strong>Delivery Status:</strong> ${badgeForStatus(deliveryLabel(order.delivery_status), order.delivery_status || 'pending')}
       </div>
+    `;
+  }
+
+  fields += `
       <div>
         <strong>Created:</strong> ${formatDate(order.created_at)}
       </div>
@@ -106,7 +160,7 @@ function renderOrderInfo(order) {
   if (order.delivery_address) {
     fields += `
       <div>
-        <strong>Delivery Address:</strong> ${order.delivery_address}
+        <strong>Delivery Address:</strong> ${escapeHtml(order.delivery_address)}
       </div>
     `;
   }
@@ -126,11 +180,11 @@ function renderOrderItems(items) {
     return;
   }
 
-  items.forEach(function(item) {
+  items.forEach(function (item) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.product ? item.product.name : 'N/A'}</td>
-      <td>${item.quantity}</td>
+      <td>${item.product ? escapeHtml(item.product.name) : 'N/A'}</td>
+      <td>${escapeHtml(item.quantity)}</td>
       <td>${formatCurrency(item.unit_price)}</td>
       <td>${formatCurrency(item.line_total || item.unit_price * item.quantity)}</td>
     `;
@@ -138,7 +192,6 @@ function renderOrderItems(items) {
   });
 }
 
-/* Uses the shared MedMartReceipt template — see receipt-template.js. */
 async function renderOrderReceipt(order) {
   const items = (order.items || []).map(function (item) {
     return {
@@ -181,9 +234,8 @@ async function loadOrder() {
     renderOrderInfo(order);
     renderOrderItems(order.items || []);
     renderOrderReceipt(order);
-
-    statusSelect.value = order.status;
-    deliveryStatusSelect.value = order.delivery_status || '';
+    renderStatusOptions(order);
+    renderDeliverySection(order);
 
     orderLoading.style.display = 'none';
     orderContent.style.display = 'block';
@@ -194,7 +246,7 @@ async function loadOrder() {
   }
 }
 
-updateStatusBtn.addEventListener('click', async function() {
+updateStatusBtn.addEventListener('click', async function () {
   const newStatus = statusSelect.value;
   if (!newStatus) return;
 
@@ -206,7 +258,7 @@ updateStatusBtn.addEventListener('click', async function() {
   try {
     await Api.patch(`/staff/orders/${orderId}/status`, {
       status: newStatus,
-      reason: reason || undefined
+      reason: reason || undefined,
     });
     await loadOrder();
   } catch (error) {
@@ -217,7 +269,7 @@ updateStatusBtn.addEventListener('click', async function() {
   }
 });
 
-updateDeliveryBtn.addEventListener('click', async function() {
+updateDeliveryBtn.addEventListener('click', async function () {
   const newStatus = deliveryStatusSelect.value;
   if (!newStatus) return;
 
@@ -226,18 +278,18 @@ updateDeliveryBtn.addEventListener('click', async function() {
 
   try {
     await Api.patch(`/staff/orders/${orderId}/delivery-status`, {
-      delivery_status: newStatus
+      delivery_status: newStatus,
     });
     await loadOrder();
   } catch (error) {
     showInfoModal(error.message || 'Unable to update delivery status.', 'Unable to Update Delivery Status');
   } finally {
-    updateDeliveryBtn.disabled = false;
     updateDeliveryBtn.textContent = 'Update Delivery Status';
+    updateDeliveryBtn.disabled = deliveryStatusSelect.disabled;
   }
 });
 
-printOrderBtn.addEventListener('click', function() {
+printOrderBtn.addEventListener('click', function () {
   window.print();
 });
 

@@ -8,6 +8,15 @@ const paginationContainer = document.getElementById("pagination-container");
 let currentPage = 1;
 let totalPages = 1;
 
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function formatCurrency(amount) {
     const value = Number(amount || 0);
     return "₦" + value.toLocaleString();
@@ -19,17 +28,45 @@ function formatDate(dateString) {
     return date.toLocaleString();
 }
 
-function badgeForStatus(status) {
+function statusLabel(status, fulfillmentType) {
+    const isDelivery = fulfillmentType === "delivery";
+    const labels = {
+        pending_payment: "Pending Payment",
+        paid: "Paid",
+        received: "Received",
+        processing: "Processing",
+        ready_for_pickup: isDelivery ? "Ready for Dispatch" : "Ready for Pickup",
+        completed: isDelivery ? "Delivered" : "Picked Up",
+        cancelled: "Cancelled",
+        pending: "Pending",
+        dispatched: "Dispatched",
+        delivered: "Delivered",
+    };
+    return labels[status] || String(status || "").replace(/_/g, " ");
+}
+
+function badgeForStatus(status, fulfillmentType) {
     const map = {
         pending: "bg-amber-50 text-amber-600",
+        pending_payment: "bg-amber-50 text-amber-600",
+        paid: "bg-amber-50 text-amber-600",
+        received: "bg-amber-50 text-amber-600",
         processing: "bg-amber-50 text-amber-600",
-        shipped: "bg-amber-50 text-amber-600",
+        dispatched: "bg-amber-50 text-amber-600",
+        ready_for_pickup: "bg-[#DBEBFB] text-[#2775E4]",
         delivered: "bg-[#DBEBFB] text-[#2775E4]",
         completed: "bg-[#DBEBFB] text-[#2775E4]",
         cancelled: "bg-red-50 text-red-500",
     };
     const cls = map[status] || "bg-[#F7FAFD] text-[#171E26]/50";
-    return `<span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full capitalize ${cls}">${status}</span>`;
+    return `<span class="font-inter text-[11px] font-semibold px-2.5 py-1 rounded-full ${cls}">${escapeHtml(statusLabel(status, fulfillmentType))}</span>`;
+}
+
+function totalItemQuantity(order) {
+    if (!Array.isArray(order.items)) return 0;
+    return order.items.reduce(function (sum, item) {
+        return sum + Number((item && item.quantity) || 0);
+    }, 0);
 }
 
 function renderOrders(orders) {
@@ -48,19 +85,18 @@ function renderOrders(orders) {
     }
 
     orders.forEach(function (order) {
-        console.log(order)
         const tr = document.createElement("tr");
         tr.className = "border-b border-[#EAF1FB] hover:bg-[#F7FAFD] transition";
         tr.innerHTML = `
-      <td class="py-3 px-3 font-inter text-[14px] font-medium text-[#171E26]">${order.order_number || order.id}</td>
-      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]">${order.customer ? order.customer.name : "N/A"}</td>
+      <td class="py-3 px-3 font-inter text-[14px] font-medium text-[#171E26]">${escapeHtml(order.order_number || order.id)}</td>
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]">${order.customer ? escapeHtml(order.customer.name) : "N/A"}</td>
       <td class="py-3 px-3 font-inter text-[14px] font-semibold text-[#171E26]">${formatCurrency(order.total_amount || order.total)}</td>
-      <td class="py-3 px-3">${badgeForStatus(order.status)}</td>
-      <td class="py-3 px-3">${badgeForStatus(order.delivery_status || "pending")}</td>
-      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${order.items[0].quantity || 0}</td>
+      <td class="py-3 px-3">${badgeForStatus(order.status, order.fulfillment_type)}</td>
+      <td class="py-3 px-3">${order.fulfillment_type === "delivery" ? badgeForStatus(order.delivery_status || "pending") : '<span class="font-inter text-[13px] text-[#171E26]/40">N/A</span>'}</td>
+      <td class="py-3 px-3 font-inter text-[14px] text-[#171E26]/70">${totalItemQuantity(order)}</td>
       <td class="py-3 px-3 font-inter text-[13px] text-[#171E26]/60 whitespace-nowrap">${formatDate(order.created_at)}</td>
       <td class="py-3 px-3">
-        <button type="button" onclick="viewOrder(${order.id})"
+        <button type="button" onclick="viewOrder(${Number(order.id)})"
                 class="rounded-lg border border-[#DBEBFB] px-3 py-1.5 font-inter text-[13px] font-semibold text-[#2775E4] hover:bg-[#DBEBFB] transition">
           View
         </button>

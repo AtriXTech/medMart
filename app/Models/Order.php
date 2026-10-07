@@ -28,6 +28,7 @@ class Order extends Model
         'delivery_address',
         'delivery_status',
         'ready_at',
+        'completed_at',
         'cancelled_at',
         'cancellation_reason',
     ];
@@ -39,6 +40,7 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'total' => 'decimal:2',
         'ready_at' => 'datetime',
+        'completed_at' => 'datetime',
         'cancelled_at' => 'datetime',
     ];
 

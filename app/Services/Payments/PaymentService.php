@@ -9,6 +9,7 @@ use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\Orders\OrderService;
+use App\Settlement\Jobs\RecordPaymentSettlementJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -73,7 +74,7 @@ class PaymentService
             return [
                 'status' => 'success',
                 'message' => 'Payment already verified',
-                'order' => $order->load('items.product'),
+                'order' => $order->fresh()->load('items.product'),
             ];
         }
 
@@ -86,7 +87,7 @@ class PaymentService
                 return [
                     'status' => 'success',
                     'message' => 'Payment verified successfully',
-                    'order' => $payment->order->load('items.product'),
+                    'order' => $order->fresh()->load('items.product'),
                 ];
             }
 
@@ -104,15 +105,11 @@ class PaymentService
 
     public function handleSuccessfulCharge(string $reference): void
     {
-        DB::transaction(function () use ($reference) {
-            $payment = Payment::where('reference', $reference)->lockForUpdate()->first();
+        $confirmed = DB::transaction(function () use ($reference): ?array {
+            $payment = Payment::withoutGlobalScopes()->where('reference', $reference)->lockForUpdate()->first();
 
-            if (! $payment) {
-                return;
-            }
-
-            if ($payment->status === PaymentStatus::Paid) {
-                return;
+            if (! $payment || $payment->status === PaymentStatus::Paid) {
+                return null;
             }
 
             $verification = $this->paystackService->verifyTransaction($reference);
@@ -127,7 +124,7 @@ class PaymentService
                     'gateway_response' => json_encode($verifiedData),
                 ]);
 
-                return;
+                return null;
             }
 
             $payment->update([
@@ -137,9 +134,42 @@ class PaymentService
                 'paid_at' => now(),
             ]);
 
-            $order = $payment->order;
-            $order = $this->orderService->transitionTo($order, OrderStatus::Paid);
-            $this->orderService->transitionTo($order, OrderStatus::Received);
+            $order = Order::withoutGlobalScopes()->find($payment->order_id);
+
+            if ($order !== null && $order->status === OrderStatus::PendingPayment) {
+                $this->orderService->transitionTo($order, OrderStatus::Paid);
+            }
+
+            return ['payment_id' => (int) $payment->id, 'order_id' => (int) $payment->order_id];
         });
+
+        if ($confirmed === null) {
+            return;
+        }
+
+        $this->advanceToReceived($confirmed['order_id']);
+        $this->queueSettlementRecording($confirmed['payment_id']);
+    }
+
+    private function advanceToReceived(int $orderId): void
+    {
+        try {
+            $order = Order::withoutGlobalScopes()->find($orderId);
+
+            if ($order !== null && $order->status === OrderStatus::Paid) {
+                $this->orderService->transitionTo($order, OrderStatus::Received);
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+    }
+
+    private function queueSettlementRecording(int $paymentId): void
+    {
+        try {
+            RecordPaymentSettlementJob::dispatch($paymentId);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

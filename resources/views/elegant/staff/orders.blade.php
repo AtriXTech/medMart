@@ -1,18 +1,15 @@
 <x-layouts.staff title="Orders" active="orders">
 
-    {{-- Error banner --}}
     <div id="orders-error"
          style="display: none;"
          class="mb-5 flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 font-inter text-sm font-medium">
     </div>
 
-    {{-- Loading state — JS toggles via style.display = 'block'/'none' --}}
     <div id="orders-loading" class="py-20 text-center">
         <i class="ph ph-circle-notch text-3xl text-[#2775E4] animate-spin inline-block"></i>
         <p class="font-inter text-sm text-[#171E26]/50 mt-3">Loading orders...</p>
     </div>
 
-    {{-- Main content — JS toggles via style.display = 'block'/'none' --}}
     <div id="orders-content" style="display: none;">
 
         <div class="bg-white rounded-2xl border border-[#EAF1FB] p-4 mb-5">
@@ -22,11 +19,12 @@
                     <select id="status-filter"
                             class="w-full appearance-none rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 pr-9 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition bg-white">
                         <option value="">All Statuses</option>
-                        <option value="pending">Pending</option>
+                        <option value="pending_payment">Pending Payment</option>
+                        <option value="paid">Paid</option>
+                        <option value="received">Received</option>
                         <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="completed">Completed</option>
+                        <option value="ready_for_pickup">Ready for Pickup / Dispatch</option>
+                        <option value="completed">Completed (Delivered / Picked Up)</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
                     <i class="ph ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-[#171E26]/40 pointer-events-none text-sm"></i>
@@ -50,7 +48,6 @@
                         </tr>
                     </thead>
                     <tbody id="orders-table-body">
-                        {{-- Populated by orders.js --}}
                     </tbody>
                 </table>
             </div>

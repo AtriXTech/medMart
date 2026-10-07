@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1\Staff;
 
-use App\Enums\FulfillmentType;
+use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\UpdateDeliveryStatusRequest;
@@ -55,9 +55,11 @@ class OrderController extends Controller
 
     public function updateDeliveryStatus(UpdateDeliveryStatusRequest $request, Order $order): JsonResponse
     {
-        abort_if($order->fulfillment_type !== FulfillmentType::Delivery, 422, 'This order is not a delivery order.');
-
-        $order->update(['delivery_status' => $request->string('delivery_status')->toString()]);
+        $order = $this->orderService->updateDeliveryStatus(
+            $order,
+            DeliveryStatus::from($request->string('delivery_status')->toString()),
+            $request->user()
+        );
 
         return response()->json(new OrderResource($order->load(['items.product', 'customer'])));
     }
