@@ -38,13 +38,16 @@ final class SettlementServiceProvider extends ServiceProvider
         Payment::observe(PaymentObserver::class);
         Order::observe(OrderObserver::class);
 
+            $this->commands([
+            RecordPaymentsCommand::class,
+            PromoteEligiblePaymentsCommand::class,
+            CreateSettlementsCommand::class,
+            ReconcileTransfersCommand::class,
+            ReconcileLedgerCommand::class,
+        ]);
+
         if ($this->app->runningInConsole()) {
             $this->commands([
-                RecordPaymentsCommand::class,
-                PromoteEligiblePaymentsCommand::class,
-                CreateSettlementsCommand::class,
-                ReconcileTransfersCommand::class,
-                ReconcileLedgerCommand::class,
                 CreateAdminTokenCommand::class,
                 SeedTestDataCommand::class,
             ]);

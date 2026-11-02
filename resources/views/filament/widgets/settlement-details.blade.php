@@ -1,29 +1,39 @@
 @php
-$status = $settlement->status;
+    $status = $settlement->status instanceof \App\Settlement\Enums\SettlementStatus
+        ? $settlement->status->value
+        : (string) $settlement->status;
 
+    $statusLabel = match ($status) {
+        'settled' => 'Settled',
+        'pending' => 'Pending',
+        'processing' => 'Processing',
+        'failed' => 'Failed',
+        'reversed' => 'Reversed',
+        'on_hold' => 'On Hold',
+        'cancelled' => 'Cancelled',
+        default => ucfirst(str_replace('_', ' ', $status)),
+    };
 
-$statusLabel = match ($status) {
-    'settled' => 'Settled',
-    'pending' => 'Pending',
-    'failed' => 'Failed',
-    default => ucfirst($status),
-};
+    $statusColor = match ($status) {
+        'settled' => 'success',
+        'pending', 'on_hold' => 'warning',
+        'processing' => 'info',
+        'failed', 'reversed' => 'danger',
+        'cancelled' => 'gray',
+        default => 'gray',
+    };
 
-$statusColor = match ($status) {
-    'settled' => 'success',
-    'pending' => 'warning',
-    'failed' => 'danger',
-    default => 'gray',
-};
+    $account = $settlement->settlementAccount;
+    $payments = $settlement->payments;
 
-$account = $settlement->settlementAccount;
-$payments = $settlement->payments;
+    $kobo = static fn ($value): string => '₦' . number_format(((int) $value) / 100, 2);
 
-
+    $lagos = static fn ($date): string => $date
+        ? $date->copy()->timezone('Africa/Lagos')->format('M j, Y · H:i:s') . ' WAT'
+        : '—';
 @endphp
 
 <div class="space-y-6">
-
 
     {{-- Header --}}
     <div class="flex items-start justify-between gap-4">
@@ -42,118 +52,101 @@ $payments = $settlement->payments;
         </x-filament::badge>
     </div>
 
-    {{-- Settlement Amount --}}
-    <div class="rounded-xl bg-gray-50 p-5">
-        <p class="text-sm text-gray-500">
-            Settlement Amount
-        </p>
+    {{-- Two columns, same as the console --}}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
 
-        <p class="mt-1 text-2xl font-bold text-gray-900">
-            ₦{{ number_format((float) $settlement->amount, 2) }}
-        </p>
-    </div>
+        {{-- Left column --}}
+        <div class="divide-y divide-gray-100 rounded-xl border border-gray-200">
 
-    {{-- Settlement Information --}}
-    <div>
-        <h4 class="text-sm font-semibold text-gray-900">
-            Settlement Information
-        </h4>
-
-        <div class="mt-3 divide-y divide-gray-100 rounded-xl border border-gray-200">
-
-            {{-- Settlement Reference --}}
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Settlement Reference
-                </span>
+                <span class="text-sm text-gray-500">Status</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $statusLabel }}</span>
+            </div>
 
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Pharmacy</span>
                 <span class="text-right text-sm font-medium text-gray-900">
-                    {{ $settlement->reference }}
+                    {{ $settlement->pharmacy?->name ?? $settlement->pharmacy_id }}
                 </span>
             </div>
 
-            {{-- Gateway Reference --}}
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Gateway Reference
-                </span>
-
-                <span class="text-right text-sm font-medium text-gray-900">
-                    {{ $settlement->gateway_reference ?? '—' }}
-                </span>
+                <span class="text-sm text-gray-500">Gross</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $kobo($settlement->gross_kobo) }}</span>
             </div>
 
-         
-
-            {{-- Destination Account --}}
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Destination Account
-                </span>
-
-                <span class="text-right text-sm font-medium text-gray-900">
-                    {{ $account?->bank_name ?? '—' }}
-                    @if ($account?->account_number)
-                        · {{ $account->account_number }}
-                    @endif
-                </span>
+                <span class="text-sm text-gray-500">Fees</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $kobo($settlement->fee_kobo) }}</span>
             </div>
 
-            {{-- Account Name --}}
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Account Name
-                </span>
-
-                <span class="text-right text-sm font-medium text-gray-900">
-                    {{ $account?->account_name ?? '—' }}
-                </span>
+                <span class="text-sm text-gray-500">Adjustment</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $kobo($settlement->adjustment_kobo) }}</span>
             </div>
 
-            {{-- Batch Initialization --}}
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Batch Initialization
-                </span>
-
-                <span class="text-right text-sm font-medium text-gray-900">
-                    {{ $settlement->created_at?->format('M j, Y · H:i:s') ?? '—' }}
-                    @if ($settlement->created_at)
-                        WAT
-                    @endif
-                </span>
+                <span class="text-sm text-gray-500">Net</span>
+                <span class="text-right text-sm font-bold text-gray-900">{{ $kobo($settlement->net_kobo) }}</span>
             </div>
 
-            {{-- Bank Credit Time --}}
-            <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">
-                    Bank Credit Time
-                </span>
+        </div>
 
+        {{-- Right column --}}
+        <div class="divide-y divide-gray-100 rounded-xl border border-gray-200">
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Account</span>
                 <span class="text-right text-sm font-medium text-gray-900">
-                    @if ($settlement->processed_at)
-                        {{ $settlement->processed_at->format('M j, Y · H:i:s') }}
-                        WAT
+                    @if ($account)
+                        {{ $account->bank_name }} · {{ $account->account_number }}
                     @else
                         —
                     @endif
                 </span>
             </div>
 
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Account name</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $account?->account_name ?? '—' }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Paystack transfer</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $settlement->gateway_reference ?: '—' }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Attempts</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ (int) $settlement->attempts }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Created</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $lagos($settlement->created_at) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Processed</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ $lagos($settlement->processed_at) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Hold / failure</span>
+                <span class="text-right text-sm font-medium text-gray-900">
+                    {{ $settlement->hold_reason ?: ($settlement->failure_reason ?: '—') }}
+                </span>
+            </div>
+
         </div>
+
     </div>
 
-    {{-- Included Customer Orders --}}
+    {{-- Payments --}}
     <div>
-        <div>
-            <h4 class="text-sm font-semibold text-gray-900">
-                Included Customer Orders ({{ $payments->count() }})
-            </h4>
-
-            <p class="mt-1 text-sm text-gray-500">
-                Customer payments cleared in this settlement disbursement
-            </p>
-        </div>
+        <h4 class="text-sm font-semibold text-gray-900">
+            Payments ({{ $payments->count() }})
+        </h4>
 
         @if ($payments->isNotEmpty())
 
@@ -164,17 +157,12 @@ $payments = $settlement->payments;
 
                         <thead class="bg-gray-50 text-xs uppercase text-gray-500">
                             <tr>
-                                <th class="px-4 py-3 font-medium">
-                                    Tx Ref
-                                </th>
-
-                                <th class="px-4 py-3 font-medium">
-                                    Date
-                                </th>
-
-                                <th class="px-4 py-3 text-right font-medium">
-                                    Gross Amount
-                                </th>
+                                <th class="px-4 py-3 font-medium">ID</th>
+                                <th class="px-4 py-3 font-medium">Order</th>
+                                <th class="px-4 py-3 text-right font-medium">Gross</th>
+                                <th class="px-4 py-3 text-right font-medium">Commission</th>
+                                <th class="px-4 py-3 text-right font-medium">Gateway</th>
+                                <th class="px-4 py-3 text-right font-medium">Net</th>
                             </tr>
                         </thead>
 
@@ -182,22 +170,29 @@ $payments = $settlement->payments;
 
                             @foreach ($payments as $payment)
                                 <tr>
-
-                                    {{-- Transaction Reference --}}
                                     <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
-                                        {{ $payment->reference }}
+                                        #{{ $payment->id }}
                                     </td>
 
-                                    {{-- Payment Date --}}
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600">
-                                        {{ $payment->paid_at?->format('M j, Y') ?? ($payment->created_at?->format('M j, Y') ?? '—') }}
+                                        Order #{{ $payment->order_id }}
                                     </td>
 
-                                    {{-- Gross Amount --}}
-                                    <td class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-900">
-                                        ₦{{ number_format((float) $payment->amount, 2) }}
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-gray-900">
+                                        {{ $kobo($payment->gross_kobo) }}
                                     </td>
 
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">
+                                        {{ $kobo($payment->platform_fee_kobo) }}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">
+                                        {{ $kobo($payment->gateway_fee_kobo) }}
+                                    </td>
+
+                                    <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-gray-900">
+                                        {{ $kobo($payment->net_kobo) }}
+                                    </td>
                                 </tr>
                             @endforeach
 
@@ -210,10 +205,9 @@ $payments = $settlement->payments;
         @else
             <div class="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <p class="text-sm text-gray-500">
-                    No customer payments are linked to this settlement.
+                    No payments linked.
                 </p>
             </div>
-
         @endif
     </div>
 
@@ -225,19 +219,5 @@ $payments = $settlement->payments;
             </p>
         </div>
     @endif
-
-    {{-- Failed --}}
-    @if ($status === 'failed' && $settlement->failure_reason)
-        <div class="rounded-xl bg-red-50 p-4">
-            <h4 class="text-sm font-semibold text-red-800">
-                Failure Reason
-            </h4>
-
-            <p class="mt-1 text-sm text-red-700">
-                {{ $settlement->failure_reason }}
-            </p>
-        </div>
-    @endif
-
 
 </div>

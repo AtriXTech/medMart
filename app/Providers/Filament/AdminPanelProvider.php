@@ -15,6 +15,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 // use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use App\Filament\Pages\PharmacyOrderPerformanceDetails;
 use Filament\PanelProvider;
@@ -52,6 +53,7 @@ class AdminPanelProvider extends PanelProvider
                 in: app_path('Filament/Pages'),
                 for: 'App\\Filament\\Pages'
             )
+            
             ->pages([
                 Dashboard::class,
                 Customers::class,
@@ -62,6 +64,11 @@ class AdminPanelProvider extends PanelProvider
                 in: app_path('Filament/Widgets'),
                 for: 'App\\Filament\\Widgets'
             )
+                        ->navigationGroups([
+                NavigationGroup::make('Settlement Console')
+                    ->icon('heroicon-o-banknotes')
+                    ->collapsed(),
+            ])
             ->widgets([
                 PlatformStatsOverview::class,
 

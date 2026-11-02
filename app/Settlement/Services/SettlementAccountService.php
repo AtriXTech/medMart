@@ -21,8 +21,7 @@ final class SettlementAccountService
         private readonly PaystackClient $paystack,
         private readonly AuditLogger $audit,
         private readonly Notifier $notifier,
-    ) {
-    }
+    ) {}
 
     public function submit(User $user, int $bankId, string $accountNumber): SettlementAccount
     {
@@ -81,15 +80,19 @@ final class SettlementAccountService
                 ->where('status', AccountStatus::Pending->value)
                 ->update(['status' => AccountStatus::Superseded->value]);
 
-            $account = SettlementAccount::query()->create([
-                'pharmacy_id' => $pharmacyId,
-                'bank_id' => $bank->getKey(),
-                'bank_name' => $bankName,
-                'account_number' => $accountNumber,
-                'account_name' => $accountName,
-                'status' => AccountStatus::Pending,
-                'name_match_score' => $score,
-            ]);
+            $account = SettlementAccount::query()->updateOrCreate(
+                [
+                    'pharmacy_id' => $pharmacyId,
+                ],
+                [
+                    'bank_id' => $bank->getKey(),
+                    'bank_name' => $bankName,
+                    'account_number' => $accountNumber,
+                    'account_name' => $accountName,
+                    'status' => AccountStatus::Pending,
+                    'name_match_score' => $score,
+                ],
+            );
 
             $this->audit->record('settlement_account.submitted', $pharmacyId, $account, $user->getKey(), [
                 'bank_id' => $bank->getKey(),

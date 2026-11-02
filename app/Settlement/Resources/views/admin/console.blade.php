@@ -1173,6 +1173,8 @@
         function renderPharmacy(data) {
             const p = data.pharmacy;
             const b = data.balance;
+            // console.log(p);
+            // console.log(data);
             document.getElementById('pharmacy-name').textContent = p.name + (p.is_test_account ? ' (test account)' : '');
             document.getElementById('pharmacy-balance').innerHTML =
                 tile('Ledger balance', b.ledger_balance_kobo) +

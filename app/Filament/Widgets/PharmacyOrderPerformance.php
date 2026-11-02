@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 class PharmacyOrderPerformance extends BaseWidget
 {
     protected static ?string $heading = 'Pharmacy Order Performance';
+     protected static bool $isDiscovered = false;
 
     protected int|string|array $columnSpan = 'full';
 

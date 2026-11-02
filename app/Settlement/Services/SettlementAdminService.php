@@ -32,7 +32,7 @@ final class SettlementAdminService
             SettlementStatus::OnHold => $this->releaseHold($settlement, $actorId),
             SettlementStatus::Processing => $this->transfers->verifyAndApply($settlement) === 'not_found' ? $this->resetAndRetry($settlement) : 'verified',
             SettlementStatus::Failed, SettlementStatus::Reversed, SettlementStatus::Cancelled => $this->rebatch($settlement),
-            SettlementStatus::Success => throw SettlementException::invalidState('This settlement was already paid.'),
+            SettlementStatus::Settled => throw SettlementException::invalidState('This settlement was already paid.'),
         };
 
         $this->audit->record('settlement.retry_requested', $settlement->pharmacy_id, $settlement, $actorId, ['outcome' => $outcome]);

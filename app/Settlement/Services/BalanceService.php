@@ -42,7 +42,7 @@ final class BalanceService
             + (int) ($settlements[SettlementStatus::Processing->value] ?? 0)
             + (int) ($settlements[SettlementStatus::OnHold->value] ?? 0);
 
-        $paidOut = (int) ($settlements[SettlementStatus::Success->value] ?? 0);
+        $paidOut = (int) ($settlements[SettlementStatus::Settled->value] ?? 0);
 
         $ledgerBalance = $this->ledger->balance($pharmacyId);
         $payable = $ledgerBalance - $pending - $held;

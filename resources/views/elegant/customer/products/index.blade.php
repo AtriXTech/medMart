@@ -9,10 +9,10 @@
 <x-layouts.customer title="Products" active="products">
 
     <div class="mb-4">
-        <div class="relative">
-            <i class="ph-light ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/35 text-[16px]"></i>
-            <input type="text" id="product-search" placeholder="Search products..." class="field-input pl-10">
-        </div>
+      <div class="relative">
+    <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/35 text-[16px]"></i>
+    <input type="text" id="product-search" placeholder="Search products..." class="field-input pl-10" style="padding-left: 2rem;">
+</div>
     </div>
 
     <!-- Category Header / Back Button Bar -->

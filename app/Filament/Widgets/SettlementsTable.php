@@ -32,6 +32,12 @@ class SettlementsTable extends TableWidget
                     ->sortable()
                     ->weight('medium'),
 
+                TextColumn::make('created_at')
+                    ->label('Date')
+                    ->dateTime('M j, Y · H:i')
+                    ->timezone('Africa/Lagos')
+                    ->sortable(),
+
                 TextColumn::make('pharmacy.name')
                     ->label('Pharmacy')
                     ->searchable()
@@ -41,23 +47,33 @@ class SettlementsTable extends TableWidget
                     ->label('Amount')
                     ->money('NGN')
                     ->sortable(),
-
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(
-                        fn(string $state): string => match ($state) {
+                        fn($state): string => match ($state instanceof \App\Settlement\Enums\SettlementStatus
+                            ? $state->value
+                            : $state) {
                             'settled' => 'Settled',
                             'pending' => 'Pending',
+                            'processing' => 'Processing',
                             'failed' => 'Failed',
-                            default => ucfirst($state),
+                            'reversed' => 'Reversed',
+                            'on_hold' => 'On Hold',
+                            'cancelled' => 'Cancelled',
+                            default => ucfirst((string) $state),
                         }
                     )
                     ->color(
-                        fn(string $state): string => match ($state) {
+                        fn($state): string => match ($state instanceof \App\Settlement\Enums\SettlementStatus
+                            ? $state->value
+                            : $state) {
                             'settled' => 'success',
                             'pending' => 'warning',
-                            'failed' => 'danger',
+                            'processing' => 'info',
+                            'failed', 'reversed' => 'danger',
+                            'on_hold' => 'warning',
+                            'cancelled' => 'gray',
                             default => 'gray',
                         }
                     ),
@@ -124,18 +140,69 @@ class SettlementsTable extends TableWidget
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalContent(
-                        fn(Settlement $record) =>
-                        view(
-                            'filament.widgets.settlement-details',
-                            [
-                                'settlement' => $record->load([
-                                    'pharmacy',
-                                    'settlementAccount',
-                                    'payments.order',
-                                ]),
-                            ]
+                        function (Settlement $record) {
+                            $record->load(['pharmacy', 'settlementAccount']);
+
+                            $record->setRelation(
+                                'payments',
+                                $record->payments()->withoutGlobalScopes()->orderBy('payments.id')->get()
+                            );
+
+                            return view(
+                                'filament.widgets.settlement-details',
+                                [
+                                    'settlement' => $record,
+                                ]
+                            );
+                        }
+                    ),
+                \Filament\Actions\Action::make('rebatch')
+                    ->label('Re-batch')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Re-batch settlement')
+                    ->modalDescription(
+                        'Eligible payments for this pharmacy are batched into a new settlement and a new transfer is dispatched.'
+                    )
+                    ->visible(
+                        fn(Settlement $record): bool => in_array(
+                            $record->status instanceof \App\Settlement\Enums\SettlementStatus
+                                ? $record->status->value
+                                : $record->status,
+                            ['failed', 'reversed', 'cancelled'],
+                            true
                         )
                     )
+                    ->action(function (Settlement $record): void {
+                        try {
+                            $outcome = app(\App\Settlement\Services\SettlementAdminService::class)
+                                ->retry($record->id, \Filament\Facades\Filament::auth()->id());
+                        } catch (\App\Settlement\Exceptions\SettlementException $exception) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Unable to re-batch settlement')
+                                ->body($exception->getMessage())
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        if ($outcome === 'rebatched') {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Settlement re-batched.')
+                                ->success()
+                                ->send();
+
+                            return;
+                        }
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Nothing to settle')
+                            ->body(app(\App\Settlement\Services\SettlementBatchService::class)->diagnose((int) $record->pharmacy_id))
+                            ->warning()
+                            ->send();
+                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }

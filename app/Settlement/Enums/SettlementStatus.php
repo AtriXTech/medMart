@@ -8,7 +8,7 @@ enum SettlementStatus: string
 {
     case Pending = 'pending';
     case Processing = 'processing';
-    case Success = 'success';
+    case Settled = 'settled';
     case Failed = 'failed';
     case Reversed = 'reversed';
     case OnHold = 'on_hold';
@@ -19,7 +19,7 @@ enum SettlementStatus: string
         return [
             self::Pending->value,
             self::Processing->value,
-            self::Success->value,
+            self::Settled->value,
             self::OnHold->value,
         ];
     }

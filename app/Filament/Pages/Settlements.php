@@ -12,6 +12,7 @@ use Filament\Pages\Page;
 use App\Filament\Widgets\SettlementFlow;
 use App\Filament\Widgets\SettlementsTable;
 
+
 class Settlements extends Page
 {
     public ?string $dateFrom = null;
@@ -19,6 +20,8 @@ class Settlements extends Page
     public ?string $dateUntil = null;
 
     protected static ?string $navigationLabel = 'Settlements';
+    protected static string | \UnitEnum | null $navigationGroup = 'Settlement Console';
+  
 
     protected static ?string $title = 'Settlements';
 

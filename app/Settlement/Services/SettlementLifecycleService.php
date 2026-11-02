@@ -31,7 +31,7 @@ final class SettlementLifecycleService
         DB::transaction(function () use ($settlementId, $transferCode, &$succeeded): void {
             $settlement = Settlement::query()->whereKey($settlementId)->lockForUpdate()->first();
 
-            if ($settlement === null || $settlement->status === SettlementStatus::Success) {
+            if ($settlement === null || $settlement->status === SettlementStatus::Settled) {
                 return;
             }
 
@@ -42,7 +42,7 @@ final class SettlementLifecycleService
             }
 
             $settlement->forceFill([
-                'status' => SettlementStatus::Success,
+                'status' => SettlementStatus::Settled,
                 'processed_at' => now(),
                 'failure_reason' => null,
                 'hold_reason' => null,
@@ -74,7 +74,7 @@ final class SettlementLifecycleService
                 return false;
             }
 
-            $allowed = [SettlementStatus::Pending, SettlementStatus::Processing, SettlementStatus::OnHold, SettlementStatus::Success];
+            $allowed = [SettlementStatus::Pending, SettlementStatus::Processing, SettlementStatus::OnHold, SettlementStatus::Settled];
 
             if (! in_array($settlement->status, $allowed, true)) {
                 return false;

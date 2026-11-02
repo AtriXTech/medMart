@@ -10,6 +10,8 @@ use Filament\Pages\Page;
 class SettlementAccounts extends Page
 {
     protected static ?string $navigationLabel = 'Settlement Accounts';
+    protected static string | \UnitEnum | null $navigationGroup = 'Settlement Console';
+  
 
     protected static ?string $title = 'Settlement Accounts';
 

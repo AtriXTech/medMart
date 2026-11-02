@@ -35,6 +35,8 @@ const confirmModalConfirmBtn = document.getElementById('confirm-modal-confirm-bt
 
 let currentCartItems = [];
 let confirmModalAction = null;
+const pendingUpdateTimers = {};
+const pendingRollbackQty = {};
 
 function formatCurrency(amount) {
     const value = Number(amount || 0);
@@ -84,6 +86,8 @@ function showConfirmModal({ title, message, confirmText }) {
 function closeConfirmModal() {
     if (confirmModal) confirmModal.style.display = 'none';
     confirmModalAction = null;
+//     const pendingUpdateTimers = {};   // itemId -> debounce timer
+// const pendingRollbackQty = {};    // itemId -> quantity before the current burst of clicks
 }
 
 if (confirmModalCancelBtn) {
@@ -183,24 +187,29 @@ function renderCart(cart) {
     `;
 }
 
-async function loadCart() {
+async function loadCart(silent = false) {
     if (typeof CustomerAuth !== 'undefined' && !CustomerAuth.requireAuth()) return;
 
-    if (cartSkeleton) cartSkeleton.style.display = 'block';
-    if (cartContent) cartContent.style.display = 'none';
+    if (!silent) {
+        if (cartSkeleton) cartSkeleton.style.display = 'block';
+        if (cartContent) cartContent.style.display = 'none';
+    }
     if (cartError) cartError.style.display = 'none';
 
     try {
         const response = await CustomerApi.get('/customer/cart');
         const cart = response.data || response.cart || response;
         const items = cart.items || [];
+                // Don't overwrite what the user is currently changing
+        if (silent && Object.keys(pendingUpdateTimers).length > 0) return;
 
         renderCart(cart);
 
-        // Hide skeleton and reveal content
-        if (cartSkeleton) cartSkeleton.style.display = 'none';
-        if (cartContent) cartContent.style.display = 'block';
-
+       if (!silent) {
+            // Hide skeleton and reveal content
+            if (cartSkeleton) cartSkeleton.style.display = 'none';
+            if (cartContent) cartContent.style.display = 'block';
+        }
         // Notify badge listener in layout
         window.dispatchEvent(new CustomEvent('cart-updated', {
             detail: { count: items.length }
@@ -214,40 +223,92 @@ async function loadCart() {
     }
 }
 
+function renderCartLocally() {
+    const total = currentCartItems.reduce(function (acc, i) {
+        return acc + Number(i.line_total || 0);
+    }, 0);
+    renderCart({ items: currentCartItems, total: total });
+}
+
+function setLocalQuantity(item, quantity) {
+    const product = item.product || {};
+    const price = product.price !== undefined ? product.price : (item.price || 0);
+    item.quantity = quantity;
+    item.line_total = Number(price) * quantity;
+}
 async function updateQuantity(itemId, newQuantity) {
     if (newQuantity <= 0) {
         removeItem(itemId);
         return;
     }
 
-    const item = currentCartItems.find(function(i) { return i.id === itemId; });
-    if (item && item.product && typeof item.product.stock_quantity !== 'undefined' && newQuantity > item.product.stock_quantity) {
+    const item = currentCartItems.find(function (i) { return i.id === itemId; });
+    if (!item) return;
+
+    if (item.product && typeof item.product.stock_quantity !== 'undefined' && newQuantity > item.product.stock_quantity) {
         showAlertModal('Limited stock', `Only ${item.product.stock_quantity} unit(s) of ${item.product.name} are available.`);
-        loadCart();
+        renderCartLocally(); // resets the input box to the real quantity
         return;
     }
 
-    try {
-        await CustomerApi.patch(`/customer/cart/items/${itemId}`, { quantity: newQuantity });
-        loadCart();
-    } catch (error) {
-        if (error.status === 422 && error.data && error.data.errors) {
-            showAlertModal('Unable to update cart', Object.values(error.data.errors).flat().join(', '));
-        } else {
-            showAlertModal('Unable to update cart', error.message || 'Unable to update cart.');
-        }
+    // Remember the quantity from before this burst of clicks, so we can roll back on failure
+    if (!(itemId in pendingRollbackQty)) {
+        pendingRollbackQty[itemId] = item.quantity;
     }
+
+    // Instant UI update
+    setLocalQuantity(item, newQuantity);
+    renderCartLocally();
+
+    // Send to the server once the user pauses
+    clearTimeout(pendingUpdateTimers[itemId]);
+    pendingUpdateTimers[itemId] = setTimeout(async function () {
+        delete pendingUpdateTimers[itemId];
+        const restoreQty = pendingRollbackQty[itemId];
+        delete pendingRollbackQty[itemId];
+
+        const current = currentCartItems.find(function (i) { return i.id === itemId; });
+        if (!current) return;
+
+        try {
+            await CustomerApi.patch(`/customer/cart/items/${itemId}`, { quantity: current.quantity });
+            loadCart(true); // quiet background sync with the server
+        } catch (error) {
+            const failed = currentCartItems.find(function (i) { return i.id === itemId; });
+            if (failed) {
+                setLocalQuantity(failed, restoreQty);
+                renderCartLocally();
+            }
+            if (error.status === 422 && error.data && error.data.errors) {
+                showAlertModal('Unable to update cart', Object.values(error.data.errors).flat().join(', '));
+            } else {
+                showAlertModal('Unable to update cart', error.message || 'Unable to update cart.');
+            }
+        }
+    }, 300);
 }
 
 async function removeItem(itemId) {
+    const index = currentCartItems.findIndex(function (i) { return i.id === itemId; });
+    if (index === -1) return;
+
+    // Cancel any pending quantity update for this item
+    clearTimeout(pendingUpdateTimers[itemId]);
+    delete pendingUpdateTimers[itemId];
+    delete pendingRollbackQty[itemId];
+
+    // Instant UI update
+    currentCartItems.splice(index, 1);
+    renderCartLocally();
+
     try {
         await CustomerApi.delete(`/customer/cart/items/${itemId}`);
-        loadCart();
+        loadCart(true);
     } catch (error) {
+        loadCart(true); // brings the item back since the server still has it
         showAlertModal('Unable to remove item', error.message || 'Unable to remove item.');
     }
 }
-
 function clearCart() {
     if (currentCartItems.length === 0) return;
 
