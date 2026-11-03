@@ -23,6 +23,7 @@
         <a href="/customer/forgot-password">Forgot your password?</a>
         <span style="margin: 0 8px;">|</span>
         <a href="/customer/register">Create account</a>
+        <a href="/customer/verify-email"> verif yemail</a>
     </div>
 
     <x-slot:scripts>

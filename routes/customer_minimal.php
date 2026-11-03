@@ -7,7 +7,7 @@ Route::prefix('customer')->group(function () {
     Route::view('register', 'elegant.customer.register');
     Route::view('forgot-password', 'elegant.customer.forgot-password');
     Route::view('reset-password', 'minimal.customer.reset-password');
-    Route::view('verify-email', 'minimal.customer.verify-email');
+    Route::view('verify-email', 'minimal.customer.verify-email')->name('verifyemail');
     Route::view('pharmacies', 'minimal.customer.pharmacies.index');
     Route::view('pharmacies/join', 'elegant.customer.pharmacies.join');
     Route::view('products', 'elegant.customer.products.index');
