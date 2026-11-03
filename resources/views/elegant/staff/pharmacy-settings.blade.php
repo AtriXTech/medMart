@@ -58,7 +58,7 @@
                 </div>
                 <div>
                     <label for="pharmacy-phone" class="field-label">Phone</label>
-                    <input class='text-base' type="text" id="pharmacy-phone" class="field-input">
+                    <input  type="text" id="pharmacy-phone" class="field-input">
                 </div>
                 <div>
                     <label for="pharmacy-address" class="field-label">Address</label>
