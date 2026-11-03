@@ -50,19 +50,19 @@
             <form id="settings-form" class="space-y-4">
                 <div>
                     <label for="pharmacy-name" class="field-label">Pharmacy Name</label>
-                    <input type="text" id="pharmacy-name" required class="field-input">
+                    <input class='text-base' type="text" id="pharmacy-name" required class="field-input">
                 </div>
                 <div>
                     <label for="pharmacy-email" class="field-label">Email</label>
-                    <input type="email" id="pharmacy-email" required class="field-input">
+                    <input  class='text-base' type="email" id="pharmacy-email" required class="field-input">
                 </div>
                 <div>
                     <label for="pharmacy-phone" class="field-label">Phone</label>
-                    <input type="text" id="pharmacy-phone" class="field-input">
+                    <input class='text-base' type="text" id="pharmacy-phone" class="field-input">
                 </div>
                 <div>
                     <label for="pharmacy-address" class="field-label">Address</label>
-                    <textarea id="pharmacy-address" rows="3" class="field-input resize-none"></textarea>
+                    <textarea class='text-base' id="pharmacy-address" rows="3" class="field-input resize-none"></textarea>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
