@@ -10,7 +10,7 @@
         <div class="w-full max-w-[420px] bg-white/60 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl p-6 md:p-8">
 
             <div class="text-center mb-6">
-                <img src="/image/logo.png" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
+                <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
                 <h1 class="font-manrope text-2xl font-extrabold text-[#171E26]">Reset Password</h1>
                 <p class="font-inter text-[#171E26]/70 mt-1.5">Enter your new password</p>
             </div>
