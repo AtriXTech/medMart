@@ -191,15 +191,13 @@
                 <div class="relative z-10 w-full max-w-[420px] mx-auto">
 
                     {{-- Mobile brand --}}
-                    <div class="flex items-center gap-2.5 mb-6 md:hidden login-enter-1">
-                        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2775E4] to-[#08AEBC]
-                                    flex items-center justify-center shadow-md shadow-[#2775E4]/20">
-                            <i class="ph ph-pill text-white text-lg"></i>
-                        </div>
-
-                        <span class="font-manrope text-lg font-extrabold text-[#171E26]">
-                            MedMart
-                        </span>
+                    <div class="flex items-center justify-center gap-2.5 mb-6 md:hidden login-enter-1">
+                      <div class="md:max-w-xs">
+            <img src="{{ asset('images/logo.png') }}" alt="logo" class="h-[70px] w-[100px] md:h-[80px] md:w-[110px] -ml-2">
+            <p class="font-inter text-[#2775E4] text-sm mt-2">
+                The digital platform for modern pharmacies.
+            </p>
+        </div>
                     </div>
 
                     <div class="login-enter-2 login-form-card
@@ -243,7 +241,7 @@
                                            placeholder="you@pharmacy.com"
                                            class="login-input w-full rounded-xl border border-[#DBEBFB] bg-[#F8FBFF]
                                                   pl-11 pr-4 py-3.5
-                                                  font-inter text-[15px] text-[#171E26]
+                                                  font-inter text-base text-[#171E26]
                                                   placeholder:text-[#171E26]/28
                                                   focus:outline-none focus:bg-white transition">
                                 </div>
@@ -269,7 +267,7 @@
                                            placeholder="Enter your password"
                                            class="login-input w-full rounded-xl border border-[#DBEBFB] bg-[#F8FBFF]
                                                   pl-11 pr-11 py-3.5
-                                                  font-inter text-[15px] text-[#171E26]
+                                                  font-inter text-base text-[#171E26]
                                                   placeholder:text-[#171E26]/28
                                                   focus:outline-none focus:bg-white transition">
 
@@ -277,7 +275,7 @@
                                             aria-label="Show password"
                                             class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/35
                                                    hover:text-[#2775E4] transition">
-                                        <i class="ph ph-eye text-lg"></i>
+                                        <i class="ph ph-eye text-lg" id="toggle-password-icon"></i>
                                     </button>
                                 </div>
 
