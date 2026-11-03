@@ -99,16 +99,12 @@
 
                 <div class="relative z-10 login-enter-1">
 
-                    <div class="flex items-center gap-3 mb-10">
-                        <div class="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15
-                                    flex items-center justify-center">
-                            <i class="ph ph-pill text-white text-xl"></i>
-                        </div>
-
-                        <span class="font-manrope text-xl font-extrabold tracking-tight text-white">
-                            MedMart
-                        </span>
-                    </div>
+                    <div class="md:max-w-xs mb-3">
+            <img src="{{ asset('images/logo.png') }}" alt="logo" class="h-[70px] w-[100px] md:h-[80px] md:w-[110px] -ml-2">
+            <p class="font-inter text-white/60 text-[10px] mt-2">
+                The digital platform for modern pharmacies.
+            </p>
+        </div>
 
                     <p class="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 mb-3">
                         Staff portal

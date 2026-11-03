@@ -5,10 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('staff')->group(function () {
     // Route::view('login', 'minimal.staff.login');
-    Route::view('forgot-password', 'minimal.staff.forgot-password');
-    Route::view('reset-password', 'minimal.staff.reset-password');
-    Route::view('dashboard', 'minimal.staff.dashboard');
-    Route::view('onboarding', 'minimal.pharmacy.onboarding');
+    // Route::view('forgot-password', 'minimal.staff.forgot-password');
+    // Route::view('reset-password', 'minimal.staff.reset-password');
+    // Route::view('dashboard', 'minimal.staff.dashboard');
+    // Route::view('onboarding', 'minimal.pharmacy.onboarding');
     
     
     
