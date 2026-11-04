@@ -28,6 +28,7 @@
                 <input
                     type="text"
                     id="token"
+                    type="hidden" 
                     name="token"
                     required
                     autocomplete="off"
@@ -45,7 +46,7 @@
                     type="email"
                     id="email"
                     name="email"
-                    required
+                   type="hidden"
                     autocomplete="email"
                     placeholder="you@example.com"
                     class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#2775E4] focus:bg-white focus:ring-4 focus:ring-blue-100"

@@ -5,6 +5,10 @@ const resetSubmit = document.getElementById('reset-submit');
 const emailError = document.getElementById('email-error');
 const passwordError = document.getElementById('password-error');
 const tokenError = document.getElementById('token-error');
+const urlParams = new URLSearchParams(window.location.search);
+
+document.getElementById('token').value = urlParams.get('token') || '';
+document.getElementById('email').value = urlParams.get('email') || '';
 
 resetForm.addEventListener('submit', async function(event) {
   event.preventDefault();
