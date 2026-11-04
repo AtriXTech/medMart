@@ -40,7 +40,7 @@
 
             <div>
                 <label for="email" class="mb-2 block text-sm font-semibold text-gray-700">
-                    Email Address
+                    Email Address abu
                 </label>
                 <input
                     type="email"
