@@ -33,10 +33,32 @@
             .login-enter-1, .login-enter-2, .login-enter-3,
             .login-panel, .login-orb { animation: none; }
         }
+
+        /* Mobile responsiveness only */
+        @media (max-width: 639px) {
+            html,
+            body {
+                overflow-x: hidden;
+            }
+        }
+
+        @media (max-width: 374px) {
+            .register-card {
+                padding: 1.25rem;
+            }
+        }
+
+        @media (max-height: 700px) and (max-width: 767px) {
+            .register-main {
+                padding-top: 1.25rem;
+                padding-bottom: 1.25rem;
+            }
+        }
     </style>
 
-    <main class="flex justify-center px-4 py-8 sm:px-6 md:px-8 md:py-12
-                 md:min-h-dvh md:items-center">
+    <main class="register-main min-h-dvh w-full flex justify-center overflow-x-hidden
+                 px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-12
+                 md:items-center">
 
         <div class="w-full max-w-[1080px] flex flex-col md:flex-row
                     md:rounded-[1.75rem] md:overflow-hidden
@@ -54,28 +76,31 @@
                      style="background-image: linear-gradient(rgba(255,255,255,.35) 1px, transparent 1px),
                                             linear-gradient(90deg, rgba(255,255,255,.35) 1px, transparent 1px);
                             background-size: 48px 48px;"></div>
-                <div class="login-orb absolute -top-24 -left-16 h-64 w-64 rounded-full bg-[#08AEBC]/25 blur-3xl"></div>
-                <div class="absolute bottom-[-12%] right-[-18%] h-80 w-80 rounded-full bg-[#B1D0FB]/20 blur-3xl"></div>
+
+                {{-- Orbs: radial gradients instead of blur (avoids the iPhone/WebKit black box) --}}
+                <div class="login-orb absolute -top-28 -left-20 h-80 w-80 bg-[radial-gradient(circle,rgba(8,174,188,0.25)_0%,transparent_70%)]"></div>
+                <div class="absolute bottom-[-18%] right-[-24%] h-96 w-96 bg-[radial-gradient(circle,rgba(177,208,251,0.2)_0%,transparent_70%)]"></div>
                 <div class="absolute top-1/3 right-8 h-32 w-32 rounded-full border border-white/10"></div>
 
                 <div class="relative z-10 login-enter-1">
-                    <div class="flex items-center gap-3 mb-10">
-                        <div class="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/15
-                                    flex items-center justify-center">
-                            <i class="ph ph-pill text-white text-xl"></i>
-                        </div>
-                        <span class="font-manrope text-xl font-extrabold tracking-tight text-white">MedMart</span>
+
+                    {{-- Logo + tagline (same as the login page) --}}
+                    <div class="md:max-w-xs mb-8">
+                        <img src="{{ asset('images/logo.png') }}" alt="logo" class="h-[70px] w-[100px] md:h-[80px] md:w-[110px] -ml-2">
+                        <p class="font-inter text-white/60 text-[10px] mt-2">
+                            The digital platform for modern pharmacies.
+                        </p>
                     </div>
 
                     <p class="font-inter text-[11px] font-semibold uppercase tracking-[0.18em] text-white/50 mb-3">
                         Pharmacy onboarding
                     </p>
-                    <h2 class="font-manrope text-[1.85rem] lg:text-[2.15rem] font-extrabold text-white leading-[1.2]">
+                    <h2 class="font-manrope text-[1.6rem] lg:text-[2.15rem] font-extrabold text-white leading-[1.2]">
                         Your pharmacy.<br>
                         Your customers.<br>
                         One platform.
                     </h2>
-                    <p class="font-inter text-[15px] text-white/65 mt-4 leading-relaxed max-w-sm">
+                    <p class="font-inter text-[14px] lg:text-[15px] text-white/65 mt-4 leading-relaxed max-w-sm">
                         Create your MedMart account and start managing orders, stock, and customers with calm clarity.
                     </p>
 
@@ -116,23 +141,27 @@
 
             {{-- Right: form --}}
             <section class="w-full md:w-[58%] lg:w-[56%] flex flex-col justify-center
-                            relative md:px-10 lg:px-12 md:py-10">
+                            relative overflow-hidden md:px-8 lg:px-12 md:py-10">
 
-                <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#B1D0FB]/35 blur-3xl md:hidden"></div>
-                <div class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#DBEBFB]/50 blur-3xl md:hidden"></div>
+                {{-- Mobile orbs: radial gradients instead of blur --}}
+                <div class="absolute -top-24 -right-24 h-80 w-80 bg-[radial-gradient(circle,rgba(177,208,251,0.35)_0%,transparent_70%)] md:hidden"></div>
+                <div class="absolute bottom-0 left-0 h-72 w-72 bg-[radial-gradient(circle,rgba(219,235,251,0.5)_0%,transparent_70%)] md:hidden"></div>
 
                 <div class="relative z-10 w-full max-w-[460px] mx-auto">
 
-                    {{-- Mobile brand --}}
-                    <div class="flex items-center gap-2.5 mb-6 md:hidden login-enter-1">
-                        <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2775E4] to-[#08AEBC]
-                                    flex items-center justify-center shadow-md shadow-[#2775E4]/20">
-                            <i class="ph ph-pill text-white text-lg"></i>
+                    {{-- Mobile brand (same logo + tagline as the login page) --}}
+                    <div class="flex items-center justify-center mb-6 md:hidden login-enter-1">
+                        <div class="flex flex-col items-center text-center">
+                            <img src="{{ asset('images/logo.png') }}" alt="logo"
+                                 width="160" height="56" decoding="async"
+                                 class="h-14 w-auto bg-transparent">
+                            <p class="font-inter text-[#2775E4] text-sm mt-2">
+                                The digital platform for modern pharmacies.
+                            </p>
                         </div>
-                        <span class="font-manrope text-lg font-extrabold text-[#171E26]">MedMart</span>
                     </div>
 
-                    <div class="login-enter-2 rounded-2xl md:rounded-none bg-white md:bg-transparent
+                    <div class="register-card login-enter-2 rounded-2xl md:rounded-none bg-white md:bg-transparent
                                 border border-[#EAF1FB] md:border-0
                                 shadow-[0_20px_50px_-24px_rgba(23,30,38,0.18)] md:shadow-none
                                 p-6 sm:p-8 md:p-0">
@@ -142,7 +171,7 @@
                         <p class="font-inter text-[11px] font-semibold uppercase tracking-[0.16em] text-[#2775E4] mb-3">
                             Create account
                         </p>
-                        <h1 class="font-manrope text-[1.65rem] sm:text-[1.85rem] font-extrabold text-[#171E26] leading-tight">
+                        <h1 class="font-manrope text-[1.5rem] sm:text-[1.85rem] font-extrabold text-[#171E26] leading-tight">
                             Create your MedMart account
                         </h1>
                         <p class="font-inter text-[14px] sm:text-[15px] text-[#171E26]/55 mt-2 leading-relaxed">
@@ -186,8 +215,10 @@
                                     <div class="field-error text-red-500" id="owner-name-error"></div>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="field">
+                                {{-- CHANGED: two columns only from lg up (was sm), so email and phone
+                                     aren't squeezed on tablets and small laptops. --}}
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <div class="field min-w-0">
                                         <label for="email" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">
                                             Email Address
                                         </label>
@@ -204,7 +235,7 @@
                                         <div class="field-error text-red-500" id="email-error"></div>
                                     </div>
 
-                                    <div class="field">
+                                    <div class="field min-w-0">
                                         <label for="phone" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">
                                             Phone Number
                                         </label>
@@ -271,7 +302,7 @@
                             <div class="mt-5">
                                 <label class="flex items-start gap-2.5 cursor-pointer">
                                     <input type="checkbox" id="terms"
-                                        class="mt-0.5 h-4 w-4 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
+                                        class="mt-0.5 h-4 w-4 shrink-0 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
                                     <span class="font-inter text-xs text-[#171E26]/60 leading-relaxed">
                                         By creating an account, you agree to the MedMart
                                         <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
