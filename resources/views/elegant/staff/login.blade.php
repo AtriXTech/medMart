@@ -135,11 +135,11 @@
                             background-size: 48px 48px;">
                 </div>
 
-                <div class="login-orb absolute -top-24 -left-16 h-64 w-64 rounded-full bg-[#08AEBC]/25 blur-3xl"></div>
+                {{-- <div class="login-orb absolute -top-24 -left-16 h-64 w-64 rounded-full bg-[#08AEBC]/25 blur-3xl"></div> --}}
 
-                <div class="absolute bottom-[-12%] right-[-18%] h-80 w-80 rounded-full bg-[#B1D0FB]/20 blur-3xl"></div>
+                {{-- <div class="absolute bottom-[-12%] right-[-18%] h-80 w-80 rounded-full bg-[#B1D0FB]/20 blur-3xl"></div> --}}
 
-                <div class="absolute top-1/3 right-8 h-32 w-32 rounded-full border border-white/10"></div>
+                {{-- <div class="absolute top-1/3 right-8 h-32 w-32 rounded-full border border-white/10"></div> --}}
 
                 <div class="relative z-10 login-enter-1">
 
@@ -233,9 +233,9 @@
                             md:px-10 lg:px-12
                             py-0 md:py-12">
 
-                <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#B1D0FB]/35 blur-3xl md:hidden"></div>
+                {{-- <div class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#B1D0FB]/35 blur-3xl md:hidden"></div> --}}
 
-                <div class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#DBEBFB]/50 blur-3xl md:hidden"></div>
+                {{-- <div class="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[#DBEBFB]/50 blur-3xl md:hidden"></div> --}}
 
                 <div class="relative z-10 w-full max-w-[420px] mx-auto">
 
