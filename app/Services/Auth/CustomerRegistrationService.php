@@ -52,7 +52,7 @@ class CustomerRegistrationService
         ])->save();
 
         $verificationUrl = config('app.frontend_url')
-            . '/verify-email?token=' . $rawToken
+           . '/customer/verify-email?token=' . $rawToken
             . '&email=' . urlencode($customer->email);
 
         Mail::to($customer->email)->send(new VerifyCustomerEmailMail($customer, $verificationUrl));
