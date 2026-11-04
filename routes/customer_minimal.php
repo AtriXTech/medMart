@@ -6,7 +6,7 @@ Route::prefix('customer')->group(function () {
     Route::view('login', 'elegant.customer.login');
     Route::view('register', 'elegant.customer.register');
     Route::view('forgot-password', 'elegant.customer.forgot-password');
-    Route::view('reset-password', 'minimal.customer.reset-password');
+    Route::view('reset-password', 'elegant.customer.reset-password');
 
     Route::view('verify-email', 'elegant.customer.verify-email')
         ->name('verifyemail');
