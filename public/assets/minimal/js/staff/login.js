@@ -6,8 +6,7 @@ const loginSubmit = document.getElementById('login-submit');
 const emailError = document.getElementById('email-error');
 const passwordError = document.getElementById('password-error');
 const toggleBtn = document.getElementById('toggle-password-icon');
-
-
+const toggleWrap = toggleBtn.closest('button');
 
 function clearErrors() {
   loginError.style.display = 'none';
@@ -16,20 +15,21 @@ function clearErrors() {
   passwordError.textContent = '';
 }
 
- toggleBtn.addEventListener('click', function () {
-const pword= document.getElementById('password');
-    const isHidden = pword.type === 'password';
+toggleWrap.addEventListener('click', function () {
+  const pword = document.getElementById('password');
+  const isHidden = pword.type === 'password';
 
-    pword.type = isHidden ? 'text' : 'password';
+  pword.type = isHidden ? 'text' : 'password';
 
-    toggleBtn.classList.toggle('ph-eye', !isHidden);
-    toggleBtn.classList.toggle('ph-eye-slash', isHidden);
+  toggleBtn.classList.toggle('ph-eye', !isHidden);
+  toggleBtn.classList.toggle('ph-eye-slash', isHidden);
 
-    toggleBtn.setAttribute(
-        'aria-label',
-        isHidden ? 'Hide password' : 'Show password'
-    );
+  toggleWrap.setAttribute(
+    'aria-label',
+    isHidden ? 'Hide password' : 'Show password'
+  );
 });
+
 function showFieldErrors(errors) {
   if (errors.email) {
     emailError.textContent = errors.email[0];
