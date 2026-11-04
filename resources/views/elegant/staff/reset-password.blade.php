@@ -26,31 +26,38 @@
 
             <form id="reset-form" novalidate class="space-y-4">
 
-                <div>
-                    <label for="token" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">Reset Token</label>
-                    <input type="text" id="token" name="token" required
-                           class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
-                    <div id="token-error" class="font-inter text-xs text-red-500 mt-1.5"></div>
-                </div>
-
-                <div>
-                    <label for="email" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">Email</label>
-                    <input type="email" id="email" name="email" autocomplete="username" required
-                           class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
-                    <div id="email-error" class="font-inter text-xs text-red-500 mt-1.5"></div>
-                </div>
+                {{-- Prefilled from the emailed link and hidden from the user.
+                     The error divs stay in the DOM so an invalid or expired link still shows a message. --}}
+                <input type="hidden" id="token" name="token" value="{{ request()->query('token') }}" required>
+                <input type="hidden" id="email" name="email" autocomplete="username" value="{{ request()->query('email') }}" required>
+                <div id="token-error" class="font-inter text-xs text-red-500 empty:hidden"></div>
+                <div id="email-error" class="font-inter text-xs text-red-500 empty:hidden"></div>
 
                 <div>
                     <label for="password" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">New Password</label>
-                    <input type="password" id="password" name="password" autocomplete="new-password" required
-                           class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
+                    <div class="relative">
+                        <input type="password" id="password" name="password" autocomplete="new-password" required
+                               class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 pr-11 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
+                        <button type="button" aria-label="Show password"
+                                class="toggle-password absolute right-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/40 hover:text-[#2775E4] transition"
+                                data-target="password">
+                            <i class="ph ph-eye text-lg"></i>
+                        </button>
+                    </div>
                     <div id="password-error" class="font-inter text-xs text-red-500 mt-1.5"></div>
                 </div>
 
                 <div>
                     <label for="password-confirmation" class="block font-inter text-[13px] font-medium text-[#171E26] mb-1.5">Confirm Password</label>
-                    <input type="password" id="password-confirmation" name="password_confirmation" autocomplete="new-password" required
-                           class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
+                    <div class="relative">
+                        <input type="password" id="password-confirmation" name="password_confirmation" autocomplete="new-password" required
+                               class="w-full rounded-xl border border-[#DBEBFB] px-3.5 py-2.5 pr-11 font-inter text-[14px] text-[#171E26] focus:outline-none focus:ring-2 focus:ring-[#2775E4] focus:border-[#2775E4] transition">
+                        <button type="button" aria-label="Show password"
+                                class="toggle-password absolute right-3.5 top-1/2 -translate-y-1/2 text-[#171E26]/40 hover:text-[#2775E4] transition"
+                                data-target="password-confirmation">
+                            <i class="ph ph-eye text-lg"></i>
+                        </button>
+                    </div>
                     <div id="password-confirmation-error" class="font-inter text-xs text-red-500 mt-1.5"></div>
                 </div>
 
@@ -69,5 +76,18 @@
 
     <x-slot:scripts>
         <script src="{{ asset('assets/minimal/js/staff/reset-password.js') }}"></script>
+        <script>
+            // Purely presentational, doesn't touch anything reset-password.js depends on.
+            document.querySelectorAll('.toggle-password').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const input = document.getElementById(btn.dataset.target);
+                    const icon = btn.querySelector('i');
+                    const showing = input.type === 'text';
+                    input.type = showing ? 'password' : 'text';
+                    icon.className = showing ? 'ph ph-eye text-lg' : 'ph ph-eye-slash text-lg';
+                    btn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+                });
+            });
+        </script>
     </x-slot:scripts>
 </x-layouts.guest>
