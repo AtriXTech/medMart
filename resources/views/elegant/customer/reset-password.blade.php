@@ -8,13 +8,13 @@
     <div class="space-y-4">
 
         <div
-            class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             id="reset-error"
             role="alert"
         ></div>
 
         <div
-            class="hidden rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
+            class=" rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
             id="reset-success"
             role="status"
         ></div>
@@ -22,8 +22,8 @@
         <form id="reset-form" novalidate class="space-y-5">
 
             {{-- Hidden fields populated from the reset URL --}}
-            <input type="hidden" id="token" name="token">
-            <input type="hidden" id="email" name="email">
+            <input  id="token" name="token">
+            <input  id="email" name="email">
 
             <div>
                 <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">
