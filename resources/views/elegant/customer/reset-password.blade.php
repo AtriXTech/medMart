@@ -1,80 +1,47 @@
 <x-layouts.customer-guest title="Reset Password">
     <x-slot:subtitle>
-        <p class="text-sm text-gray-500 mt-2">
-            Create a new password to regain access to your account.
-        </p>
+        <p class="sub mt-1 text-sm text-gray-500">Enter your new password</p>
     </x-slot:subtitle>
 
-    <div class="space-y-4">
+    <div class="alert alert-error mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" id="reset-error" style="display: none;"></div>
+    <div class="alert alert-success mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700" id="reset-success" style="display: none;"></div>
 
-        <div
-            class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            id="reset-error"
-            role="alert"
-        ></div>
-
-        <div
-            class=" rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
-            id="reset-success"
-            role="status"
-        ></div>
-
-        <form id="reset-form" novalidate class="space-y-5">
-
-            {{-- Hidden fields populated from the reset URL --}}
-            <input  id="token" name="token">
-            <input  id="email" name="email">
-
-            <div>
-                <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">
-                    New Password
-                </label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    required
-                    autocomplete="new-password"
-                    placeholder="Enter your new password"
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#2775E4] focus:bg-white focus:ring-4 focus:ring-blue-100"
-                >
-                <div class="mt-1.5 text-xs text-red-600" id="password-error"></div>
-            </div>
-
-            <div>
-                <label for="password-confirmation" class="mb-2 block text-sm font-semibold text-gray-700">
-                    Confirm New Password
-                </label>
-                <input
-                    type="password"
-                    id="password-confirmation"
-                    name="password_confirmation"
-                    required
-                    autocomplete="new-password"
-                    placeholder="Re-enter your new password"
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#2775E4] focus:bg-white focus:ring-4 focus:ring-blue-100"
-                >
-            </div>
-
-            <button
-                type="submit"
-                id="reset-submit"
-                class="flex w-full items-center justify-center rounded-xl bg-[#2775E4] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-                Reset Password
-            </button>
-        </form>
-
-        <div class="border-t border-gray-100 pt-5 text-center">
-            <a
-                href="/customer/login"
-                class="inline-flex items-center gap-2 text-sm font-semibold text-[#2775E4] transition hover:text-blue-700"
-            >
-                <span aria-hidden="true">&larr;</span>
-                Back to login
-            </a>
+    <form id="reset-form" class="space-y-5" novalidate>
+        <div class="field">
+            <label for="token" class="mb-1.5 block text-sm font-medium text-gray-700">Reset Token</label>
+            <input type="text" id="token" name="token" required
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+            <div class="field-error mt-1.5 text-xs text-red-600" id="token-error"></div>
         </div>
 
+        <div class="field">
+            <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+            <div class="field-error mt-1.5 text-xs text-red-600" id="email-error"></div>
+        </div>
+
+        <div class="field">
+            <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700">New Password</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+            <div class="field-error mt-1.5 text-xs text-red-600" id="password-error"></div>
+        </div>
+
+        <div class="field">
+            <label for="password-confirmation" class="mb-1.5 block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input type="password" id="password-confirmation" name="password_confirmation" required autocomplete="new-password"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+        </div>
+
+        <button type="submit" id="reset-submit"
+            class="btn btn-primary btn-block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+            Reset Password
+        </button>
+    </form>
+
+    <div class="guest-links mt-6 text-center text-sm">
+        <a href="/customer/login" class="font-medium text-indigo-600 transition hover:text-indigo-500 hover:underline">&larr; Back to login</a>
     </div>
 
     <x-slot:scripts>
