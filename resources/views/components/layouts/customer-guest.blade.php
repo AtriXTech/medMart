@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
     <style>
+       /* Prevent iOS automatic zoom when focusing form fields */
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea {
+            font-size: 16px;
+        }
         .font-manrope { font-family: 'Manrope', sans-serif; }
         .font-inter { font-family: 'Inter', sans-serif; }
     </style>
