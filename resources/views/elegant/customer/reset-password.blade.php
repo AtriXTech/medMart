@@ -10,6 +10,7 @@
         <div class="field">
             <label for="token" class="mb-1.5 block text-sm font-medium text-gray-700">Reset Token</label>
             <input type="text" id="token" name="token" required
+                     value="{{ request()->query('token') }}"
                 class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
             <div class="field-error mt-1.5 text-xs text-red-600" id="token-error"></div>
         </div>
@@ -17,6 +18,8 @@
         <div class="field">
             <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">Email</label>
             <input type="email" id="email" name="email" required autocomplete="email"
+            value="{{ request()->query('email') }}"
+
                 class="block w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm placeholder-gray-400 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
             <div class="field-error mt-1.5 text-xs text-red-600" id="email-error"></div>
         </div>
