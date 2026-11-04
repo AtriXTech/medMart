@@ -147,7 +147,7 @@ window.MedMartReceipt = (function () {
       <div class="text-center space-y-1">
         <p class="font-inter text-[12px] text-[#171E26]/60">Thanks for your patronage. Call again!</p>
         <p class="font-inter text-[11px] text-[#171E26]/45">Goods bought in good condition are not returnable.</p>
-        <p class="font-inter text-[11px] font-semibold text-[#171E26]/50 mt-2">Powered by MedMart.com</p>
+        <p class="font-inter text-[11px] font-semibold text-[#171E26]/50 mt-2">Powered by MedMartweb.com</p>
       </div>
     `;
   }
