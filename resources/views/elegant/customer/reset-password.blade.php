@@ -21,38 +21,9 @@
 
         <form id="reset-form" novalidate class="space-y-5">
 
-            <div>
-                <label for="token" class="mb-2 block text-sm font-semibold text-gray-700">
-                    Reset Token
-                </label>
-                <input
-                    type="text"
-                    id="token"
-                    type="hidden" 
-                    name="token"
-                    required
-                    autocomplete="off"
-                    placeholder="Enter your reset token"
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#2775E4] focus:bg-white focus:ring-4 focus:ring-blue-100"
-                >
-                <div class="mt-1.5 text-xs text-red-600" id="token-error"></div>
-            </div>
-
-            <div>
-                <label for="email" class="mb-2 block text-sm font-semibold text-gray-700">
-                    Email Address abu
-                </label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                   type="hidden"
-                    autocomplete="email"
-                    placeholder="you@example.com"
-                    class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#2775E4] focus:bg-white focus:ring-4 focus:ring-blue-100"
-                >
-                <div class="mt-1.5 text-xs text-red-600" id="email-error"></div>
-            </div>
+            {{-- Hidden fields populated from the reset URL --}}
+            <input type="hidden" id="token" name="token">
+            <input type="hidden" id="email" name="email">
 
             <div>
                 <label for="password" class="mb-2 block text-sm font-semibold text-gray-700">
