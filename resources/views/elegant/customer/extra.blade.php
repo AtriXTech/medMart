@@ -40,6 +40,16 @@
         </a>
 
         <div class="border-t border-[#F3F7FC]"></div>
+        <a href="{{ route('legal-pages') }}" class="flex items-center gap-4 px-5 py-5 hover:bg-[#F7FAFD] transition">
+            <i class="ph-light ph-lifebuoy text-[26px] text-[#171E26]"></i>
+            <div class="flex-1">
+                <p class="font-manrope font-bold text-[16px] text-[#171E26]">Legal Pages</p>
+                <p class="font-inter text-[13px] text-[#171E26]/45 mt-0.5">Visit MedMart Legal-Pages</p>
+            </div>
+            <i class="ph-light ph-caret-right text-[18px] text-[#171E26]/30"></i>
+        </a>
+
+        <div class="border-t border-[#F3F7FC]"></div>
 
         <button type="button" id="logout-card-btn" class="w-full flex items-center gap-4 px-5 py-5 hover:bg-[#FDEDEC] transition text-left">
             <i class="ph-light ph-sign-out text-[26px] text-[#9C3A32]"></i>
