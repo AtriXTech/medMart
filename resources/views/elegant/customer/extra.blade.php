@@ -40,7 +40,7 @@
         </a>
 
         <div class="border-t border-[#F3F7FC]"></div>
-        <a href="{{route('abubakre')}}" class="flex items-center gap-4 px-5 py-5 hover:bg-[#F7FAFD] transition">
+        <a href="{{route('index')}}" class="flex items-center gap-4 px-5 py-5 hover:bg-[#F7FAFD] transition">
             <i class="ph-light ph-lifebuoy text-[26px] text-[#171E26]"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[16px] text-[#171E26]">Legal Pages</p>
