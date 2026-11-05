@@ -9,11 +9,11 @@ Route::prefix('customer')->group(function () {
     Route::view('reset-password', 'elegant.customer.reset-password');
 
     Route::view('legal-pages', 'elegant.customer.legal-pages.index')->name('index');
-    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.cookie-policy')->name('cookiePolicy');
-    Route::view('disclaimer', 'elegant.customer.customer-legal-pages.disclaimer')->name('disclaimer');
-    Route::view('privacy-policy', 'elegant.customer.customer-legal-pages.privacy-policy')->name('privacyPolicy');
-    Route::view('refund-and-cancellation-policy', 'elegant.customer.customer-legal-pages.refund-and-cancellation-policy')->name('refundAndCancellationPolicy');
-    Route::view('terms-and-condition', 'elegant.customer.customer-legal-pages.terms-and-condition')->name('termsAndCondition');
+    Route::view('cookie-policy', 'elegant.customer.legal-pages.cookie-policy')->name('cookiePolicy');
+    Route::view('disclaimer', 'elegant.customer.legal-pages.disclaimer')->name('disclaimer');
+    Route::view('privacy-policy', 'elegant.customer.legal-pages.privacy-policy')->name('privacyPolicy');
+    Route::view('refund-and-cancellation-policy', 'elegant.customer.legal-pages.refund-and-cancellation-policy')->name('refundAndCancellationPolicy');
+    Route::view('terms-and-condition', 'elegant.customer.legal-pages.terms-and-condition')->name('termsAndCondition');
 
 
 
