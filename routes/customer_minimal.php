@@ -8,12 +8,12 @@ Route::prefix('customer')->group(function () {
     Route::view('forgot-password', 'elegant.customer.forgot-password');
     Route::view('reset-password', 'elegant.customer.reset-password');
 
-    Route::view('legal-pages', 'elegant.customer.legal-pages.legal-pages=index')->name('legal-pages');
-    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.cookie-policy')->name('cookie-policy');
+    Route::view('legal-pages', 'elegant.customer.legal-pages.legal-pages-index')->name('legalPages');
+    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.cookie-policy')->name('cookiePolicy');
     Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.disclaimer')->name('disclaimer');
-    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.privacy-policy')->name('privacy-policy');
-    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.refund-and-cancellation-policy')->name('refund-and-cancellation-policy');
-    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.terms-and-condition')->name('terms-and-condition');
+    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.privacy-policy')->name('privacyPolicy');
+    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.refund-and-cancellation-policy')->name('refundAndCancellationPolicy');
+    Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.terms-and-condition')->name('termsAndCondition');
 
 
 

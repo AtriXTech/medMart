@@ -8,7 +8,7 @@
 
         {{-- cookie-policy--}}
         <button type="button"  class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
-           <a href="{{route('cookie-policy')}}">
+           <a href="{{route('cookiePolicy')}}">
               <i class="ph-light ph-list-bullets text-[26px] text-[#171E26] mt-0.5"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[17px] text-[#171E26]">cookie-policy</p>
@@ -34,7 +34,7 @@
 
         {{-- privacy-policy --}}
         <button type="button"  class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
-          <a href="{{route('privacy-policy')}}">
+          <a href="{{route('privacyPolicy')}}">
                <i class="ph-light ph-list-bullets text-[26px] text-[#171E26] mt-0.5"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[17px] text-[#171E26]">privacy-policy</p>
@@ -47,7 +47,7 @@
 
         {{-- refund-and-cancellation-policy --}}
         <button type="button"  class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
-           <a href="{{route('refund-and-cancellation-policy')}}">
+           <a href="{{route('refundAndCancellationPolicy')}}">
               <i class="ph-light ph-list-bullets text-[26px] text-[#171E26] mt-0.5"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[17px] text-[#171E26]">refund and cancellation policy</p>
@@ -61,7 +61,7 @@
 
         {{-- terms-and-condition --}}
         <button type="button"  class="w-full flex items-start gap-4 px-5 py-5 text-left hover:bg-[#F7FAFD] transition">
-           <a href="{{route('terms-and-condition')}}">
+           <a href="{{route('termsAndCondition')}}">
              <i class="ph-light ph-list-bullets text-[26px] text-[#171E26] mt-0.5"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[17px] text-[#171E26]">terms and condition</p>
