@@ -8,7 +8,7 @@ Route::prefix('customer')->group(function () {
     Route::view('forgot-password', 'elegant.customer.forgot-password');
     Route::view('reset-password', 'elegant.customer.reset-password');
 
-    Route::view('legal-pages', 'elegant.customer.legal-pages.legal-pages-index')->name('legalPages');
+    Route::view('legal-pages', 'elegant.customer.legal-pages.abubakre')->name('abubakre');
     Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.cookie-policy')->name('cookiePolicy');
     Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.disclaimer')->name('disclaimer');
     Route::view('cookie-policy', 'elegant.customer.customer-legal-pages.privacy-policy')->name('privacyPolicy');
