@@ -40,18 +40,19 @@
         </a>
 
         <div class="border-t border-[#F3F7FC]"></div>
-        <a href="{{route('index')}}" class="flex items-center gap-4 px-5 py-5 hover:bg-[#F7FAFD] transition">
-            <i class="ph-light ph-lifebuoy text-[26px] text-[#171E26]"></i>
+        <a href="{{ route('index') }}" class="flex items-center gap-4 px-5 py-5 hover:bg-[#F7FAFD] transition">
+            <i class="ph-light ph-scales text-[26px] text-[#171E26]"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[16px] text-[#171E26]">Legal Pages</p>
-                <p class="font-inter text-[13px] text-[#171E26]/45 mt-0.5">Visit MedMart Legal-Pages</p>
+                <p class="font-inter text-[13px] text-[#171E26]/45 mt-0.5">Visit MedMart Legal Pages</p>
             </div>
             <i class="ph-light ph-caret-right text-[18px] text-[#171E26]/30"></i>
         </a>
 
         <div class="border-t border-[#F3F7FC]"></div>
 
-        <button type="button" id="logout-card-btn" class="w-full flex items-center gap-4 px-5 py-5 hover:bg-[#FDEDEC] transition text-left">
+        <button type="button" id="logout-card-btn"
+            class="w-full flex items-center gap-4 px-5 py-5 hover:bg-[#FDEDEC] transition text-left">
             <i class="ph-light ph-sign-out text-[26px] text-[#9C3A32]"></i>
             <div class="flex-1">
                 <p class="font-manrope font-bold text-[16px] text-[#9C3A32]">Log Out</p>
@@ -62,19 +63,22 @@
     </div>
 
     {{-- Logout confirm modal --}}
-    <div id="confirm-modal" style="display: none;" class="fixed inset-0 z-50 items-center justify-center bg-[#171E26]/50 px-4">
+    <div id="confirm-modal" style="display: none;"
+        class="fixed inset-0 z-50 items-center justify-center bg-[#171E26]/50 px-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-[380px] p-6 text-center">
             <div class="mx-auto mb-4 h-14 w-14 rounded-full flex items-center justify-center bg-[#FDEDEC]">
                 <i class="ph-light ph-sign-out text-2xl text-[#9C3A32]"></i>
             </div>
             <h3 class="font-manrope font-bold text-[16px] text-[#171E26] mb-1.5">Log out?</h3>
-            <p class="font-inter text-[13px] text-[#171E26]/60 leading-relaxed mb-4">Are you sure you want to log out of your account?</p>
+            <p class="font-inter text-[13px] text-[#171E26]/60 leading-relaxed mb-4">Are you sure you want to log out of
+                your account?</p>
             <p id="confirm-modal-error" style="display: none;" class="font-inter text-[12px] text-[#9C3A32] mb-3"></p>
             <div class="flex items-center gap-2.5">
                 <button type="button" id="confirm-modal-cancel-btn"
                     class="flex-1 px-4 py-2.5 rounded-xl border border-[#DBEBFB] font-inter font-semibold text-[13px] text-[#171E26] hover:bg-[#F7FAFD]">Cancel</button>
                 <button type="button" id="confirm-modal-confirm-btn"
-                    class="flex-1 px-4 py-2.5 rounded-xl border border-[#F5C9C4] font-inter font-semibold text-[13px] text-[#9C3A32] hover:bg-[#FDEDEC] disabled:opacity-60">Log Out</button>
+                    class="flex-1 px-4 py-2.5 rounded-xl border border-[#F5C9C4] font-inter font-semibold text-[13px] text-[#9C3A32] hover:bg-[#FDEDEC] disabled:opacity-60">Log
+                    Out</button>
             </div>
         </div>
     </div>

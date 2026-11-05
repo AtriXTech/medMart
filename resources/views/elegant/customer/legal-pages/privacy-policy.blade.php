@@ -2,15 +2,15 @@
     <!-- =========================================================
          HERO
     ========================================================== -->
-    <section class="relative overflow-hidden bg-medmart-hero">
+    <section class="relative overflow-hidden bg-[#E9F3FE]">
 
         <!-- Decorative shapes -->
         <div
-            class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-medmart-shape/40 blur-3xl"
+            class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#B1D0FB]/40 blur-3xl"
         ></div>
 
         <div
-            class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-medmart-light/60 blur-3xl"
+            class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#DBEBFB]/60 blur-3xl"
         ></div>
 
         <div class="relative mx-auto max-w-7xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8">
@@ -18,17 +18,17 @@
             <div class="max-w-3xl">
 
                 <div
-                    class="mb-5 inline-flex items-center gap-2 rounded-full border border-medmart-blue/15 bg-white px-3.5 py-1.5"
+                    class="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2775E4]/15 bg-white px-3.5 py-1.5"
                 >
-                    <span class="h-2 w-2 rounded-full bg-medmart-blue"></span>
+                    <span class="h-2 w-2 rounded-full bg-[#2775E4]"></span>
 
-                    <span class="font-inter text-xs font-semibold text-medmart-blue">
+                    <span class="font-inter text-xs font-semibold text-[#2775E4]">
                         Legal & Privacy
                     </span>
                 </div>
 
                 <h1
-                    class="font-manrope text-4xl font-extrabold tracking-tight text-medmart-text sm:text-5xl"
+                    class="font-manrope text-4xl font-extrabold tracking-tight text-[#171E26] sm:text-5xl"
                 >
                     Privacy Policy
                 </h1>
@@ -82,67 +82,67 @@
                     <nav class="space-y-1.5 text-sm">
 
                         <a href="#introduction"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Introduction
                         </a>
 
                         <a href="#who-we-are"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Who We Are
                         </a>
 
                         <a href="#information"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Information We Collect
                         </a>
 
                         <a href="#account"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Customer Accounts
                         </a>
 
                         <a href="#pharmacy-access"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Pharmacy Access
                         </a>
 
                         <a href="#usage"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             How We Use Data
                         </a>
 
                         <a href="#payments"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Payments & Orders
                         </a>
 
                         <a href="#cookies"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Cookies
                         </a>
 
                         <a href="#security"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Security
                         </a>
 
                         <a href="#retention"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Retention
                         </a>
 
                         <a href="#rights"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Your Rights
                         </a>
 
                         <a href="#children"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Children
                         </a>
 
                         <a href="#contact"
-                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue">
+                           class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]">
                             Contact
                         </a>
 
@@ -161,7 +161,7 @@
                 <!-- INTRODUCTION -->
                 <section id="introduction" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         1. Introduction
                     </h2>
 
@@ -203,7 +203,7 @@
                 <!-- WHO WE ARE -->
                 <section id="who-we-are" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         2. Who We Are
                     </h2>
 
@@ -243,7 +243,7 @@
                 <!-- INFORMATION -->
                 <section id="information" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         3. Information We Collect
                     </h2>
 
@@ -361,9 +361,9 @@
                         </div>
 
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
-                            <h3 class="text-lg font-bold text-medmart-text">
+                            <h3 class="text-lg font-bold text-[#171E26]">
                                 Information MedMart does not currently collect
                             </h3>
 
@@ -384,7 +384,7 @@
                 <!-- ACCOUNT -->
                 <section id="account" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         4. Customer Accounts and Pharmacy Membership
                     </h2>
 
@@ -422,7 +422,7 @@
                 <!-- PHARMACY ACCESS -->
                 <section id="pharmacy-access" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         5. How Pharmacies Access Customer Information
                     </h2>
 
@@ -483,7 +483,7 @@
                 <!-- USAGE -->
                 <section id="usage" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         6. How We Use Personal Information
                     </h2>
 
@@ -524,7 +524,7 @@
                 <!-- LAWFUL BASIS -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         7. Lawful Basis for Processing
                     </h2>
 
@@ -568,7 +568,7 @@
                 <!-- PAYMENTS -->
                 <section id="payments" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         8. Orders, Payments and Paystack
                     </h2>
 
@@ -611,7 +611,7 @@
                 <!-- COMMUNICATION -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         9. Notifications and Customer Support
                     </h2>
 
@@ -663,7 +663,7 @@
                 <!-- COOKIES -->
                 <section id="cookies" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         10. Cookies and Similar Technologies
                     </h2>
 
@@ -693,7 +693,7 @@
                 <!-- THIRD PARTIES -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         11. Service Providers and Third Parties
                     </h2>
 
@@ -737,7 +737,7 @@
                 <!-- INTERNATIONAL -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         12. International Processing
                     </h2>
 
@@ -764,7 +764,7 @@
                 <!-- SECURITY -->
                 <section id="security" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         13. Data Security
                     </h2>
 
@@ -804,7 +804,7 @@
                 <!-- BREACH -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         14. Data Breach Response
                     </h2>
 
@@ -836,7 +836,7 @@
                 <!-- RETENTION -->
                 <section id="retention" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         15. Data Retention
                     </h2>
 
@@ -871,7 +871,7 @@
                 <!-- ACCOUNT DELETION -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         16. Account Deletion
                     </h2>
 
@@ -917,7 +917,7 @@
                 <!-- RIGHTS -->
                 <section id="rights" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         17. Your Privacy Rights
                     </h2>
 
@@ -956,7 +956,7 @@
                 <!-- REQUESTS -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         18. How to Exercise Your Rights
                     </h2>
 
@@ -967,7 +967,7 @@
                             contact:
                         </p>
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
                             <p class="font-semibold text-slate-800">
                                 MedMart Privacy Team
@@ -1002,7 +1002,7 @@
                 <!-- CHILDREN -->
                 <section id="children" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         19. Children
                     </h2>
 
@@ -1037,7 +1037,7 @@
                 <!-- PHARMACY ONBOARDING -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         20. Pharmacy Registration and Verification
                     </h2>
 
@@ -1073,7 +1073,7 @@
                 <!-- STAFF -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         21. Access by MedMart Staff
                     </h2>
 
@@ -1107,7 +1107,7 @@
                 <!-- CHANGES -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         22. Changes to This Privacy Policy
                     </h2>
 
@@ -1138,7 +1138,7 @@
                 <!-- CONTACT -->
                 <section id="contact" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         23. Contact Us
                     </h2>
 
@@ -1157,11 +1157,11 @@
                             <!-- Privacy -->
                             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-medmart-hero">
+                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F3FE]">
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -1182,7 +1182,7 @@
 
                                 <a
                                     href="mailto:privacy@medmart.com"
-                                    class="mt-2 inline-block text-sm font-semibold text-medmart-blue hover:underline"
+                                    class="mt-2 inline-block text-sm font-semibold text-[#2775E4] hover:underline"
                                 >
                                     privacy@medmart.com
                                 </a>
@@ -1193,11 +1193,11 @@
                             <!-- Support -->
                             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-medmart-hero">
+                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F3FE]">
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -1220,14 +1220,14 @@
 
                                     <a
                                         href="mailto:support@medmart.com"
-                                        class="block text-sm font-semibold text-medmart-blue hover:underline"
+                                        class="block text-sm font-semibold text-[#2775E4] hover:underline"
                                     >
                                         support@medmart.com
                                     </a>
 
                                     <a
                                         href="mailto:hello@medmart.com"
-                                        class="block text-sm font-semibold text-medmart-blue hover:underline"
+                                        class="block text-sm font-semibold text-[#2775E4] hover:underline"
                                     >
                                         hello@medmart.com
                                     </a>
@@ -1245,7 +1245,7 @@
                 <!-- GOVERNING FRAMEWORK -->
                 <section class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         24. Applicable Data-Protection Framework
                     </h2>
 
@@ -1275,7 +1275,7 @@
                 <!-- FINAL NOTE -->
                 <section>
 
-                    <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6 sm:p-8">
+                    <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6 sm:p-8">
 
                         <div class="flex gap-4">
 
@@ -1285,7 +1285,7 @@
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -1304,7 +1304,7 @@
 
                             <div>
 
-                                <h3 class="font-manrope text-base font-bold text-medmart-text">
+                                <h3 class="font-manrope text-base font-bold text-[#171E26]">
                                     Questions about your information?
                                 </h3>
 
@@ -1314,7 +1314,7 @@
                                     the MedMart privacy team at
                                     <a
                                         href="mailto:privacy@medmart.com"
-                                        class="font-semibold text-medmart-blue hover:underline"
+                                        class="font-semibold text-[#2775E4] hover:underline"
                                     >
                                         privacy@medmart.com
                                     </a>.

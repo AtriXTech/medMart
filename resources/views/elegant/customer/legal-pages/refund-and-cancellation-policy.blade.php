@@ -3,16 +3,16 @@
          HERO
     ========================================================== -->
 
-    <section class="relative overflow-hidden bg-medmart-hero">
+    <section class="relative overflow-hidden bg-[#E9F3FE]">
 
         <!-- Decorative shapes -->
 
         <div
-            class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-medmart-shape/40 blur-3xl"
+            class="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#B1D0FB]/40 blur-3xl"
         ></div>
 
         <div
-            class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-medmart-light/60 blur-3xl"
+            class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#DBEBFB]/60 blur-3xl"
         ></div>
 
 
@@ -21,12 +21,12 @@
             <div class="max-w-3xl">
 
                 <div
-                    class="mb-5 inline-flex items-center gap-2 rounded-full border border-medmart-blue/15 bg-white px-3.5 py-1.5"
+                    class="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2775E4]/15 bg-white px-3.5 py-1.5"
                 >
 
-                    <span class="h-2 w-2 rounded-full bg-medmart-blue"></span>
+                    <span class="h-2 w-2 rounded-full bg-[#2775E4]"></span>
 
-                    <span class="font-inter text-xs font-semibold text-medmart-blue">
+                    <span class="font-inter text-xs font-semibold text-[#2775E4]">
                         Legal & Payments
                     </span>
 
@@ -34,7 +34,7 @@
 
 
                 <h1
-                    class="font-manrope text-4xl font-extrabold tracking-tight text-medmart-text sm:text-5xl"
+                    class="font-manrope text-4xl font-extrabold tracking-tight text-[#171E26] sm:text-5xl"
                 >
                     Refund & Cancellation Policy
                 </h1>
@@ -108,7 +108,7 @@
 
                         <a
                             href="#introduction"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Introduction
                         </a>
@@ -116,7 +116,7 @@
 
                         <a
                             href="#before-payment"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Before Payment
                         </a>
@@ -124,7 +124,7 @@
 
                         <a
                             href="#pharmacy-cancellation"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Pharmacy Cancellation
                         </a>
@@ -132,7 +132,7 @@
 
                         <a
                             href="#unavailable-items"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Unavailable Items
                         </a>
@@ -140,7 +140,7 @@
 
                         <a
                             href="#wrong-products"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Wrong or Defective Products
                         </a>
@@ -148,7 +148,7 @@
 
                         <a
                             href="#failed-payments"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Failed Payments
                         </a>
@@ -156,7 +156,7 @@
 
                         <a
                             href="#duplicate-payments"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Duplicate Payments
                         </a>
@@ -164,7 +164,7 @@
 
                         <a
                             href="#refund-processing"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Refund Processing
                         </a>
@@ -172,7 +172,7 @@
 
                         <a
                             href="#refund-requests"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Refund Requests
                         </a>
@@ -180,7 +180,7 @@
 
                         <a
                             href="#paid-orders"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Paid Orders
                         </a>
@@ -188,7 +188,7 @@
 
                         <a
                             href="#pickup"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Order Pickup
                         </a>
@@ -196,7 +196,7 @@
 
                         <a
                             href="#payment-provider"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Payment Provider
                         </a>
@@ -204,7 +204,7 @@
 
                         <a
                             href="#changes"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Policy Changes
                         </a>
@@ -212,7 +212,7 @@
 
                         <a
                             href="#contact"
-                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-medmart-blue"
+                            class="block rounded-lg px-3 py-2 text-slate-600 transition hover:bg-white hover:text-[#2775E4]"
                         >
                             Contact
                         </a>
@@ -238,7 +238,7 @@
 
                 <section id="introduction" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         1. Introduction
                     </h2>
 
@@ -283,7 +283,7 @@
 
                 <section id="before-payment" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         2. Cancellation Before Payment
                     </h2>
 
@@ -321,7 +321,7 @@
 
                 <section id="pharmacy-cancellation" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         3. Pharmacy-Initiated Order Cancellation
                     </h2>
 
@@ -335,9 +335,9 @@
                         </p>
 
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
-                            <p class="font-semibold text-medmart-text">
+                            <p class="font-semibold text-[#171E26]">
 
                                 Full Refund for Pharmacy Cancellation
 
@@ -383,7 +383,7 @@
 
                 <section id="unavailable-items" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         4. Item Unavailable After Payment
                     </h2>
 
@@ -434,7 +434,7 @@
 
                 <section id="wrong-products" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         5. Wrong, Damaged or Defective Products
                     </h2>
 
@@ -475,7 +475,7 @@
 
                 <section id="failed-payments" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         6. Failed or Pending Payments
                     </h2>
 
@@ -488,9 +488,9 @@
                         </p>
 
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
-                            <p class="font-semibold text-medmart-text">
+                            <p class="font-semibold text-[#171E26]">
                                 What "Pending Payment" Means
                             </p>
 
@@ -541,7 +541,7 @@
 
                 <section id="duplicate-payments" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         7. Duplicate Payments
                     </h2>
 
@@ -581,7 +581,7 @@
 
                 <section id="refund-processing" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         8. Refund Processing
                     </h2>
 
@@ -606,9 +606,9 @@
                         </p>
 
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
-                            <p class="font-semibold text-medmart-text">
+                            <p class="font-semibold text-[#171E26]">
                                 About "Immediate" Refunds
                             </p>
 
@@ -649,7 +649,7 @@
 
                 <section id="refund-requests" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         9. How to Request Help With a Refund
                     </h2>
 
@@ -681,11 +681,11 @@
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-medmart-hero">
+                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F3FE]">
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -710,7 +710,7 @@
 
                                 <a
                                     href="mailto:privacy@medmart.com"
-                                    class="mt-2 inline-block text-sm font-semibold text-medmart-blue hover:underline"
+                                    class="mt-2 inline-block text-sm font-semibold text-[#2775E4] hover:underline"
                                 >
                                     privacy@medmart.com
                                 </a>
@@ -720,11 +720,11 @@
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
-                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-medmart-hero">
+                                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F3FE]">
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -751,7 +751,7 @@
 
                                     <a
                                         href="mailto:support@medmart.com"
-                                        class="block text-sm font-semibold text-medmart-blue hover:underline"
+                                        class="block text-sm font-semibold text-[#2775E4] hover:underline"
                                     >
                                         support@medmart.com
                                     </a>
@@ -759,7 +759,7 @@
 
                                     <a
                                         href="mailto:hello@medmart.com"
-                                        class="block text-sm font-semibold text-medmart-blue hover:underline"
+                                        class="block text-sm font-semibold text-[#2775E4] hover:underline"
                                     >
                                         hello@medmart.com
                                     </a>
@@ -782,7 +782,7 @@
 
                 <section id="paid-orders" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         10. Paid Orders and Customer Cancellation
                     </h2>
 
@@ -821,7 +821,7 @@
 
                 <section id="pickup" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         11. Order Pickup and Uncollected Orders
                     </h2>
 
@@ -860,7 +860,7 @@
 
                 <section id="payment-provider" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         12. Payment Provider
                     </h2>
 
@@ -897,7 +897,7 @@
 
                 <section id="changes" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         13. Changes to This Policy
                     </h2>
 
@@ -930,7 +930,7 @@
 
                 <section id="contact" class="mb-14">
 
-                    <h2 class="text-2xl font-extrabold tracking-tight text-medmart-text sm:text-3xl">
+                    <h2 class="text-2xl font-extrabold tracking-tight text-[#171E26] sm:text-3xl">
                         14. Contact Us
                     </h2>
 
@@ -952,7 +952,7 @@
                         </p>
 
 
-                        <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6">
+                        <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6">
 
                             <p class="font-semibold text-slate-800">
                                 Privacy & Data Requests
@@ -961,7 +961,7 @@
 
                             <a
                                 href="mailto:privacy@medmart.com"
-                                class="mt-2 inline-block text-sm font-semibold text-medmart-blue hover:underline"
+                                class="mt-2 inline-block text-sm font-semibold text-[#2775E4] hover:underline"
                             >
                                 privacy@medmart.com
                             </a>
@@ -1003,7 +1003,7 @@
 
                 <section>
 
-                    <div class="rounded-2xl border border-medmart-blue/15 bg-medmart-hero p-6 sm:p-8">
+                    <div class="rounded-2xl border border-[#2775E4]/15 bg-[#E9F3FE] p-6 sm:p-8">
 
                         <div class="flex gap-4">
 
@@ -1013,7 +1013,7 @@
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 text-medmart-blue"
+                                        class="h-5 w-5 text-[#2775E4]"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
@@ -1035,7 +1035,7 @@
 
                             <div>
 
-                                <h3 class="font-manrope text-base font-bold text-medmart-text">
+                                <h3 class="font-manrope text-base font-bold text-[#171E26]">
                                     Need help with an order?
                                 </h3>
 

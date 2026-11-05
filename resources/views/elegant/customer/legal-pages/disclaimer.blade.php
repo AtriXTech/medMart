@@ -639,50 +639,9 @@
                 </section>
 
 
-                <!-- Related Policies -->
-                <div class="mt-12 border-t border-slate-200 pt-8">
+                
+                
 
-                    <p class="!mb-4 text-sm font-semibold text-slate-700">
-                        Related policies
-                    </p>
-
-                    <div class="flex flex-wrap gap-3">
-
-                        <a
-                            href="/privacy-policy"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-shield-check"></i>
-                            Privacy Policy
-                        </a>
-
-                        <a
-                            href="/terms"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-file-text"></i>
-                            Terms & Conditions
-                        </a>
-
-                        <a
-                            href="/refund-policy"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-receipt"></i>
-                            Refund & Cancellation
-                        </a>
-
-                        <a
-                            href="/cookie-policy"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-cookie"></i>
-                            Cookie Policy
-                        </a>
-
-                    </div>
-
-                </div>
 
             </article>
 

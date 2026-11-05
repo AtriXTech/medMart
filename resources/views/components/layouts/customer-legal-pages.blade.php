@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,8 +42,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 
     <style>
         html {
@@ -124,15 +124,13 @@
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
 
             <!-- Logo -->
-            <div class="flex items-center gap-2.5">
-               <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
-            </div>
+            <a href="{{ route('extra') }}" class="flex items-center">
+                <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[48px] w-auto">
+            </a>
 
             <!-- Back -->
-            <a
-                href="{{route('extra')}}"
-                class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#2775E4]"
-            >
+            <a href="{{ route('extra') }}"
+                class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#2775E4]">
                 <i class="ph ph-arrow-left text-base"></i>
                 <span class="hidden sm:inline">Back to MedMart</span>
                 <span class="sm:hidden">Back</span>
@@ -141,7 +139,7 @@
         </div>
     </header>
 
-{{$slot}}
+    {{ $slot }}
 
 
     <!-- Footer -->
@@ -152,41 +150,38 @@
             <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
-                    <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
-                    <p class="mt-1 text-xs text-slate-500">
-                        your pharmacy, just a few taps away.
+                    <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[48px] w-auto">
+                    <p class="mt-2 text-xs text-slate-500">
+                        Your pharmacy, just a few taps away.
                     </p>
                 </div>
 
 
-                <nav class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium">
+                <nav class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium sm:max-w-md sm:justify-end">
 
-                    <a
-                        href="/privacy-policy"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
+                    <a href="{{ route('privacyPolicy') }}"
+                        class="transition hover:text-[#2775E4] {{ request()->routeIs('privacyPolicy') ? 'font-semibold text-[#2775E4]' : 'text-slate-500' }}">
                         Privacy Policy
                     </a>
 
-                    <a
-                        href="/terms"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
-                        Terms & Conditions
+                    <a href="{{ route('termsAndCondition') }}"
+                        class="transition hover:text-[#2775E4] {{ request()->routeIs('termsAndCondition') ? 'font-semibold text-[#2775E4]' : 'text-slate-500' }}">
+                        Terms &amp; Conditions
                     </a>
 
-                    <a
-                        href="/refund-policy"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
-                        Refund Policy
+                    <a href="{{ route('refundAndCancellationPolicy') }}"
+                        class="transition hover:text-[#2775E4] {{ request()->routeIs('refundAndCancellationPolicy') ? 'font-semibold text-[#2775E4]' : 'text-slate-500' }}">
+                        Refund And Cancellation Policy
                     </a>
 
-                    <a
-                        href="/cookie-policy"
-                        class="font-semibold text-[#2775E4]"
-                    >
+                    <a href="{{ route('cookiePolicy') }}"
+                        class="transition hover:text-[#2775E4] {{ request()->routeIs('cookiePolicy') ? 'font-semibold text-[#2775E4]' : 'text-slate-500' }}">
                         Cookie Policy
+                    </a>
+
+                    <a href="{{ route('disclaimer') }}"
+                        class="transition hover:text-[#2775E4] {{ request()->routeIs('disclaimer') ? 'font-semibold text-[#2775E4]' : 'text-slate-500' }}">
+                        Disclaimer
                     </a>
 
                 </nav>
@@ -206,4 +201,5 @@
     </footer>
 
 </body>
+
 </html>
