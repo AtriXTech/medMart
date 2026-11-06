@@ -1,4 +1,8 @@
 <x-filament-panels::page>
+@once
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
+@endonce
 
 
 <div class="space-y-6">
