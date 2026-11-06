@@ -482,6 +482,7 @@
                 const option = document.createElement('option');
                 // option.value = bank.id;
                 option.value = bank.code;
+                console.log(  bank.code)
                 // option.value = '001';
                 option.textContent = bank.name;
                 bankSelect.appendChild(option);
