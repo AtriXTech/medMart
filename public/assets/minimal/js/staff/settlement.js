@@ -480,7 +480,8 @@
             bankSelect.innerHTML = '<option value="">Select Bank</option>';
             banks.forEach(function (bank) {
                 const option = document.createElement('option');
-                option.value = bank.id;
+                // option.value = bank.id;
+                option.value = bank.code;
                 // option.value = '001';
                 option.textContent = bank.name;
                 bankSelect.appendChild(option);
