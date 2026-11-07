@@ -9,7 +9,8 @@
   <title>{{ $title }}.| MedMart</title>
 
     <!-- Tailwind CSS -->
-    @vite('resources/css/app.css')
+    {{-- @vite('resources/css/app.css') --}}
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
 
