@@ -99,6 +99,13 @@ class StaffController extends Controller
         return response()->json(new StaffResource($user->load('staffRole')));
     }
 
+    public function activate(User $user): JsonResponse
+{
+    $user->update(['status' => 'active']);
+
+    return response()->json(new StaffResource($user->load('staffRole')));
+}
+
     private function mapRoleToEnum(string $role): StaffRole
     {
         return match ($role) {
