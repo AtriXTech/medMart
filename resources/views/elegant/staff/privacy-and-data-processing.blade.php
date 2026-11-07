@@ -763,34 +763,7 @@
                 </section>
 
 
-                <!-- Related Policies -->
-                <div class="mt-12 border-t border-slate-200 pt-8">
-
-                    <p class="!mb-4 text-sm font-semibold text-slate-700">
-                        Related pharmacy policies
-                    </p>
-
-                    <div class="flex flex-wrap gap-3">
-
-                        <a
-                            href="/pharmacy-terms"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-file-text"></i>
-                            Pharmacy Terms
-                        </a>
-
-                        <a
-                            href="/pharmacy-subscription"
-                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-[#2775E4]/30 hover:text-[#2775E4]"
-                        >
-                            <i class="ph ph-credit-card"></i>
-                            Subscription & Billing
-                        </a>
-
-                    </div>
-
-                </div>
+               
 
             </article>
 

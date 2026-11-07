@@ -9,8 +9,8 @@
   <title>{{ $title }}.| MedMart</title>
 
     <!-- Tailwind CSS -->
-    @vite('resources/css/app.css')
-    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
+    {{-- @vite('resources/css/app.css') --}}
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
 
@@ -125,23 +125,14 @@
 
         <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
 
-            <a href="/" class="flex items-center gap-2.5">
-
-                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2775E4]">
-                    <span class="font-manrope text-sm font-extrabold text-white">
-                        M
-                    </span>
-                </div>
-
-                <span class="font-manrope text-xl font-extrabold tracking-tight text-[#171E26]">
-                    Med<span class="text-[#2775E4]">Mart</span>
-                </span>
-
-            </a>
+            <!-- Logo -->
+            <div class="flex items-center gap-2.5">
+               <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
+            </div>
 
 
             <a
-                href="../pharmacy legal pages/index.html"
+                href="{{route('legalPages')}}"
                 class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#2775E4]"
             >
                 <i class="ph ph-arrow-left text-base"></i>
@@ -168,12 +159,13 @@
 
                 <div>
 
-                    <p class="font-manrope text-sm font-bold text-[#171E26]">
-                        Med<span class="text-[#2775E4]">Mart</span>
-                    </p>
+                   <!-- Logo -->
+            <div class="flex items-center gap-2.5">
+               <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
+            </div>
 
                     <p class="mt-1 text-xs text-slate-500">
-                        Technology that helps pharmacies serve their customers better.
+                        your pharmacy, just a few taps away.
                     </p>
 
                 </div>
@@ -182,21 +174,21 @@
                 <nav class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium">
 
                     <a
-                        href="/pharmacy-terms"
+                        href="{{route('termsAndConditions')}}"
                         class="text-slate-500 transition hover:text-[#2775E4]"
                     >
-                        Pharmacy Terms
+                        Terms and Conditions
                     </a>
 
                     <a
-                        href="/pharmacy-privacy"
+                        href="{{route('privacyAndDataProcessing')}}"
                         class="font-semibold text-[#2775E4]"
                     >
-                        Pharmacy Privacy
+                         Privacy Policy
                     </a>
 
                     <a
-                        href="/pharmacy-subscription"
+                        href="{{route('subscriptionAndBilling')}}"
                         class="text-slate-500 transition hover:text-[#2775E4]"
                     >
                         Subscription & Billing
