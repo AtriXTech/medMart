@@ -1,4 +1,4 @@
-<x-layouts.customer-legal-pages title="Subscription And Billing">
+<x-layouts.staff-legal-pages title="Subscription And Billing">
     <!-- Hero -->
     <section class="relative overflow-hidden bg-[#E9F3FE]">
 
@@ -577,4 +577,4 @@
         </div>
     </main>
 
-</x-layouts.customer-legal-pages>
+</x-layouts.staff-legal-pages>

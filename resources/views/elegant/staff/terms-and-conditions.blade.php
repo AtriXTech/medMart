@@ -1,4 +1,4 @@
-<x-layouts.customer-legal-pages title="Terms And Conditions">
+<x-layouts.staff-legal-pages title="Terms And Conditions">
  <!-- Hero -->
     <section class="relative overflow-hidden bg-[#E9F3FE]">
 
@@ -767,4 +767,4 @@
         </div>
     </main>
 
-</x-layouts.customer-legal-pages>
+</x-layouts.staff-legal-pages>

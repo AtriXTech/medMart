@@ -1,4 +1,4 @@
-<x-layouts.customer-legal-pages title="Privacy And Data-Processing Terms">
+<x-layouts.staff-legal-pages title="Privacy And Data-Processing Terms">
 
     <!-- Hero -->
     <section class="relative overflow-hidden bg-[#E9F3FE]">
@@ -796,4 +796,4 @@
 
         </div>
     </main>
-</x-layouts.customer-legal-pages>
+</x-layouts.staff-legal-pages>
