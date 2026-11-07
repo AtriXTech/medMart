@@ -24,7 +24,7 @@ function showFieldErrors(errors) {
   if (errors.password) passwordError.textContent = errors.password[0];
   if (errors.pharmacy_code) pharmacyCodeError.textContent = errors.pharmacy_code[0];
 }
-function showToast(message) {
+function showRegisterToast(message) {
   const toast = document.createElement('div');
   toast.setAttribute('role', 'status');
   toast.textContent = message;
@@ -102,7 +102,7 @@ registerForm.addEventListener('submit', async function(event) {
       throw new Error(data.message || 'Unable to create account.');
     }
     
-    showToast('Registration successful! Please check your email to verify your account.');
+    showRegisterToast('Registration successful! Please check your email to verify your account.');
     
     setTimeout(function() {
       window.location.href = '/customer/login';
