@@ -37,7 +37,7 @@
 
         {{-- Terms and Conditions --}}
         <div class="card rounded-2xl bg-white border border-[#EAF1FB] shadow-sm hover:shadow-md hover:border-[#2775E4]/40 transition">
-            <a href="termsAndCondition" class="flex items-center gap-4 p-5 md:p-6">
+            <a href="{{route('termsAndConditions')}}" class="flex items-center gap-4 p-5 md:p-6">
                 <div class="h-12 w-12 shrink-0 rounded-xl bg-[#DBEBFB] flex items-center justify-center">
                     <i class="ph ph-file-text text-2xl text-[#2775E4]"></i>
                 </div>
