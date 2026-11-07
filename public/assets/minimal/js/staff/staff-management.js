@@ -85,6 +85,7 @@ const permissions = [
     'manage_settlement',
     'generate_pharmacy_codes',
     'manage_pharmacy_settings',
+    'legal_pages'
 ];
 
 /* ---------------- NEW: generic confirm modal (activate/deactivate only) ---------------- */
