@@ -305,9 +305,9 @@
                                         class="mt-0.5 h-4 w-4 shrink-0 rounded border-[#DBEBFB] text-[#2775E4] focus:ring-[#2775E4]">
                                     <span class="font-inter text-xs text-[#171E26]/60 leading-relaxed">
                                         By creating an account, you agree to the MedMart
-                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
+                                        <a href="{{route('termsAndConditions')}}" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Terms of Service</a>
                                         and
-                                        <a href="#" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Privacy Policy</a>.
+                                        <a href="{{route('privacyAndDataProcessing')}}" class="font-semibold text-[#2775E4] hover:text-[#08AEBC] transition">Privacy Policy</a>.
                                     </span>
                                 </label>
                                 {{-- NEW: safety-net message shown if the form is ever submitted

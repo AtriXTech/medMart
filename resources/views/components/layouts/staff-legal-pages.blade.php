@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  
 
-  <title>{{ $title }}.| MedMart</title>
+
+    <title>{{ $title }}.| MedMart</title>
 
     <!-- Tailwind CSS -->
     {{-- @vite('resources/css/app.css') --}}
@@ -18,8 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -127,14 +127,12 @@
 
             <!-- Logo -->
             <div class="flex items-center gap-2.5">
-               <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
+                <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
             </div>
 
 
-            <a
-                href="{{route('legalPages')}}"
-                class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#2775E4]"
-            >
+            <a href="@auth{{ route('legalPages') }}@else{{ route('register') }} @endauth"
+                class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-[#2775E4]">
                 <i class="ph ph-arrow-left text-base"></i>
 
                 <span class="hidden sm:inline">
@@ -149,7 +147,7 @@
         </div>
 
     </header>
-{{$slot}}
+    {{ $slot }}
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white">
 
@@ -159,10 +157,11 @@
 
                 <div>
 
-                   <!-- Logo -->
-            <div class="flex items-center gap-2.5">
-               <img src="{{ asset('images/logo.png') }}" alt="MedMart logo" class="h-[56px] w-auto mx-auto mb-4">
-            </div>
+                    <!-- Logo -->
+                    <div class="flex items-center gap-2.5">
+                        <img src="{{ asset('images/logo.png') }}" alt="MedMart logo"
+                            class="h-[56px] w-auto mx-auto mb-4">
+                    </div>
 
                     <p class="mt-1 text-xs text-slate-500">
                         your pharmacy, just a few taps away.
@@ -173,24 +172,17 @@
 
                 <nav class="flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium">
 
-                    <a
-                        href="{{route('termsAndConditions')}}"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
+                    <a href="{{ route('termsAndConditions') }}" class="text-slate-500 transition hover:text-[#2775E4]">
                         Terms and Conditions
                     </a>
 
-                    <a
-                        href="{{route('privacyAndDataProcessing')}}"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
-                         Privacy Policy
+                    <a href="{{ route('privacyAndDataProcessing') }}"
+                        class="text-slate-500 transition hover:text-[#2775E4]">
+                        Privacy Policy
                     </a>
 
-                    <a
-                        href="{{route('subscriptionAndBilling')}}"
-                        class="text-slate-500 transition hover:text-[#2775E4]"
-                    >
+                    <a href="{{ route('subscriptionAndBilling') }}"
+                        class="text-slate-500 transition hover:text-[#2775E4]">
                         Subscription & Billing
                     </a>
 
@@ -212,4 +204,5 @@
     </footer>
 
 </body>
+
 </html>
