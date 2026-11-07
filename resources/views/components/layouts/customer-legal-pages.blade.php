@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $title }}. | MedMart</title>
+    <title>{{ $title }}.| MedMart</title>
 
     <!-- Tailwind CSS -->
     @vite('resources/css/app.css')

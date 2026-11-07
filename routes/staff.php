@@ -11,6 +11,10 @@ Route::prefix('staff')->group(function () {
     Route::view('dashboard', 'elegant.staff.dashboard');
     Route::view('onboarding', 'elegant.pharmacy.onboarding');
     Route::view('products', 'elegant.staff.products');
+    Route::view('legal-pages', 'elegant.staff.legal-pages');
+    Route::view('terms-and-conditions', 'elegant.staff.terms-and-conditions')->name('termsAndCondition');
+    Route::view('subscription-and-billing', 'elegant.staff.subscription-and-billing')->name('subscriptionAndBilling');
+    Route::view('privacy-and-data-processing', 'elegant.staff.privacy-and-data-processing')->name('privacyAndDataProcessing');
     Route::view('product-details', 'elegant.staff.product-details');
     Route::view('out-of-stock','elegant.staff.out-of-stock');
     Route::view('product-categories', 'elegant.staff.product-categories');
