@@ -25,6 +25,47 @@ function showFieldErrors(errors) {
   if (errors.pharmacy_code) pharmacyCodeError.textContent = errors.pharmacy_code[0];
 }
 
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.setAttribute('role', 'status');
+  toast.textContent = message;
+
+  // Inline styles on purpose: Tailwind won't generate classes it can't
+  // find in your Blade files, and this JS lives in public/assets.
+  Object.assign(toast.style, {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: '9999',
+    maxWidth: '360px',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    background: '#ECFDF5',
+    border: '1px solid #A7F3D0',
+    color: '#047857',
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '14px',
+    fontWeight: '500',
+    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+    opacity: '0',
+    transform: 'translateY(-10px)',
+    transition: 'opacity 0.3s ease, transform 0.3s ease',
+  });
+
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(function () {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+
+  setTimeout(function () {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(function () { toast.remove(); }, 300);
+  }, 2700);
+}
+
 registerForm.addEventListener('submit', async function(event) {
   event.preventDefault();
   clearErrors();
@@ -60,9 +101,7 @@ registerForm.addEventListener('submit', async function(event) {
       throw new Error(data.message || 'Unable to create account.');
     }
     
-    registerError.textContent = 'Registration successful! Please check your email to verify your account.';
-    registerError.className = 'alert alert-success';
-    registerError.style.display = 'block';
+    showToast('Registration successful! Please check your email to verify your account.');
     
     setTimeout(function() {
       window.location.href = '/customer/login';
