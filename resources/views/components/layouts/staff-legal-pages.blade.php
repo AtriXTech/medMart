@@ -182,7 +182,7 @@
 
                     <a
                         href="{{route('privacyAndDataProcessing')}}"
-                        class="font-semibold text-[#2775E4]"
+                        class="text-slate-500 transition hover:text-[#2775E4]"
                     >
                          Privacy Policy
                     </a>

@@ -302,7 +302,7 @@
                     </a>
                     <a href="/staff/legal-pages" data-permission="legal-pages"
                         class="nav-link {{ $active === 'legal-pages' ? 'active' : '' }} relative items-center gap-3 px-3 py-2.5 rounded-xl font-inter text-[14px] font-medium text-[#171E26]/70">
-                        <i class="ph-light ph-gear nav-icon text-[18px] text-[#171E26]/45"></i>legal pages
+                        <i class="ph-light ph-scales nav-icon text-[18px] text-[#171E26]/45"></i>legal pages
                     </a>
                 </div>
             </nav>
@@ -444,6 +444,11 @@
                         class="nav-link {{ $active === 'pharmacy-settings' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
                         <i class="ph-light ph-gear nav-icon text-[20px] text-[#171E26]/45"></i> Pharmacy Settings
                     </a>
+                    <a href="/staff/legal-pages" data-permission="legal-pages"
+                        class="nav-link {{ $active === 'legal-pages' ? 'active' : '' }} relative items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-inter text-[15px] font-medium text-[#171E26]/75">
+                        <i class="ph-light ph-scales nav-icon text-[20px] text-[#171E26]/45"></i> Legal Pages
+                    </a>
+                    
                 </div>
             </nav>
 
