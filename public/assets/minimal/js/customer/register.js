@@ -24,44 +24,45 @@ function showFieldErrors(errors) {
   if (errors.password) passwordError.textContent = errors.password[0];
   if (errors.pharmacy_code) pharmacyCodeError.textContent = errors.pharmacy_code[0];
 }
-
 function showToast(message) {
   const toast = document.createElement('div');
   toast.setAttribute('role', 'status');
   toast.textContent = message;
 
-  // Inline styles on purpose: Tailwind won't generate classes it can't
-  // find in your Blade files, and this JS lives in public/assets.
-  Object.assign(toast.style, {
-    position: 'fixed',
-    top: '20px',
-    right: '20px',
-    zIndex: '9999',
-    maxWidth: '360px',
-    padding: '12px 16px',
-    borderRadius: '12px',
-    background: '#ECFDF5',
-    border: '1px solid #A7F3D0',
-    color: '#047857',
-    fontFamily: 'Inter, sans-serif',
-    fontSize: '14px',
-    fontWeight: '500',
-    boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-    opacity: '0',
-    transform: 'translateY(-10px)',
-    transition: 'opacity 0.3s ease, transform 0.3s ease',
+  const styles = {
+    'position': 'fixed',
+    'top': '20px',
+    'right': '20px',
+    'z-index': '2147483647',
+    'max-width': '360px',
+    'padding': '12px 16px',
+    'border-radius': '12px',
+    'background': '#ECFDF5',
+    'border': '1px solid #A7F3D0',
+    'color': '#047857',
+    'font-family': 'Inter, sans-serif',
+    'font-size': '14px',
+    'font-weight': '500',
+    'box-shadow': '0 10px 25px rgba(0,0,0,0.1)',
+    'opacity': '0',
+    'transform': 'translateY(-10px)',
+    'transition': 'opacity 0.3s ease, transform 0.3s ease',
+  };
+
+  Object.keys(styles).forEach(function (prop) {
+    toast.style.setProperty(prop, styles[prop], 'important');
   });
 
   document.body.appendChild(toast);
 
   requestAnimationFrame(function () {
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
+    toast.style.setProperty('opacity', '1', 'important');
+    toast.style.setProperty('transform', 'translateY(0)', 'important');
   });
 
   setTimeout(function () {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
+    toast.style.setProperty('opacity', '0', 'important');
+    toast.style.setProperty('transform', 'translateY(-10px)', 'important');
     setTimeout(function () { toast.remove(); }, 300);
   }, 2700);
 }
