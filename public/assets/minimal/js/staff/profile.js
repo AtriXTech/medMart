@@ -1,3 +1,4 @@
+
 const profileError = document.getElementById('profile-error');
 const profileLoading = document.getElementById('profile-loading');
 const profileContent = document.getElementById('profile-content');
@@ -17,38 +18,66 @@ const passwordSubmitBtn = document.getElementById('password-submit-btn');
 const passwordSuccess = document.getElementById('password-success');
 
 // Full class strings for the profile-form-error element, which is reused for
-// both error and success states by swapping className entirely (same trick
-// as the original code, just with real Tailwind classes instead of dead ones).
+// both error and success states by swapping className entirely.
 const PROFILE_ALERT_ERROR_CLASSES = 'mb-4 flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 font-inter text-sm font-medium';
 const PROFILE_ALERT_SUCCESS_CLASSES = 'mb-4 flex items-center gap-2.5 bg-[#DBEBFB] border border-[#B1D0FB] text-[#2775E4] rounded-xl px-4 py-3 font-inter text-sm font-medium';
 
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
+
     const date = new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) return 'N/A';
+
     return date.toLocaleDateString();
 }
 
+function createProfileField(label, value, extraClasses = '') {
+    const container = document.createElement('div');
+
+    const labelElement = document.createElement('p');
+    labelElement.className = 'font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1';
+    labelElement.textContent = label;
+
+    const valueElement = document.createElement('p');
+    valueElement.className = `font-inter text-[14px] font-medium text-[#171E26] ${extraClasses}`.trim();
+    valueElement.textContent = value ?? 'N/A';
+
+    container.append(labelElement, valueElement);
+
+    return container;
+}
+
 function renderProfile(profile) {
-    profileInfo.innerHTML = `
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
-            <div>
-                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Role</p>
-                <p class="font-inter text-[14px] font-medium text-[#171E26] capitalize">${profile.role || 'N/A'}</p>
-            </div>
-            <div>
-                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Status</p>
-                <p class="font-inter text-[14px] font-medium text-[#171E26] capitalize">${profile.status || 'N/A'}</p>
-            </div>
-            <div>
-                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Pharmacy</p>
-                <p class="font-inter text-[14px] font-medium text-[#171E26]">${profile.pharmacy ? profile.pharmacy.name : 'N/A'}</p>
-            </div>
-            <div>
-                <p class="font-inter text-[11px] font-semibold uppercase tracking-wider text-[#171E26]/40 mb-1">Member Since</p>
-                <p class="font-inter text-[14px] font-medium text-[#171E26]">${formatDate(profile.created_at)}</p>
-            </div>
-        </div>
-    `;
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4';
+
+    const role = createProfileField(
+        'Role',
+        profile.role || 'N/A',
+        'capitalize'
+    );
+
+    const status = createProfileField(
+        'Status',
+        profile.status || 'N/A',
+        'capitalize'
+    );
+
+    const pharmacy = createProfileField(
+        'Pharmacy',
+        profile.pharmacy?.name || 'N/A'
+    );
+
+    const memberSince = createProfileField(
+        'Member Since',
+        formatDate(profile.created_at)
+    );
+
+    grid.append(role, status, pharmacy, memberSince);
+
+    // Replace existing content without interpreting API values as HTML.
+    profileInfo.replaceChildren(grid);
 
     profileNameInput.value = profile.name || '';
     profileEmailInput.value = profile.email || '';
@@ -64,7 +93,9 @@ async function loadProfile() {
 
     try {
         const profile = await Api.get('/staff/profile');
+
         renderProfile(profile);
+
         profileLoading.style.display = 'none';
         profileContent.style.display = 'block';
     } catch (error) {
@@ -76,6 +107,7 @@ async function loadProfile() {
 
 profileForm.addEventListener('submit', async function(event) {
     event.preventDefault();
+
     profileSubmitBtn.disabled = true;
     profileFormError.style.display = 'none';
 
@@ -87,11 +119,13 @@ profileForm.addEventListener('submit', async function(event) {
 
     try {
         await Api.patch('/staff/profile', formData);
+
         profileFormError.textContent = 'Profile updated successfully!';
         profileFormError.className = PROFILE_ALERT_SUCCESS_CLASSES;
         profileFormError.style.display = 'flex';
 
         const updatedProfile = await Api.get('/staff/profile');
+
         renderProfile(updatedProfile);
 
         setTimeout(function() {
@@ -100,15 +134,19 @@ profileForm.addEventListener('submit', async function(event) {
         }, 3000);
     } catch (error) {
         profileFormError.className = PROFILE_ALERT_ERROR_CLASSES;
+
         if (error.status === 422 && error.data && error.data.errors) {
             const messages = [];
+
             Object.keys(error.data.errors).forEach(function(key) {
                 messages.push(...error.data.errors[key]);
             });
+
             profileFormError.textContent = messages.join(', ');
         } else {
             profileFormError.textContent = error.message || 'Unable to update profile.';
         }
+
         profileFormError.style.display = 'flex';
     } finally {
         profileSubmitBtn.disabled = false;
@@ -117,6 +155,7 @@ profileForm.addEventListener('submit', async function(event) {
 
 passwordForm.addEventListener('submit', async function(event) {
     event.preventDefault();
+
     passwordSubmitBtn.disabled = true;
     passwordFormError.style.display = 'none';
     passwordSuccess.style.display = 'none';
@@ -129,19 +168,24 @@ passwordForm.addEventListener('submit', async function(event) {
 
     try {
         await Api.post('/staff/profile/password', formData);
+
         passwordForm.reset();
+
         passwordSuccess.textContent = 'Password changed successfully!';
         passwordSuccess.style.display = 'flex';
     } catch (error) {
         if (error.status === 422 && error.data && error.data.errors) {
             const messages = [];
+
             Object.keys(error.data.errors).forEach(function(key) {
                 messages.push(...error.data.errors[key]);
             });
+
             passwordFormError.textContent = messages.join(', ');
         } else {
             passwordFormError.textContent = error.message || 'Unable to change password.';
         }
+
         passwordFormError.style.display = 'flex';
     } finally {
         passwordSubmitBtn.disabled = false;
