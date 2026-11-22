@@ -96,9 +96,16 @@
 
     <script src="{{ asset('assets/minimal/js/customer/api.js') }}"></script>
     <script>
+        const MAX_ATTEMPTS = 6;
+        const RETRY_DELAY_MS = 3000;
+
+        function wait(ms) {
+            return new Promise(function (resolve) { setTimeout(resolve, ms); });
+        }
+
         async function verifyPayment() {
             const urlParams = new URLSearchParams(window.location.search);
-            const reference = urlParams.get('reference') || urlParams.get('trxref');
+            const reference = urlParams.get('reference') || urlParams.get('trxref') || urlParams.get('orderReference');
             const orderId = localStorage.getItem('pending_order_id');
 
             if (!reference) {
@@ -106,40 +113,51 @@
                 return;
             }
 
-            if (!orderId) {
-                showError('Order information not found. Please check your orders.');
-                return;
+            const payload = { reference: reference };
+
+            if (orderId) {
+                payload.order_id = parseInt(orderId, 10);
             }
 
-            try {
-                const response = await fetch('/api/v1/customer/payments/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${CustomerApi.getToken()}`,
-                    },
-                    body: JSON.stringify({
-                        reference: reference,
-                        order_id: parseInt(orderId),
-                    }),
-                });
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                try {
+                    const response = await fetch('/api/v1/customer/payments/verify', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${CustomerApi.getToken()}`,
+                        },
+                        body: JSON.stringify(payload),
+                    });
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(data.message || 'Unable to verify payment.');
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Unable to verify payment.');
+                    }
+
+                    if (data.status === 'success') {
+                        localStorage.removeItem('pending_order_id');
+                        showSuccess();
+                        return;
+                    }
+
+                    if (data.status !== 'pending') {
+                        showError(data.message || 'Payment verification failed.');
+                        return;
+                    }
+                } catch (error) {
+                    showError(error.message || 'Unable to verify payment.');
+                    return;
                 }
 
-                if (data.status === 'success') {
-                    localStorage.removeItem('pending_order_id');
-                    showSuccess();
-                } else {
-                    showError(data.message || 'Payment verification failed.');
+                if (attempt < MAX_ATTEMPTS) {
+                    await wait(RETRY_DELAY_MS);
                 }
-            } catch (error) {
-                showError(error.message || 'Unable to verify payment.');
             }
+
+            showError('We have not received your payment yet. If you were charged, your order will update automatically shortly. You can also check your orders.');
         }
 
         function showSuccess() {

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
-use App\Enums\BillingInterval;
 use App\Enums\PaymentStatus;
 use App\Enums\SubscriptionStatus;
 use App\Models\Pharmacy;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
-use App\Services\Payments\PaymentGatewayInterface;
+use App\Payments\Data\VerifiedCharge;
+use App\Payments\Enums\ChargeState;
+use App\Payments\GatewayManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -19,19 +20,21 @@ use Illuminate\Support\Str;
 class PharmacySubscriptionService
 {
     public function __construct(
-        private readonly PaymentGatewayInterface $paymentGateway
+        private readonly GatewayManager $gateways
     ) {
     }
 
     public function initiate(Pharmacy $pharmacy, SubscriptionPlan $plan, int $durationMonths = 1): array
     {
+        $gateway = $this->gateways->collections();
         $totalAmount = $plan->price * $durationMonths;
         $reference = 'MEDMART-SUB-' . $pharmacy->id . '-' . Str::random(10);
 
-        $payment = SubscriptionPayment::create([
+        SubscriptionPayment::create([
             'pharmacy_id' => $pharmacy->id,
             'subscription_plan_id' => $plan->id,
             'reference' => $reference,
+            'gateway' => $gateway->gateway()->value,
             'status' => PaymentStatus::Unpaid,
             'amount' => $totalAmount,
             'gateway_response' => json_encode([
@@ -41,7 +44,7 @@ class PharmacySubscriptionService
             ]),
         ]);
 
-        $response = $this->paymentGateway->initializeTransaction(
+        $session = $gateway->initializeCharge(
             $reference,
             (int) round($totalAmount * 100),
             $pharmacy->email,
@@ -50,11 +53,12 @@ class PharmacySubscriptionService
                 'subscription_plan_id' => $plan->id,
                 'duration_months' => $durationMonths,
                 'payment_type' => 'subscription',
-            ]
+            ],
+            $gateway->staffCallbackUrl()
         );
 
         return [
-            'authorization_url' => $response['data']['authorization_url'],
+            'authorization_url' => $session->authorizationUrl,
             'reference' => $reference,
             'amount' => $totalAmount,
         ];
@@ -62,8 +66,10 @@ class PharmacySubscriptionService
 
     public function verifyPayment(Pharmacy $pharmacy, string $reference): array
     {
-        $payment = SubscriptionPayment::where('reference', $reference)
-            ->where('pharmacy_id', $pharmacy->id)
+        $payment = SubscriptionPayment::where('pharmacy_id', $pharmacy->id)
+            ->where(function ($query) use ($reference): void {
+                $query->where('reference', $reference)->orWhere('gateway_reference', $reference);
+            })
             ->first();
 
         if (! $payment) {
@@ -82,22 +88,29 @@ class PharmacySubscriptionService
         }
 
         try {
-            $verification = $this->paymentGateway->verifyTransaction($reference);
-            $verifiedData = $verification['data'] ?? [];
+            $charge = $this->gateways->for($payment->gateway)->verifyCharge($payment->reference);
 
-            if (! $this->isValidVerification($verifiedData, $payment)) {
+            if ($charge->state === ChargeState::Pending) {
+                return [
+                    'status' => 'pending',
+                    'message' => 'Your payment is still being processed. Please check again shortly.',
+                ];
+            }
+
+            if (! $this->isValidVerification($charge, $payment)) {
                 $payment->update([
                     'status' => PaymentStatus::Failed,
                     'gateway_response' => json_encode(array_merge(
-                        json_decode($payment->gateway_response ?? '{}', true),
-                        $verifiedData
+                        json_decode($payment->gateway_response ?? '{}', true) ?: [],
+                        $charge->raw
                     )),
                 ]);
 
                 Log::warning('Payment verification failed', [
-                    'reference' => $reference,
+                    'reference' => $payment->reference,
                     'payment_id' => $payment->id,
-                    'verified_data' => $verifiedData,
+                    'gateway' => $payment->gateway,
+                    'gateway_status' => $charge->rawStatus,
                 ]);
 
                 return [
@@ -106,7 +119,7 @@ class PharmacySubscriptionService
                 ];
             }
 
-            $this->markPaymentAsPaid($payment, $verifiedData);
+            $this->markPaymentAsPaid($payment, $charge);
 
             return [
                 'status' => 'success',
@@ -126,29 +139,37 @@ class PharmacySubscriptionService
         }
     }
 
-    public function handleWebhook(array $payload): void
+    public function settleReference(string $reference): void
     {
-        $event = $payload['event'] ?? null;
-        $data = $payload['data'] ?? [];
-
-        if ($event !== 'charge.success') {
-            return;
-        }
-
-        $reference = $data['reference'] ?? null;
-
-        if (! $reference) {
-            return;
-        }
-
-        $payment = SubscriptionPayment::where('reference', $reference)->first();
+        $payment = SubscriptionPayment::withoutGlobalScopes()->where('reference', $reference)->first();
 
         if (! $payment || $payment->status === PaymentStatus::Paid) {
             return;
         }
 
+        $pharmacy = Pharmacy::withoutGlobalScopes()->find($payment->pharmacy_id);
+
+        if ($pharmacy === null) {
+            return;
+        }
+
+        $this->verifyPayment($pharmacy, $reference);
+    }
+
+    public function handleWebhook(array $payload): void
+    {
+        if (($payload['event'] ?? null) !== 'charge.success') {
+            return;
+        }
+
+        $reference = $payload['data']['reference'] ?? null;
+
+        if (! $reference) {
+            return;
+        }
+
         try {
-            $this->verifyPayment($payment->pharmacy, $reference);
+            $this->settleReference((string) $reference);
         } catch (\Exception $e) {
             Log::error('Failed to process webhook payment', [
                 'reference' => $reference,
@@ -157,35 +178,23 @@ class PharmacySubscriptionService
         }
     }
 
-    private function isValidVerification(array $verifiedData, SubscriptionPayment $payment): bool
+    private function isValidVerification(VerifiedCharge $charge, SubscriptionPayment $payment): bool
     {
-        if (($verifiedData['status'] ?? null) !== 'success') {
-            return false;
-        }
-
-        if ((int) ($verifiedData['amount'] ?? 0) !== (int) round($payment->amount * 100)) {
-            return false;
-        }
-
-        if (($verifiedData['currency'] ?? null) !== 'NGN') {
-            return false;
-        }
-
-        if (($verifiedData['reference'] ?? null) !== $payment->reference) {
-            return false;
-        }
-
-        return true;
+        return $charge->isSuccessful()
+            && $charge->amountKobo === (int) round($payment->amount * 100)
+            && $charge->currency === strtoupper((string) config('settlement.currency', 'NGN'))
+            && $charge->reference === $payment->reference;
     }
 
-    private function markPaymentAsPaid(SubscriptionPayment $payment, array $verifiedData): void
+    private function markPaymentAsPaid(SubscriptionPayment $payment, VerifiedCharge $charge): void
     {
-        DB::transaction(function () use ($payment, $verifiedData) {
+        DB::transaction(function () use ($payment, $charge) {
             $payment->update([
                 'status' => PaymentStatus::Paid,
+                'gateway_reference' => $charge->gatewayReference ?? $payment->reference,
                 'gateway_response' => json_encode(array_merge(
-                    json_decode($payment->gateway_response ?? '{}', true),
-                    ['paystack_verification' => $verifiedData]
+                    json_decode($payment->gateway_response ?? '{}', true) ?: [],
+                    ['gateway_verification' => $charge->raw]
                 )),
                 'paid_at' => now(),
             ]);
@@ -221,17 +230,18 @@ class PharmacySubscriptionService
 
     private function getDurationFromMetadata(SubscriptionPayment $payment): int
     {
-        $gatewayResponse = json_decode($payment->gateway_response ?? '{}', true);
-        
+        $gatewayResponse = json_decode($payment->gateway_response ?? '{}', true) ?: [];
+
         if (isset($gatewayResponse['duration_months'])) {
             return (int) $gatewayResponse['duration_months'];
         }
-        
+
         $metadata = $gatewayResponse['metadata'] ?? [];
+
         if (isset($metadata['duration_months'])) {
             return (int) $metadata['duration_months'];
         }
-        
+
         return 1;
     }
 }

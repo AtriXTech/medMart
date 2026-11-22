@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Settlement\Jobs;
 
+use App\Payments\Enums\Gateway;
 use App\Settlement\Services\TransferEventProcessor;
 use App\Settlement\Support\ConfiguresQueue;
 use Illuminate\Bus\Queueable;
@@ -23,6 +24,7 @@ final class ProcessTransferEventJob implements ShouldQueue
     public function __construct(
         public readonly string $event,
         public readonly array $data,
+        public readonly string $gateway = 'paystack',
     ) {
         $this->configureQueue();
     }
@@ -34,6 +36,6 @@ final class ProcessTransferEventJob implements ShouldQueue
 
     public function handle(TransferEventProcessor $processor): void
     {
-        $processor->handleWebhook($this->event, $this->data);
+        $processor->handleWebhook(Gateway::fromValue($this->gateway) ?? Gateway::Paystack, $this->event, $this->data);
     }
 }

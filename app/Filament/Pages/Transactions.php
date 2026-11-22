@@ -53,7 +53,8 @@ class Transactions extends Page
                     'type' => 'Customer Order Payment',
                     'amount' => $payment->amount,
                     'status' => $payment->status->value,
-                    'gateway_reference' => $payment->paystack_reference,
+                    'gateway_reference' => $payment->gateway_reference ?? $payment->paystack_reference,
+                    'gateway' => $payment->gateway,
                     'created_at' => $payment->created_at,
                 ];
             });
@@ -69,7 +70,8 @@ class Transactions extends Page
                     'type' => 'Subscription Payment',
                     'amount' => $payment->amount,
                     'status' => $payment->status->value,
-                    'gateway_reference' => null,
+                    'gateway_reference' => $payment->gateway_reference,
+                    'gateway' => $payment->gateway,
                     'created_at' => $payment->created_at,
                 ];
             });

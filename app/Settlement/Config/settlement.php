@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'currency' => 'NGN',
+
     'paystack' => [
         'secret_key' => env('PAYSTACK_SECRET_KEY', env('PAYSTACK_SECRET')),
         'base_url' => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
@@ -45,6 +47,12 @@ return [
         'flat_kobo' => 10000,
         'flat_threshold_kobo' => 250000,
         'cap_kobo' => 200000,
+        'nomba' => [
+            'percent' => (float) env('NOMBA_FEE_PERCENT', 1.4),
+            'flat_kobo' => (int) env('NOMBA_FEE_FLAT_KOBO', 0),
+            'flat_threshold_kobo' => 0,
+            'cap_kobo' => (int) env('NOMBA_FEE_CAP_KOBO', 180000),
+        ],
     ],
 
     'payout' => [

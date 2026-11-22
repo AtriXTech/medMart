@@ -11,7 +11,8 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Pharmacy;
-use App\Settlement\Gateway\PaystackClient;
+use App\Payments\Enums\GatewayRole;
+use App\Payments\GatewayManager;
 use App\Settlement\Services\EligibilityService;
 use App\Settlement\Services\PaymentSettlementRecorder;
 use Illuminate\Console\Command;
@@ -20,9 +21,11 @@ use Illuminate\Support\Str;
 
 final class SeedTestDataCommand extends Command
 {
-    protected $signature = 'settlement:seed-test {pharmacy? : Pharmacy ID (defaults to the first pharmacy)} {--sets=1 : Number of scenario sets to create} {--scale=1 : Multiply every amount (use 0.1 for a small Paystack test balance)}';
+    protected $signature = 'settlement:seed-test {pharmacy? : Pharmacy ID (defaults to the first pharmacy)} {--sets=1 : Number of scenario sets to create} {--scale=1 : Multiply every amount (use 0.1 for a small test balance)}';
 
-    protected $description = 'Create paid orders and payments for settlement testing (Paystack test key only)';
+    protected $description = 'Create paid orders and payments for settlement testing (test credentials only)';
+
+    private string $gatewayName = 'paystack';
 
     private const SCENARIOS = [
         ['label' => 'Completed 3 days ago', 'amount' => 12500, 'status' => 'completed', 'hours_ago' => 72],
@@ -33,7 +36,7 @@ final class SeedTestDataCommand extends Command
         ['label' => 'Cancelled after payment', 'amount' => 15000, 'status' => 'cancelled', 'hours_ago' => 1],
     ];
 
-    public function handle(PaymentSettlementRecorder $recorder, EligibilityService $eligibility, PaystackClient $paystack): int
+    public function handle(PaymentSettlementRecorder $recorder, EligibilityService $eligibility, GatewayManager $gateways): int
     {
         if (app()->environment('production')) {
             $this->error('This command is disabled in production.');
@@ -41,11 +44,15 @@ final class SeedTestDataCommand extends Command
             return self::FAILURE;
         }
 
-        if (! $paystack->isTestKey()) {
-            $this->error('Refusing to seed: PAYSTACK_SECRET_KEY must be a test key (sk_test_...). Seeded payments are not real and must never be paid out with a live key.');
+        $gateway = $gateways->for($gateways->settings()->active(GatewayRole::Payouts));
+
+        if (! $gateway->isTestMode()) {
+            $this->error('Refusing to seed: the active payout gateway (' . $gateway->gateway()->label() . ') must use test credentials. Seeded payments are not real and must never be paid out with live credentials.');
 
             return self::FAILURE;
         }
+
+        $this->gatewayName = $gateway->gateway()->value;
 
         $scale = (float) $this->option('scale');
 
@@ -160,7 +167,8 @@ final class SeedTestDataCommand extends Command
                 'pharmacy_id' => $pharmacy->id,
                 'order_id' => $order->id,
                 'reference' => $reference,
-                'paystack_reference' => $reference,
+                'gateway' => $this->gatewayName,
+                'gateway_reference' => $reference,
                 'status' => $paidStatus,
                 'amount' => $amount,
                 'gateway_response' => 'Seeded test payment',

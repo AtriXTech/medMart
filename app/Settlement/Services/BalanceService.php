@@ -56,7 +56,7 @@ final class BalanceService
             : null;
 
         return [
-            'currency' => (string) config('settlement.paystack.currency'),
+            'currency' => (string) config('settlement.currency'),
             'pending_kobo' => $pending,
             'pending' => Money::toNaira($pending),
             'held_kobo' => $held,

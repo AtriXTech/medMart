@@ -29,6 +29,11 @@ class TransactionsTable extends TableWidget
                     ->searchable()
                     ->sortable(),
 
+                \Filament\Tables\Columns\TextColumn::make('gateway')
+                    ->label('Gateway')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => \App\Payments\Enums\Gateway::fromValue($state)?->label() ?? '—'),
+
                 \Filament\Tables\Columns\TextColumn::make('gateway_reference')
                     ->label('Gateway Reference')
                     ->searchable()

@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Settlement\Services;
 
 use App\Models\Settlement;
+use App\Payments\Data\TransferResult;
+use App\Payments\Enums\Gateway;
+use App\Payments\Enums\TransferState;
+use App\Payments\GatewayManager;
 use App\Settlement\Enums\SettlementStatus;
 
 final class TransferEventProcessor
@@ -12,70 +16,70 @@ final class TransferEventProcessor
     public function __construct(
         private readonly SettlementLifecycleService $lifecycle,
         private readonly Notifier $notifier,
+        private readonly GatewayManager $gateways,
     ) {
     }
 
-    public function handleWebhook(string $event, array $data): void
+    public function handleWebhook(Gateway $gateway, string $event, array $data): void
     {
-        $status = match ($event) {
-            'transfer.success' => 'success',
-            'transfer.failed' => 'failed',
-            'transfer.reversed' => 'reversed',
-            default => null,
-        };
+        $driver = $this->gateways->for($gateway);
+        $parsed = $driver->parseTransferWebhook($event, $data);
 
-        $reference = (string) ($data['reference'] ?? '');
-
-        if ($status === null || $reference === '') {
+        if ($parsed === null) {
             return;
         }
 
-        $settlement = Settlement::query()->where('reference', $reference)->first();
+        $settlement = Settlement::query()->where('reference', $parsed->reference)->first();
 
-        if ($settlement === null) {
+        if ($settlement === null || $settlement->gateway !== null && $settlement->gateway !== $gateway->value) {
             return;
         }
 
-        $this->apply($settlement, $status, $data);
+        $result = $parsed->result ?? $driver->verifyTransfer($parsed->reference);
+
+        if ($result === null) {
+            return;
+        }
+
+        $this->apply($settlement, $result);
     }
 
-    public function apply(Settlement $settlement, string $status, array $data): void
+    public function apply(Settlement $settlement, TransferResult $result): void
     {
-        $status = strtolower($status);
-
-        if (isset($data['amount']) && (int) $data['amount'] !== (int) $settlement->net_kobo) {
+        if ($result->amountKobo !== null && $result->amountKobo !== (int) $settlement->net_kobo) {
             $this->notifier->ops('Transfer amount mismatch', [
                 'Reference: ' . $settlement->reference,
                 'Expected (kobo): ' . (int) $settlement->net_kobo,
-                'Received (kobo): ' . (int) $data['amount'],
+                'Received (kobo): ' . $result->amountKobo,
             ], 'critical');
 
             return;
         }
 
-        if (isset($data['currency']) && strtoupper((string) $data['currency']) !== strtoupper((string) config('settlement.paystack.currency'))) {
+        if ($result->currency !== null && $result->currency !== strtoupper((string) config('settlement.currency'))) {
             $this->notifier->ops('Transfer currency mismatch', [
                 'Reference: ' . $settlement->reference,
-                'Currency: ' . (string) $data['currency'],
+                'Currency: ' . $result->currency,
             ], 'critical');
 
             return;
         }
 
-        $code = isset($data['transfer_code']) ? (string) $data['transfer_code'] : null;
+        $code = $result->gatewayReference;
 
-        match ($status) {
-            'success' => $this->lifecycle->markSucceeded($settlement->id, $code),
-            'failed' => $this->lifecycle->markFailed($settlement->id, SettlementStatus::Failed, $this->reason($data, $status)),
-            'reversed' => $this->lifecycle->markFailed($settlement->id, SettlementStatus::Reversed, $this->reason($data, $status)),
-            'otp' => $this->lifecycle->hold($settlement->id, 'otp_required', null, [SettlementStatus::Pending, SettlementStatus::Processing]),
-            default => null,
+        match ($result->state) {
+            TransferState::Success => $this->lifecycle->markSucceeded($settlement->id, $code),
+            TransferState::Failed => $this->lifecycle->markFailed($settlement->id, SettlementStatus::Failed, $this->reason($result, 'failed')),
+            TransferState::Reversed => $this->lifecycle->markFailed($settlement->id, SettlementStatus::Reversed, $this->reason($result, 'reversed')),
+            TransferState::OtpRequired => $this->lifecycle->hold($settlement->id, 'otp_required', null, [SettlementStatus::Pending, SettlementStatus::Processing]),
+            TransferState::ActionRequired => $this->lifecycle->hold($settlement->id, 'gateway_action_required', null, [SettlementStatus::Pending, SettlementStatus::Processing]),
+            TransferState::Pending => null,
         };
     }
 
-    private function reason(array $data, string $status): string
+    private function reason(TransferResult $result, string $status): string
     {
-        $reason = (string) ($data['complete_message'] ?? $data['gateway_response'] ?? '');
+        $reason = (string) $result->message;
 
         return $reason !== '' ? mb_substr($reason, 0, 255) : 'Transfer ' . $status . ' at gateway.';
     }

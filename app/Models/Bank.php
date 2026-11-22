@@ -22,6 +22,11 @@ class Bank extends Model
         'is_active' => 'boolean',
     ];
 
+    public function gatewayCodes(): HasMany
+    {
+        return $this->hasMany(BankGatewayCode::class);
+    }
+
     public function settlementAccounts(): HasMany
     {
         return $this->hasMany(SettlementAccount::class);

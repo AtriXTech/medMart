@@ -6,7 +6,7 @@ namespace App\Settlement\Services;
 
 use App\Models\Settlement;
 use App\Settlement\Enums\SettlementStatus;
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Exceptions\GatewayException;
 use App\Settlement\Jobs\InitiateTransferJob;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -52,7 +52,7 @@ final class ReconciliationService
                         if ($outcome === 'pending' && $settlement->last_attempt_at !== null && $settlement->last_attempt_at->lte($alertCutoff)) {
                             $this->alertLongProcessing($settlement);
                         }
-                    } catch (PaystackException $exception) {
+                    } catch (GatewayException $exception) {
                         $result['errors']++;
                         Log::warning('[settlement] Reconciliation lookup failed', [
                             'settlement_id' => $settlement->id,

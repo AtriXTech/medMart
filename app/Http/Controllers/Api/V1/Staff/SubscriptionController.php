@@ -48,7 +48,7 @@ class SubscriptionController extends Controller
     {
         $result = $this->subscriptionService->verifyPayment(
             $request->user()->pharmacy,
-            $request->string('reference')->toString()
+            $request->string('reference')->toString() ?: $request->string('orderReference')->toString()
         );
 
         return response()->json($result);

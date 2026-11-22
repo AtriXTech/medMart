@@ -11,20 +11,21 @@ use App\Models\Pharmacy;
 use App\Settlement\Enums\FeeBearer;
 use App\Settlement\Enums\LedgerEntryType;
 use App\Settlement\Enums\PaymentSettlementStatus;
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Enums\Gateway;
+use App\Payments\Exceptions\GatewayException;
+use App\Payments\GatewayManager;
 use App\Settlement\Exceptions\SettlementException;
-use App\Settlement\Gateway\PaystackClient;
 use App\Settlement\Support\Money;
 use App\Settlement\Support\PaymentState;
-use App\Settlement\Support\PaystackFeeEstimator;
+use App\Settlement\Support\GatewayFeeEstimator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentSettlementRecorder
 {
     public function __construct(
-        private readonly PaystackClient $paystack,
-        private readonly PaystackFeeEstimator $estimator,
+        private readonly GatewayManager $gateways,
+        private readonly GatewayFeeEstimator $estimator,
         private readonly CommissionCalculator $commission,
         private readonly SettingsService $settings,
         private readonly LedgerService $ledger,
@@ -116,38 +117,42 @@ final class PaymentSettlementRecorder
         }
 
         if (! (bool) config('settlement.payment.verify_with_gateway')) {
-            return [$this->estimator->estimate($gross), 'estimated', null];
+            return [$this->estimator->estimate($gross, $this->gatewayOf($payment)), 'estimated', null];
         }
 
-        $reference = (string) ($payment->paystack_reference ?: $payment->reference);
+        $gatewayName = $this->gatewayOf($payment);
 
         try {
-            $data = $this->paystack->verifyTransaction($reference);
-        } catch (PaystackException $exception) {
+            $charge = $this->gateways->for($gatewayName)->verifyCharge((string) $payment->reference);
+        } catch (GatewayException $exception) {
             if ($exception->isAmbiguous()) {
                 throw $exception;
             }
 
-            return [$this->estimator->estimate($gross), 'estimated', null];
+            return [$this->estimator->estimate($gross, $gatewayName), 'estimated', null];
         }
 
-        $currency = strtoupper((string) config('settlement.paystack.currency'));
-        $fees = $data['fees'] ?? null;
+        $currency = strtoupper((string) config('settlement.currency'));
         $problem = null;
 
-        if (($data['status'] ?? null) !== 'success') {
-            $problem = 'gateway_status_' . (string) ($data['status'] ?? 'unknown');
-        } elseif ((int) ($data['amount'] ?? 0) !== $gross) {
+        if (! $charge->isSuccessful()) {
+            $problem = 'gateway_status_' . (string) ($charge->rawStatus ?? $charge->state->value);
+        } elseif ($charge->amountKobo !== $gross) {
             $problem = 'amount_mismatch';
-        } elseif (strtoupper((string) ($data['currency'] ?? $currency)) !== $currency) {
+        } elseif ($charge->currency !== $currency) {
             $problem = 'currency_mismatch';
         }
 
-        if (is_numeric($fees)) {
-            return [(int) $fees, 'gateway', $problem];
+        if ($charge->feeKobo !== null) {
+            return [$charge->feeKobo, 'gateway', $problem];
         }
 
-        return [$this->estimator->estimate($gross), 'estimated', $problem];
+        return [$this->estimator->estimate($gross, $gatewayName), 'estimated', $problem];
+    }
+
+    private function gatewayOf(Payment $payment): Gateway
+    {
+        return Gateway::fromValue((string) $payment->gateway) ?? Gateway::Paystack;
     }
 
     private function position(?Order $order, ?string $problem): array

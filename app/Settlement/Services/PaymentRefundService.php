@@ -8,9 +8,9 @@ use App\Models\Payment;
 use App\Models\Pharmacy;
 use App\Settlement\Enums\LedgerEntryType;
 use App\Settlement\Enums\PaymentSettlementStatus;
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Exceptions\GatewayException;
+use App\Payments\GatewayManager;
 use App\Settlement\Exceptions\SettlementException;
-use App\Settlement\Gateway\PaystackClient;
 use Illuminate\Support\Facades\DB;
 
 final class PaymentRefundService
@@ -18,7 +18,7 @@ final class PaymentRefundService
     private const REFUNDABLE = ['pending', 'eligible', 'held', 'settled'];
 
     public function __construct(
-        private readonly PaystackClient $paystack,
+        private readonly GatewayManager $gateways,
         private readonly LedgerService $ledger,
         private readonly AuditLogger $audit,
     ) {
@@ -93,8 +93,12 @@ final class PaymentRefundService
     private function refundAtGateway(Payment $payment, string $reason): void
     {
         try {
-            $this->paystack->refund((string) ($payment->paystack_reference ?: $payment->reference), mb_substr($reason, 0, 200));
-        } catch (PaystackException $exception) {
+            $this->gateways->for($payment->gateway)->refundCharge(
+                (string) $payment->reference,
+                $payment->gateway_reference ?: $payment->paystack_reference,
+                mb_substr($reason, 0, 200)
+            );
+        } catch (GatewayException $exception) {
             if (! $exception->isAmbiguous() && $exception->isAlreadyRefunded()) {
                 return;
             }

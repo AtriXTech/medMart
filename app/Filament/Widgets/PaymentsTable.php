@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Models\Payment;
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Exceptions\GatewayException;
 use App\Settlement\Exceptions\SettlementException;
 use App\Settlement\Services\PaymentDisputeService;
 use App\Settlement\Services\PaymentRefundService;
@@ -46,6 +46,12 @@ class PaymentsTable extends TableWidget
                 TextColumn::make('reference')
                     ->label('Reference')
                     ->searchable(),
+
+                TextColumn::make('gateway')
+                    ->label('Gateway')
+                    ->badge()
+                    ->color('gray')
+                    ->state(fn ($record): string => \App\Payments\Enums\Gateway::fromValue($record->gateway)?->label() ?? 'Paystack'),
 
                 TextColumn::make('pharmacy.name')
                     ->label('Pharmacy')
@@ -130,6 +136,21 @@ class PaymentsTable extends TableWidget
                         }
 
                         return $query->where('settlement_status', $value);
+                    }),
+
+                SelectFilter::make('gateway')
+                    ->label('Gateway')
+                    ->options(['paystack' => 'Paystack', 'nomba' => 'Nomba'])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
+
+                        if (blank($value)) {
+                            return $query;
+                        }
+
+                        return $value === 'paystack'
+                            ? $query->where(fn (Builder $inner) => $inner->where('gateway', 'paystack')->orWhereNull('gateway'))
+                            : $query->where('gateway', $value);
                     }),
 
                 SelectFilter::make('pharmacy_id')
@@ -217,7 +238,7 @@ class PaymentsTable extends TableWidget
                             ->rows(3),
 
                         Checkbox::make('via_gateway')
-                            ->label('Also refund through Paystack')
+                            ->label('Also refund through the payment gateway')
                             ->default(true),
                     ])
                     ->action(function (Payment $record, array $data): void {
@@ -240,7 +261,7 @@ class PaymentsTable extends TableWidget
     {
         try {
             $callback();
-        } catch (SettlementException | PaystackException $exception) {
+        } catch (SettlementException | GatewayException $exception) {
             Notification::make()
                 ->title($failureTitle)
                 ->body($exception->getMessage())

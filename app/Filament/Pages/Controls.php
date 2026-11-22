@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Models\Pharmacy;
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Enums\GatewayRole;
+use App\Payments\Exceptions\GatewayException;
+use App\Payments\GatewayManager;
 use App\Settlement\Exceptions\SettlementException;
-use App\Settlement\Gateway\PaystackClient;
 use App\Settlement\Services\AuditLogger;
 use App\Settlement\Services\SettingsService;
 use App\Settlement\Services\SettlementAdminService;
@@ -148,7 +149,7 @@ class Controls extends Page
                         ->step(1),
 
                     Select::make('gateway_fee_bearer')
-                        ->label('Paystack fee is paid by')
+                        ->label('Gateway fee is paid by')
                         ->options([
                             'pharmacy' => 'Pharmacy (deducted from payout)',
                             'platform' => 'Platform (absorbed)',
@@ -202,7 +203,7 @@ class Controls extends Page
 
                     try {
                         $result = app(SettlementAdminService::class)->runBatch($pharmacyId, $this->actorId());
-                    } catch (SettlementException | PaystackException $exception) {
+                    } catch (SettlementException | GatewayException $exception) {
                         Notification::make()
                             ->title('Unable to run batch')
                             ->body($exception->getMessage())
@@ -280,13 +281,13 @@ class Controls extends Page
                 ->button(),
 
             Action::make('refreshGateway')
-                ->label('Refresh Paystack balance')
+                ->label('Refresh gateway balance')
                 ->icon('heroicon-m-arrow-path')
                 ->color('gray')
                 ->action(function (): void {
                     $this->loadGateway();
 
-                    Notification::make()->title('Paystack balance refreshed.')->success()->send();
+                    Notification::make()->title('Gateway balance refreshed.')->success()->send();
                 }),
         ];
     }
@@ -317,18 +318,21 @@ class Controls extends Page
 
     private function loadGateway(): void
     {
-        $client = app(PaystackClient::class);
+        $manager = app(GatewayManager::class);
+        $driver = $manager->for($manager->settings()->active(GatewayRole::Payouts));
         $balance = null;
         $error = null;
 
         try {
-            $balance = $client->balance();
-        } catch (PaystackException $exception) {
+            $balance = $manager->payouts()->balanceKobo();
+        } catch (GatewayException $exception) {
             $error = $exception->getMessage();
         }
 
         $this->gateway = [
-            'mode' => $client->isTestKey() ? 'test' : 'live',
+            'name' => $driver->gateway()->value,
+            'label' => $driver->gateway()->label(),
+            'mode' => $driver->isTestMode() ? 'test' : 'live',
             'balance_kobo' => $balance,
             'error' => $error,
         ];

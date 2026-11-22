@@ -8,6 +8,8 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Payments\Enums\ChargeState;
+use App\Payments\GatewayManager;
 use App\Services\Orders\OrderService;
 use App\Settlement\Jobs\RecordPaymentSettlementJob;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ use Illuminate\Validation\ValidationException;
 class PaymentService
 {
     public function __construct(
-        private readonly PaystackService $paystackService,
+        private readonly GatewayManager $gateways,
         private readonly OrderService $orderService,
     ) {
     }
@@ -30,17 +32,19 @@ class PaymentService
             ]);
         }
 
+        $gateway = $this->gateways->collections();
         $reference = 'MEDMART-' . $order->id . '-' . Str::random(10);
 
         Payment::create([
             'pharmacy_id' => $order->pharmacy_id,
             'order_id' => $order->id,
             'reference' => $reference,
+            'gateway' => $gateway->gateway()->value,
             'status' => PaymentStatus::Unpaid,
             'amount' => $order->total,
         ]);
 
-        $response = $this->paystackService->initializeTransaction(
+        $session = $gateway->initializeCharge(
             $reference,
             (int) round($order->total * 100),
             $order->customer->email,
@@ -48,19 +52,21 @@ class PaymentService
                 'order_id' => $order->id,
                 'payment_type' => 'order',
             ],
-            config('services.paystack.customer_callback_url')
+            $gateway->customerCallbackUrl()
         );
 
         return [
-            'authorization_url' => $response['data']['authorization_url'],
+            'authorization_url' => $session->authorizationUrl,
             'reference' => $reference,
         ];
     }
 
     public function verifyPayment(Order $order, string $reference): array
     {
-        $payment = Payment::where('reference', $reference)
-            ->where('order_id', $order->id)
+        $payment = Payment::where('order_id', $order->id)
+            ->where(function ($query) use ($reference): void {
+                $query->where('reference', $reference)->orWhere('gateway_reference', $reference);
+            })
             ->first();
 
         if (! $payment) {
@@ -79,7 +85,7 @@ class PaymentService
         }
 
         try {
-            $this->handleSuccessfulCharge($reference);
+            $this->handleSuccessfulCharge($payment->reference);
 
             $payment->refresh();
 
@@ -88,6 +94,13 @@ class PaymentService
                     'status' => 'success',
                     'message' => 'Payment verified successfully',
                     'order' => $order->fresh()->load('items.product'),
+                ];
+            }
+
+            if ($payment->status === PaymentStatus::Unpaid) {
+                return [
+                    'status' => 'pending',
+                    'message' => 'Your payment is still being processed. Please check again shortly.',
                 ];
             }
 
@@ -112,16 +125,19 @@ class PaymentService
                 return null;
             }
 
-            $verification = $this->paystackService->verifyTransaction($reference);
-            $verifiedData = $verification['data'] ?? [];
+            $charge = $this->gateways->for($payment->gateway)->verifyCharge($reference);
 
-            $isSuccessful = ($verifiedData['status'] ?? null) === 'success';
-            $amountMatches = (int) ($verifiedData['amount'] ?? 0) === (int) round($payment->amount * 100);
+            if ($charge->state === ChargeState::Pending) {
+                return null;
+            }
 
-            if (! $isSuccessful || ! $amountMatches) {
+            $amountMatches = $charge->amountKobo === (int) round($payment->amount * 100);
+            $currencyMatches = $charge->currency === strtoupper((string) config('settlement.currency', 'NGN'));
+
+            if (! $charge->isSuccessful() || ! $amountMatches || ! $currencyMatches) {
                 $payment->update([
                     'status' => PaymentStatus::Failed,
-                    'gateway_response' => json_encode($verifiedData),
+                    'gateway_response' => json_encode($charge->raw),
                 ]);
 
                 return null;
@@ -129,8 +145,8 @@ class PaymentService
 
             $payment->update([
                 'status' => PaymentStatus::Paid,
-                'paystack_reference' => $verifiedData['reference'] ?? $reference,
-                'gateway_response' => json_encode($verifiedData),
+                'gateway_reference' => $charge->gatewayReference ?? $reference,
+                'gateway_response' => json_encode($charge->raw),
                 'paid_at' => now(),
             ]);
 

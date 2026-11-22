@@ -13,7 +13,6 @@ use App\Settlement\Console\ReconcileLedgerCommand;
 use App\Settlement\Console\ReconcileTransfersCommand;
 use App\Settlement\Console\RecordPaymentsCommand;
 use App\Settlement\Console\SeedTestDataCommand;
-use App\Settlement\Gateway\PaystackClient;
 use App\Settlement\Observers\OrderObserver;
 use App\Settlement\Observers\PaymentObserver;
 use Illuminate\Console\Scheduling\Schedule;
@@ -24,8 +23,6 @@ final class SettlementServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/Config/settlement.php', 'settlement');
-
-        $this->app->singleton(PaystackClient::class);
     }
 
     public function boot(): void
@@ -38,16 +35,13 @@ final class SettlementServiceProvider extends ServiceProvider
         Payment::observe(PaymentObserver::class);
         Order::observe(OrderObserver::class);
 
-            $this->commands([
-            RecordPaymentsCommand::class,
-            PromoteEligiblePaymentsCommand::class,
-            CreateSettlementsCommand::class,
-            ReconcileTransfersCommand::class,
-            ReconcileLedgerCommand::class,
-        ]);
-
         if ($this->app->runningInConsole()) {
             $this->commands([
+                RecordPaymentsCommand::class,
+                PromoteEligiblePaymentsCommand::class,
+                CreateSettlementsCommand::class,
+                ReconcileTransfersCommand::class,
+                ReconcileLedgerCommand::class,
                 CreateAdminTokenCommand::class,
                 SeedTestDataCommand::class,
             ]);

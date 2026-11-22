@@ -19,6 +19,8 @@ class SubscriptionPayment extends Model
         'pharmacy_id',
         'subscription_plan_id',
         'reference',
+        'gateway',
+        'gateway_reference',
         'status',
         'amount',
         'gateway_response',

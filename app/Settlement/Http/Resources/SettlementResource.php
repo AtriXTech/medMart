@@ -35,6 +35,7 @@ final class SettlementResource extends JsonResource
             'failure_reason' => $this->failure_reason,
             'hold_reason' => $this->hold_reason,
             'attempts' => (int) $this->attempts,
+            'gateway' => $this->gateway,
             'gateway_reference' => $this->when($admin, $this->gateway_reference),
             'processed_at' => $this->processed_at?->toIso8601String(),
             'initiated_at' => $this->initiated_at?->toIso8601String(),

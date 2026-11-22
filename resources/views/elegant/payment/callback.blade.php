@@ -77,28 +77,48 @@
 
     <script src="{{ asset('assets/minimal/js/api.js') }}"></script>
     <script>
+        const MAX_ATTEMPTS = 6;
+        const RETRY_DELAY_MS = 3000;
+
+        function wait(ms) {
+            return new Promise(function (resolve) { setTimeout(resolve, ms); });
+        }
+
         async function verifyPayment() {
             const urlParams = new URLSearchParams(window.location.search);
-            const reference = urlParams.get('reference') || urlParams.get('trxref');
+            const reference = urlParams.get('reference') || urlParams.get('trxref') || urlParams.get('orderReference');
 
             if (!reference) {
                 showError('No payment reference found.');
                 return;
             }
 
-            try {
-                const result = await Api.post('/staff/subscription/verify-payment', {
-                    reference: reference
-                });
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                try {
+                    const result = await Api.post('/staff/subscription/verify-payment', {
+                        reference: reference
+                    });
 
-                if (result.status === 'success' || result.message === 'Payment verified') {
-                    showSuccess('Your subscription has been activated successfully!');
-                } else {
-                    showError('Payment could not be verified. Please contact support.');
+                    if (result.status === 'success' || result.message === 'Payment verified') {
+                        showSuccess('Your subscription has been activated successfully!');
+                        return;
+                    }
+
+                    if (result.status !== 'pending') {
+                        showError(result.message || 'Payment could not be verified. Please contact support.');
+                        return;
+                    }
+                } catch (error) {
+                    showError(error.message || 'Unable to verify payment.');
+                    return;
                 }
-            } catch (error) {
-                showError(error.message || 'Unable to verify payment.');
+
+                if (attempt < MAX_ATTEMPTS) {
+                    await wait(RETRY_DELAY_MS);
+                }
             }
+
+            showError('We have not received this payment yet. If you were charged, your subscription will be activated automatically shortly.');
         }
 
         function showSuccess(message) {

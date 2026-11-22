@@ -24,6 +24,7 @@ final class PaymentRowResource extends JsonResource
                 'id' => $this->pharmacy->id,
                 'name' => $this->pharmacy->name,
             ]),
+            'gateway' => $this->getAttribute('gateway'),
             'payment_status' => $this->status instanceof \BackedEnum ? $this->status->value : (string) $this->status,
             'settlement_status' => $this->getAttribute('settlement_status'),
             'gross_kobo' => (int) $this->getAttribute('gross_kobo'),

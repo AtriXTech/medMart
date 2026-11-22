@@ -91,7 +91,7 @@
                             </div>
                         </div>
                         <div>
-                            <label for="fee-bearer" class="mb-1 block text-[12px] font-semibold text-[#171E26]/60">Paystack fee is paid by</label>
+                            <label for="fee-bearer" class="mb-1 block text-[12px] font-semibold text-[#171E26]/60">Gateway fee is paid by</label>
                             <select id="fee-bearer" class="w-full rounded-xl border border-[#EAF1FB] px-3 py-2 text-[13px]">
                                 <option value="pharmacy">Pharmacy (deducted from payout)</option>
                                 <option value="platform">Platform (absorbed)</option>
@@ -106,13 +106,13 @@
             <div id="gateway-card" class="rounded-2xl border border-[#EAF1FB] bg-white p-5 shadow-sm" style="display: none;">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <p class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Paystack balance (live from Paystack)</p>
+                        <p class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#171E26]/40">Payout gateway balance (live)</p>
                         <p id="gateway-balance-text" class="font-manrope text-[20px] font-extrabold"></p>
                         <p id="gateway-error-text" class="mt-1 text-[12px] text-[#9C3A32]"></p>
                     </div>
                     <button type="button" id="gateway-refresh-btn" class="rounded-xl border border-[#EAF1FB] px-3 py-2 text-[12.5px] font-semibold hover:bg-[#F3F7FC] disabled:opacity-60">Refresh balance</button>
                 </div>
-                <p class="mt-3 text-[12px] text-[#171E26]/45">Transfers need this balance to cover the payout plus Paystack's transfer fee. Top up your test balance from the Paystack dashboard (test mode) if it is too low.</p>
+                <p class="mt-3 text-[12px] text-[#171E26]/45">Transfers need this balance to cover the payout plus the gateway's transfer fee. Top up the balance from your payout gateway dashboard if it is too low.</p>
             </div>
 
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -179,7 +179,7 @@
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
                     <option value="on_hold">On hold</option>
-                    <option value="success">Success</option>
+                    <option value="settled">Settled</option>
                     <option value="failed">Failed</option>
                     <option value="reversed">Reversed</option>
                     <option value="cancelled">Cancelled</option>
@@ -364,6 +364,12 @@
             superseded: ['#F1F3F5', '#5B6570'],
             refunded: ['#F1F3F5', '#5B6570'],
         };
+
+        const GATEWAY_LABELS = { paystack: 'Paystack', nomba: 'Nomba' };
+
+        function gatewayLabel(name) {
+            return name ? (GATEWAY_LABELS[name] || String(name)) : '';
+        }
 
         function esc(value) {
             return String(value === null || value === undefined ? '' : value)
@@ -657,13 +663,14 @@
                 return;
             }
             const isTest = g.mode === 'test';
+            const gatewayLabel = g.gateway_label || 'Gateway';
             banner.style.display = 'block';
             banner.style.background = isTest ? '#E9F8EF' : '#FDEDEC';
             banner.style.borderColor = isTest ? '#BFE6CF' : '#F5C6C2';
             banner.style.color = isTest ? '#1F7A44' : '#9C3A32';
             banner.innerHTML = isTest
-                ? '<strong>Paystack TEST mode.</strong> No real money moves. Replay buttons are available.'
-                : '<strong>Paystack LIVE mode.</strong> Transfers send real money. Replay buttons are disabled.';
+                ? '<strong>' + gatewayLabel + ' TEST mode.</strong> No real money moves. Replay buttons are available.'
+                : '<strong>' + gatewayLabel + ' LIVE mode.</strong> Transfers send real money. Replay buttons are disabled.';
             card.style.display = 'block';
             document.getElementById('gateway-balance-text').textContent = g.balance_kobo === null ? 'Unavailable' : money(g.balance_kobo);
             document.getElementById('gateway-error-text').textContent = g.error || '';
@@ -844,7 +851,7 @@
             const id = button.dataset.id;
 
             if (button.dataset.action === 'approve') {
-                const values = await ask({ title: 'Approve settlement account', message: 'This creates a Paystack transfer recipient. If the pharmacy already has an approved account, payouts pause for the security cooldown.', confirmText: 'Approve' });
+                const values = await ask({ title: 'Approve settlement account', message: 'This validates the account with the payout gateway. If the pharmacy already has an approved account, payouts pause for the security cooldown.', confirmText: 'Approve' });
                 if (!values) return;
                 button.disabled = true;
                 try {
@@ -891,7 +898,7 @@
                     return view + actionButton('retry', row.id, 'Verify', 'primary') + (test ? replayButton(row.id, 'success', 'Replay success', 'neutral') + replayButton(row.id, 'failed', 'Replay failed', 'danger') : '');
                 case 'on_hold':
                     return view + actionButton('release', row.id, 'Release', 'primary') + actionButton('cancel', row.id, 'Cancel', 'danger');
-                case 'success':
+                case 'settled':
                     return view + (test ? replayButton(row.id, 'reversed', 'Replay reversed', 'danger') : '');
                 case 'failed':
                 case 'reversed':
@@ -917,7 +924,7 @@
                 settlementsBody.innerHTML = rows.length ? rows.map(function (row) {
                     const note = row.status === 'on_hold' ? row.hold_reason : row.failure_reason;
                     return `<tr class="border-b border-[#F3F7FC] last:border-0">
-                        <td class="py-3 pr-4 text-[12px]">${esc(row.reference)}</td>
+                        <td class="py-3 pr-4 text-[12px]">${esc(row.reference)}${row.gateway ? `<span class="block text-[11px] text-[#171E26]/40">${esc(gatewayLabel(row.gateway))}</span>` : ''}</td>
                         <td class="py-3 pr-4 text-[13px]">${row.pharmacy ? esc(row.pharmacy.name) : esc(row.pharmacy_id)}<span class="block text-[11px] text-[#171E26]/40">ID ${esc(row.pharmacy_id)}</span></td>
                         <td class="py-3 pr-4 text-[13px] font-semibold">${money(row.net_kobo)}</td>
                         <td class="py-3 pr-4">${badge(row.status)}${note ? `<span class="block max-w-[220px] text-[11px] text-[#171E26]/45">${esc(note)}</span>` : ''}</td>
@@ -962,7 +969,8 @@
                         <div>
                             ${row('Account', s.account ? esc(s.account.bank_name) + ' · ' + esc(s.account.account_number) : '—')}
                             ${row('Account name', s.account ? esc(s.account.account_name) : '—')}
-                            ${row('Paystack transfer', esc(s.gateway_reference || '—'))}
+                            ${row('Gateway', esc(gatewayLabel(s.gateway) || '—'))}
+                            ${row('Gateway transfer', esc(s.gateway_reference || '—'))}
                             ${row('Attempts', esc(s.attempts))}
                             ${row('Created', esc(dateTime(s.created_at)))}
                             ${row('Processed', esc(dateTime(s.processed_at)))}
@@ -999,7 +1007,7 @@
                 const event = button.dataset.event;
                 const confirmed = await ask({
                     title: 'Replay transfer.' + event,
-                    message: 'Test key only. This feeds the same event Paystack would send for this transfer into the webhook handler.',
+                    message: 'Test environment only. This feeds the same event the gateway would send for this transfer into the webhook handler.',
                     confirmText: 'Replay',
                     danger: event !== 'success',
                 });
@@ -1022,7 +1030,7 @@
             let success = 'Done.';
 
             if (action === 'retry') {
-                values = await ask({ title: 'Retry settlement', message: 'Pending settlements are dispatched, processing ones are verified with Paystack, and failed ones are re-batched.', confirmText: 'Retry' });
+                values = await ask({ title: 'Retry settlement', message: 'Pending settlements are dispatched, processing ones are verified with the gateway, and failed ones are re-batched.', confirmText: 'Retry' });
                 if (!values) return;
                 success = 'Retry requested.';
             } else if (action === 'hold') {
@@ -1090,7 +1098,7 @@
                     const fees = row.gross_kobo - row.net_kobo;
                     const status = row.settlement_status || 'unrecorded';
                     return `<tr class="border-b border-[#F3F7FC] last:border-0">
-                        <td class="py-3 pr-4 text-[13px] font-semibold">#${esc(row.id)}<span class="block text-[11px] font-normal text-[#171E26]/40">Order #${esc(row.order_id)}</span></td>
+                        <td class="py-3 pr-4 text-[13px] font-semibold">#${esc(row.id)}<span class="block text-[11px] font-normal text-[#171E26]/40">Order #${esc(row.order_id)}${row.gateway ? ' · ' + esc(gatewayLabel(row.gateway)) : ''}</span></td>
                         <td class="py-3 pr-4 text-[13px]">${row.pharmacy ? esc(row.pharmacy.name) : esc(row.pharmacy_id)}</td>
                         <td class="py-3 pr-4 text-[13px]">${row.gross_kobo ? money(row.gross_kobo) : '—'}</td>
                         <td class="py-3 pr-4 text-[13px]">${row.gross_kobo ? money(fees) : '—'}</td>
@@ -1129,7 +1137,7 @@
                     message: 'The full amount is refunded to the customer and reversed from the pharmacy ledger. If it was already paid out, the amount is deducted from the next payout.',
                     fields: [
                         { name: 'reason', label: 'Reason', type: 'textarea', required: true },
-                        { name: 'via_gateway', label: 'Also refund through Paystack', type: 'checkbox', value: true },
+                        { name: 'via_gateway', label: 'Also refund through the payment gateway', type: 'checkbox', value: true },
                     ],
                     confirmText: 'Refund',
                     danger: true,
@@ -1173,8 +1181,6 @@
         function renderPharmacy(data) {
             const p = data.pharmacy;
             const b = data.balance;
-            // console.log(p);
-            // console.log(data);
             document.getElementById('pharmacy-name').textContent = p.name + (p.is_test_account ? ' (test account)' : '');
             document.getElementById('pharmacy-balance').innerHTML =
                 tile('Ledger balance', b.ledger_balance_kobo) +

@@ -80,7 +80,6 @@ final class SettlementBatchService
                 ->withoutGlobalScopes()
                 ->where('pharmacy_id', $pharmacyId)
                 ->where('status', AccountStatus::Approved->value)
-                ->whereNotNull('paystack_recipient_code')
                 ->orderByDesc('id')
                 ->first();
 
@@ -202,11 +201,10 @@ final class SettlementBatchService
             ->withoutGlobalScopes()
             ->where('pharmacy_id', $pharmacyId)
             ->where('status', AccountStatus::Approved->value)
-            ->whereNotNull('paystack_recipient_code')
             ->exists();
 
         if (! $hasAccount) {
-            return 'No approved settlement account with a Paystack recipient. Approve one in Account Review.';
+            return 'No approved settlement account. Approve one in Account Review.';
         }
 
         $eligible = Payment::query()

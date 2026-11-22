@@ -16,7 +16,8 @@ class VerifyPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reference' => ['required', 'string', 'max:255'],
+            'reference' => ['required_without:orderReference', 'nullable', 'string', 'max:255'],
+            'orderReference' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

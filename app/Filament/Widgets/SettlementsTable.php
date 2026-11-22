@@ -47,6 +47,13 @@ class SettlementsTable extends TableWidget
                     ->label('Amount')
                     ->money('NGN')
                     ->sortable(),
+
+                TextColumn::make('gateway')
+                    ->label('Gateway')
+                    ->badge()
+                    ->color('gray')
+                    ->state(fn ($record): string => \App\Payments\Enums\Gateway::fromValue($record->gateway)?->label() ?? 'Paystack'),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -90,6 +97,21 @@ class SettlementsTable extends TableWidget
                         'pending' => 'Pending',
                         'failed' => 'Failed',
                     ]),
+
+                SelectFilter::make('gateway')
+                    ->label('Gateway')
+                    ->options(['paystack' => 'Paystack', 'nomba' => 'Nomba'])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
+
+                        if (blank($value)) {
+                            return $query;
+                        }
+
+                        return $value === 'paystack'
+                            ? $query->where(fn (Builder $inner) => $inner->where('gateway', 'paystack')->orWhereNull('gateway'))
+                            : $query->where('gateway', $value);
+                    }),
 
                 SelectFilter::make('pharmacy_id')
                     ->label('Pharmacy')

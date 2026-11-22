@@ -35,7 +35,8 @@ class Transaction extends Model
                 DB::raw("'Customer Order Payment' as type"),
                 'payments.amount',
                 'payments.status',
-                'payments.paystack_reference as gateway_reference',
+                DB::raw('COALESCE(payments.gateway_reference, payments.paystack_reference) as gateway_reference'),
+                'payments.gateway',
                 'payments.created_at',
             ])
             ->unionAll(
@@ -47,7 +48,8 @@ class Transaction extends Model
                         DB::raw("'Subscription Payment' as type"),
                         'subscription_payments.amount',
                         'subscription_payments.status',
-                        DB::raw('NULL as gateway_reference'),
+                        'subscription_payments.gateway_reference',
+                        'subscription_payments.gateway',
                         'subscription_payments.created_at',
                     ])
             );

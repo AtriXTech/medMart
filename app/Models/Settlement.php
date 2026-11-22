@@ -22,6 +22,7 @@ class Settlement extends Model
         'reference',
         'amount',
         'status',
+        'gateway',
         'gateway_reference',
         'failure_reason',
         'processed_at',

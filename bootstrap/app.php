@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer' => \App\Http\Middleware\EnsureRequestIsFromCustomer::class,
             'has-active-pharmacy' => \App\Http\Middleware\EnsureCustomerHasActivePharmacy::class,
             'verify-paystack-signature' => \App\Http\Middleware\VerifyPaystackSignature::class,
+            'verify-nomba-signature' => \App\Http\Middleware\VerifyNombaSignature::class,
             'subscription-active' => \App\Http\Middleware\EnsurePharmacyHasActiveSubscription::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'admin' => \App\Http\Middleware\EnsureRequestIsFromAdmin::class,

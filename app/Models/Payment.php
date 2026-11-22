@@ -20,6 +20,8 @@ class Payment extends Model
         'pharmacy_id',
         'order_id',
         'reference',
+        'gateway',
+        'gateway_reference',
         'paystack_reference',
         'status',
         'amount',

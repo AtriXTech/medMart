@@ -5,7 +5,6 @@
         $kobo = static fn ($value): string => '₦' . number_format(((int) $value) / 100, 2);
     @endphp
 
-    {{-- Paystack mode --}}
     @if ($gateway)
         @php $isTest = $gateway['mode'] === 'test'; @endphp
 
@@ -14,13 +13,13 @@
             style="border: 1px solid {{ $isTest ? '#BFE6CF' : '#F5C6C2' }}; background: {{ $isTest ? '#E9F8EF' : '#FDEDEC' }}; color: {{ $isTest ? '#1F7A44' : '#9C3A32' }};"
         >
             @if ($isTest)
-                <strong>Paystack TEST mode.</strong> No real money moves.
+                <strong>{{ $gateway['label'] }} TEST mode.</strong> No real money moves.
             @else
-                <strong>Paystack LIVE mode.</strong> Transfers send real money.
+                <strong>{{ $gateway['label'] }} LIVE mode.</strong> Transfers send real money.
             @endif
         </div>
 
-        <x-filament::section heading="Paystack balance (live from Paystack)">
+        <x-filament::section heading="{{ $gateway['label'] }} payout balance (live)">
             <p class="text-xl font-bold text-gray-900">
                 {{ $gateway['balance_kobo'] === null ? 'Unavailable' : $kobo($gateway['balance_kobo']) }}
             </p>
@@ -32,7 +31,8 @@
             @endif
 
             <p class="mt-3 text-sm text-gray-500">
-                Transfers need this balance to cover the payout plus Paystack's transfer fee. Top up your test balance from the Paystack dashboard (test mode) if it is too low.
+                Transfers need this balance to cover the payout plus {{ $gateway['label'] }}'s transfer fee. Top it up from the {{ $gateway['label'] }} dashboard if it is too low.
+                <a href="{{ \App\Filament\Pages\PaymentGateways::getUrl() }}" class="font-medium text-primary-600 underline">Change payout gateway</a>
             </p>
         </x-filament::section>
     @endif
@@ -105,7 +105,7 @@
             </div>
 
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">Paystack fee is paid by</span>
+                <span class="text-sm text-gray-500">Gateway fee is paid by</span>
                 <span class="text-right text-sm font-medium text-gray-900">
                     {{ $controls['gateway_fee_bearer'] === 'platform' ? 'Platform (absorbed)' : 'Pharmacy (deducted from payout)' }}
                 </span>

@@ -112,7 +112,12 @@
             </div>
 
             <div class="flex items-center justify-between gap-4 p-4">
-                <span class="text-sm text-gray-500">Paystack transfer</span>
+                <span class="text-sm text-gray-500">Gateway</span>
+                <span class="text-right text-sm font-medium text-gray-900">{{ \App\Payments\Enums\Gateway::fromValue($settlement->gateway)?->label() ?? ($settlement->gateway_reference ? 'Paystack' : '—') }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 p-4">
+                <span class="text-sm text-gray-500">Gateway transfer reference</span>
                 <span class="text-right text-sm font-medium text-gray-900">{{ $settlement->gateway_reference ?: '—' }}</span>
             </div>
 

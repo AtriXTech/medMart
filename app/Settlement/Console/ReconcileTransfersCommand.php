@@ -11,7 +11,7 @@ final class ReconcileTransfersCommand extends Command
 {
     protected $signature = 'settlement:reconcile-transfers';
 
-    protected $description = 'Verify stuck transfers with Paystack and recover unsubmitted settlements';
+    protected $description = 'Verify stuck transfers with the payout gateway and recover unsubmitted settlements';
 
     public function handle(ReconciliationService $reconciliation): int
     {

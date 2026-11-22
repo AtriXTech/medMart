@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use App\Settlement\Exceptions\PaystackException;
+use App\Payments\Exceptions\GatewayException;
 use App\Settlement\Exceptions\SettlementException;
 use App\Settlement\Services\SettlementAccountService;
 use Filament\Notifications\Notification;
@@ -111,7 +111,7 @@ class SettlementAccountsTable extends TableWidget
                     ->requiresConfirmation()
                     ->modalHeading('Approve Settlement Account')
                     ->modalDescription(
-                        'This creates a Paystack transfer recipient. If the pharmacy already has an approved account, payouts pause for the security cooldown.'
+                        'This validates the account with the payout gateway. If the pharmacy already has an approved account, payouts pause for the security cooldown.'
                     )
                     ->visible(
                         fn(SettlementAccount $record): bool =>
@@ -120,7 +120,7 @@ class SettlementAccountsTable extends TableWidget
                     ->action(function (SettlementAccount $record): void {
                         try {
                             app(SettlementAccountService::class)->approve($record->id, Filament::auth()->user());
-                        } catch (SettlementException | PaystackException $exception) {
+                        } catch (SettlementException | GatewayException $exception) {
                             Notification::make()
                                 ->title('Unable to approve account')
                                 ->body($exception->getMessage())
